@@ -1,0 +1,107 @@
+:root {
+  color-scheme: dark;
+  font-family: "Segoe UI", "Iowan Old Style", Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #07060c;
+  color: #f4ead8;
+}
+
+#game {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#hud {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+}
+
+#title-card {
+  position: absolute;
+  left: 48px;
+  bottom: 56px;
+  max-width: 420px;
+  padding: 22px 24px 20px;
+  background: linear-gradient(180deg, rgba(12, 10, 20, 0.55), rgba(12, 10, 20, 0.28));
+  border: 1px solid rgba(244, 234, 216, 0.18);
+  backdrop-filter: blur(10px);
+}
+
+#title-card.hidden {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: #c9b27a;
+  font-family: "Segoe UI", sans-serif;
+}
+
+h1 {
+  margin: 0 0 10px;
+  font-weight: 500;
+  font-size: 42px;
+  letter-spacing: 0.04em;
+}
+
+.lede,
+.hint {
+  margin: 0;
+  line-height: 1.45;
+  color: rgba(244, 234, 216, 0.82);
+}
+
+.hint {
+  margin-top: 14px;
+  font-size: 13px;
+  font-family: "Segoe UI", sans-serif;
+  color: #9fd6c8;
+}
+
+#crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.55;
+  font-size: 22px;
+  font-weight: 300;
+}
+
+#status {
+  position: absolute;
+  right: 36px;
+  top: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  font-family: "Segoe UI", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 13px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
+}
+
+#prompt {
+  min-height: 16px;
+  color: #9fd6c8;
+}
