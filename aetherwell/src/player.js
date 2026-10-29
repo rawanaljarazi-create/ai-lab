@@ -1,22 +1,30 @@
 import * as THREE from "three";
 import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls.js";
-
-const PLAYER_HEIGHT = 1.7;
-const RADIUS = 0.42;
+import {
+  PLAYER_HEIGHT,
+  RADIUS,
+  applyGravityAndJump,
+  canStandOn,
+  JUMP_BUFFER,
+  resolveFloor,
+} from "./move.js";
 
 export function createPlayer(camera, canvas, colliders) {
   const controls = new PointerLockControls(camera, canvas);
   const velocity = new THREE.Vector3();
   const direction = new THREE.Vector3();
   const keys = new Set();
+  let jumpBuffer = 0;
+  let coyote = 0;
   let grounded = false;
-  let nearCollect = null;
 
-  camera.position.set(0, PLAYER_HEIGHT + 2.4, 18);
+  camera.position.set(0, PLAYER_HEIGHT + 0.6, 16);
 
   document.addEventListener("keydown", (event) => {
-    keys.add(event.code);
     if (event.code === "Space") event.preventDefault();
+    keys.add(event.code);
+    if (event.repeat) return;
+    if (event.code === "Space") jumpBuffer = JUMP_BUFFER;
   });
   document.addEventListener("keyup", (event) => keys.delete(event.code));
 
@@ -31,13 +39,15 @@ export function createPlayer(camera, canvas, colliders) {
   }
 
   function groundHeight(origin) {
+    const feet = origin.y - PLAYER_HEIGHT;
     let best = -40;
     for (const c of colliders) {
       if (!c.walk) continue;
       const { min, max } = c.box;
       if (origin.x < min.x - RADIUS || origin.x > max.x + RADIUS) continue;
       if (origin.z < min.z - RADIUS || origin.z > max.z + RADIUS) continue;
-      if (max.y <= origin.y + 0.35 && max.y > best) best = max.y;
+      if (!canStandOn(feet, origin.y, max.y)) continue;
+      if (max.y > best) best = max.y;
     }
     return best;
   }
@@ -61,11 +71,18 @@ export function createPlayer(camera, canvas, colliders) {
 
     velocity.x = (forward.x * direction.z + right.x * direction.x) * speed;
     velocity.z = (forward.z * direction.z + right.z * direction.x) * speed;
-    velocity.y -= 22 * dt;
-    if (grounded && keys.has("Space")) {
-      velocity.y = 8.2;
-      grounded = false;
-    }
+
+    const jump = applyGravityAndJump({
+      velY: velocity.y,
+      grounded,
+      coyote,
+      jumpBuffer,
+      dt,
+    });
+    velocity.y = jump.velY;
+    coyote = jump.coyote;
+    jumpBuffer = jump.jumpBuffer;
+    grounded = jump.grounded;
 
     const pos = camera.position;
     const nextX = pos.clone();
@@ -78,30 +95,31 @@ export function createPlayer(camera, canvas, colliders) {
 
     pos.y += velocity.y * dt;
     const floor = groundHeight(pos);
-    if (pos.y - PLAYER_HEIGHT <= floor + 0.02) {
-      pos.y = floor + PLAYER_HEIGHT;
-      velocity.y = 0;
-      grounded = true;
-    } else {
-      grounded = false;
-    }
+    const landed = resolveFloor(pos.y - PLAYER_HEIGHT, floor, velocity.y);
+    pos.y = landed.feetY + PLAYER_HEIGHT;
+    velocity.y = landed.velY;
+    grounded = landed.grounded;
 
-    nearCollect = null;
+    let nearShard = null;
     for (const shard of shards) {
       if (shard.taken) continue;
-      if (shard.mesh.position.distanceTo(pos) < 2.2) {
-        nearCollect = shard;
+      if (shard.mesh.position.distanceTo(pos) < 2.7) {
+        nearShard = shard;
         break;
       }
     }
 
-    if (nearCollect && keys.has("KeyE")) {
-      nearCollect.taken = true;
-      nearCollect.mesh.visible = false;
-      nearCollect.glow.visible = false;
+    const nearWell = Math.hypot(pos.x, pos.z) < 5.8 && pos.y < 6;
+    const interact = keys.has("KeyE");
+    if (interact) keys.delete("KeyE");
+
+    if (nearShard && interact) {
+      nearShard.taken = true;
+      nearShard.mesh.visible = false;
+      nearShard.glow.visible = false;
     }
 
-    return nearCollect;
+    return { nearShard, nearWell, interact };
   }
 
   return { controls, update };
