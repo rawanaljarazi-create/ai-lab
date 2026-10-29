@@ -1,0 +1,8 @@
+.deps/
+runtime/
+__pycache__/
+*.dll
+*.zip
+*.bin
+*.log
+*.pyc

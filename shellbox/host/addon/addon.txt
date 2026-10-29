@@ -1,0 +1,6 @@
+"AddonInfo"
+{
+	"name"		"Shellbox"
+	"author_name"	"Shellbox"
+	"info"		"Draws live Fireworks Mania shells inside Garry's Mod."
+}
