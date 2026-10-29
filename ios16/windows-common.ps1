@@ -31,10 +31,30 @@ function Get-Ios16WslDistro {
     return $distro
 }
 
-function Get-Ios16WslPath([string]$Distro, [string]$WindowsPath) {
-    $wslPath = Strip-WslText ((& wsl.exe -d $Distro -- wslpath -a $WindowsPath) | Out-String)
-    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($wslPath)) {
-        Write-Error "Could not convert $WindowsPath into a WSL path."
+function Get-Ios16WslPath([string]$WindowsPath) {
+    # wsl.exe rewrites a Windows path before wslpath sees it, and wslpath then fails.
+    # WSL2 mounts drives at /mnt/<letter>. Build that path here.
+    $full = [System.IO.Path]::GetFullPath($WindowsPath)
+    if ($full -notmatch '^([A-Za-z]):\\(.*)$') {
+        Write-Error "Could not convert $WindowsPath into a WSL path. Use a folder on a drive, such as C:\Users\..."
     }
-    return $wslPath
+    $drive = $Matches[1].ToLowerInvariant()
+    $rest = ($Matches[2] -replace '\\', '/').TrimEnd('/')
+    if ([string]::IsNullOrEmpty($rest)) {
+        return "/mnt/$drive"
+    }
+    return "/mnt/$drive/$rest"
+}
+
+function Resolve-Ios16Dir([string]$Start) {
+    $candidates = @(
+        $Start,
+        (Join-Path $Start "ios16")
+    )
+    foreach ($dir in $candidates) {
+        if (Test-Path -LiteralPath (Join-Path $dir "wsl\setup.sh")) {
+            return (Resolve-Path -LiteralPath $dir).Path
+        }
+    }
+    Write-Error "Could not find wsl\setup.sh in $Start or in $Start\ios16. Unzip the whole repository and run Setup.bat from the ios16 folder."
 }
