@@ -124,8 +124,6 @@ export function buildWorld(scene) {
   arch(-8, -8, 0.7);
   arch(9, -4, -0.5);
 
-  const hello = helloGate();
-
   function tree(x, z, scale = 1) {
     const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22 * scale, 0.3 * scale, 2.4 * scale, 6), wood);
     trunk.position.set(x, 1.2 * scale, z);
@@ -245,68 +243,9 @@ export function buildWorld(scene) {
   moon2.position.set(22, 28, -30);
   scene.add(moon2);
 
-  function helloGate() {
-    const canvas = document.createElement("canvas");
-    canvas.width = 1024;
-    canvas.height = 320;
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#120e18";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = "#c9b27a";
-    ctx.lineWidth = 16;
-    ctx.strokeRect(18, 18, canvas.width - 36, canvas.height - 36);
-    ctx.fillStyle = "#9fd6c8";
-    ctx.font = "600 42px sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("WELCOME", 512, 108);
-    ctx.fillStyle = "#f4ead8";
-    ctx.font = "500 118px serif";
-    ctx.fillText("Hello World", 512, 210);
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-
-    const group = new THREE.Group();
-    const boardMat = new THREE.MeshBasicMaterial({ map: texture });
-    const boards = new THREE.Group();
-    const board = new THREE.Mesh(new THREE.PlaneGeometry(4.8, 1.5), boardMat);
-    const back = board.clone();
-    back.rotation.y = Math.PI;
-    back.position.z = -0.02;
-    boards.add(board, back);
-    boards.position.y = 4.35;
-    group.add(boards);
-
-    const beam = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.16, 0.22), copper);
-    beam.position.y = 5.22;
-    group.add(beam);
-
-    const posts = [];
-    for (const x of [-2.55, 2.55]) {
-      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.14, 5.3, 6), copper);
-      post.position.set(x, 2.65, 0);
-      group.add(post);
-      posts.push(post);
-    }
-
-    const light = new THREE.PointLight(0x9fd6c8, 0.85, 10, 2);
-    light.position.set(0, 4.2, 0.6);
-    group.add(light);
-
-    group.position.set(0, 0, 13.2);
-    scene.add(group);
-    group.updateMatrixWorld(true);
-    for (const post of posts) colliders.push(boxCollider(post));
-
-    return { group, light, baseY: 4.35, boards };
-  }
-
   function animate(t) {
     wellInner.rotation.y = t * 0.35;
     wellGlow.intensity = 1.4 + Math.sin(t * 1.6) * 0.5;
-    hello.boards.position.y = hello.baseY + Math.sin(t * 1.3) * 0.06;
-    hello.light.intensity = 0.7 + Math.sin(t * 1.8) * 0.2;
     for (const shard of shards) {
       if (shard.taken) continue;
       shard.mesh.rotation.y = t * 1.4;
