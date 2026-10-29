@@ -1,0 +1,12 @@
+--- a/qemu/run-ios.sh
++++ b/qemu/run-ios.sh
+@@ -70,7 +70,8 @@ if [ -n "$QEMU_NET" ] && [ "$QEMU_NET" != 0 ]; then
+ fi
+ # the sound device (QEMU 8.2 or newer has one for this machine): the kernel's sink for /dev/hakios-audio
+ SOUND=()
+-if qemu-system-aarch64 -device help 2>/dev/null | grep -q '"virtio-sound-device"'; then
++# AUDIO=off skips this device. virtio-sound cannot be stored in a QEMU snapshot.
++if [ "${AUDIO:-none}" != off ] && qemu-system-aarch64 -device help 2>/dev/null | grep -q '"virtio-sound-device"'; then
+ 	case "${AUDIO:-none}" in
+ 	*.wav) SOUND=(-audiodev "wav,id=snd,path=$(readlink -f "$AUDIO")") ;;
+ 	*) SOUND=(-audiodev "${AUDIO:-none},id=snd") ;;

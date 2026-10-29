@@ -10,5 +10,23 @@ $quoted = $wslHere.Replace("'", "'\''")
 
 Write-Host "Starting iOS 16.5 in $distro. Close the phone window to stop it."
 Write-Host "Hold the left mouse button to touch. H is Home, L is power, Up and Down are volume."
+
+$viewer = Join-Path $env:LOCALAPPDATA "ios16\TigerVNC\vncviewer.exe"
+if (Test-Path -LiteralPath $viewer) {
+    Write-Host "Opening the phone in TigerVNC at 127.0.0.1:1"
+    Start-Process -FilePath powershell.exe -WindowStyle Hidden -ArgumentList @(
+        "-NoProfile", "-Command",
+        @"
+`$viewer = '$viewer'
+`$deadline = (Get-Date).AddMinutes(8)
+while ((Get-Date) -lt `$deadline) {
+    `$client = New-Object System.Net.Sockets.TcpClient
+    try { `$client.Connect('127.0.0.1', 5901); break } catch { Start-Sleep -Seconds 2 } finally { `$client.Dispose() }
+}
+Start-Process -FilePath `$viewer -ArgumentList @('-RemoteResize=0', '127.0.0.1:1')
+"@
+    )
+}
+
 & wsl.exe -d $distro -- bash -lc "bash '$quoted/wsl/run.sh'"
 exit $LASTEXITCODE

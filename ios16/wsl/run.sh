@@ -35,8 +35,26 @@ fi
 export QEMU_EFI QEMU_VARS
 
 export QEMU_RAM_GB="${QEMU_RAM_GB:-7}"
-export QEMU_SMP="${QEMU_SMP:-4}"
+# The system image sits inside a 7 GB guest map. A 6 GB PC cannot commit that
+# without swap, so the smaller code cache and two cores keep the working set down.
+host_mb=$(awk '/^MemTotal:/ { print int($2 / 1024) }' /proc/meminfo)
+if [ "${host_mb:-0}" -lt 8192 ]; then
+	export QEMU_SMP="${QEMU_SMP:-2}"
+	export QEMU_TB_MB="${QEMU_TB_MB:-128}"
+else
+	export QEMU_SMP="${QEMU_SMP:-4}"
+fi
 export CMDLINE="${CMDLINE:-cpus=${QEMU_SMP}}"
+commit_mb=$(awk '/^CommitLimit:/ { print int($2 / 1024) }' /proc/meminfo)
+if [ "${commit_mb:-0}" -lt $((QEMU_RAM_GB * 1024)) ]; then
+	echo "run.sh: the guest needs a ${QEMU_RAM_GB} GB memory map, and Linux can only promise ${commit_mb} MB." >&2
+	echo "run.sh: on a 6 GB Windows PC, %UserProfile%\\.wslconfig should contain:" >&2
+	echo "run.sh:   [wsl2]" >&2
+	echo "run.sh:   memory=4GB" >&2
+	echo "run.sh:   swap=8GB" >&2
+	echo "run.sh: then run wsl --shutdown and start Run.bat again." >&2
+	exit 1
+fi
 
 if [ -n "${IOS16_DISPLAY:-}" ]; then
 	display=(-display "$IOS16_DISPLAY")
@@ -44,9 +62,12 @@ elif [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]; then
 	display=(-display gtk,zoom-to-fit=on)
 else
 	display=(-display vnc=0.0.0.0:1)
-	echo "run.sh: no desktop in this shell. Connect a VNC viewer to port 5901."
-	echo "run.sh: on Windows 11, start Run.bat from the desktop so WSLg can open a window."
+	echo "run.sh: no desktop in this shell. TigerVNC address: 127.0.0.1:1"
+	echo "run.sh: that is display 1. Typing :5901 makes TigerVNC try the wrong port and the connection is refused."
 fi
+
+# virtio-sound cannot be written into a snapshot, so leave it out.
+export AUDIO=off
 
 mkdir -p "$ROOT/logs"
 cd "$ROOT"
