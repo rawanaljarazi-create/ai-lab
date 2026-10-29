@@ -263,3 +263,12 @@ body[data-client="phone"] #touch {
   text-transform: uppercase;
   touch-action: none;
 }
+
+#act {
+  width: 108px;
+  border-radius: 36px;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  padding: 0 8px;
+}
