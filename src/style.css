@@ -62,6 +62,14 @@ h1 {
   letter-spacing: 0.04em;
 }
 
+.hello {
+  margin: 0 0 12px;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.16em;
+  color: #9fd6c8;
+}
+
 .lede,
 .hint {
   margin: 0;
