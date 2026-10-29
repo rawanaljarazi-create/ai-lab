@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>iOS 16 — ai-lab</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,640&family=Outfit:wght@380;500;620&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="sky" aria-hidden="true"></div>
+    <article class="sheet">
+      <a class="back" href="/">Back to ai-lab</a>
+      <p class="mark">Windows virtual machine</p>
+      <h1>iOS 16</h1>
+      <p>
+        iOS 16.5, build 20F66, in a QEMU window. You get the lock screen and
+        the home screen. It does not run in this browser. Start it on a
+        Windows PC from the <code>ios16</code> folder of this repository.
+      </p>
+      <p>
+        There is no Secure Enclave, so an Apple Account cannot sign in. The
+        picture is drawn by the CPU, and the first frames are slow. The window
+        stays up until you close it.
+      </p>
+      <h2>What you need</h2>
+      <ul>
+        <li>Windows 10 or 11, and WSL2 with Ubuntu.</li>
+        <li>About 20 GB free inside WSL, and 16 GB of RAM on the PC.</li>
+      </ul>
+      <h2>Run it</h2>
+      <ol>
+        <li>Install Ubuntu for WSL if you have not already: <code>wsl --install -d Ubuntu</code></li>
+        <li>Open Ubuntu once and create its user.</li>
+        <li>In <code>ios16</code>, double-click <code>Setup.bat</code>. That downloads the restore from Apple and builds the disk images.</li>
+        <li>Double-click <code>Run.bat</code>.</li>
+      </ol>
+      <p>
+        Hold the left mouse button to touch. <code>H</code> is Home,
+        <code>L</code> is power, and the arrow keys are volume. The white
+        Apple logo is the boot splash. The lock screen comes after it.
+      </p>
+      <p>
+        <a href="https://github.com/rawanaljarazi-create/ai-lab/tree/cursor/ios16-wsl-vm-02af/ios16">The folder on GitHub</a>
+      </p>
+    </article>
+  </body>
+</html>
