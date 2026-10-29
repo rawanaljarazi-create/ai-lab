@@ -1,0 +1,14 @@
+--- a/xnuloader/loader.c
++++ b/xnuloader/loader.c
+@@ -3896,8 +3896,9 @@ ramfb_phone_screen(void)
+ 	dma.length = be32(sizeof(cfg));
+ 	dma.address = __builtin_bswap64((uint64_t)(uintptr_t)&cfg);
+ 	*(volatile uint64_t *)(FW_CFG_BASE + 16) = __builtin_bswap64((uint64_t)(uintptr_t)&dma);
+-	if (dma.control != 0) {
+-		print("ramfb: control %x after the request\n", (uint64_t)be32(dma.control));
++	uint32_t control = *(volatile uint32_t *)&dma.control;
++	if (control != 0) {
++		print("ramfb: control %x after the request\n", (uint64_t)be32(control));
+ 		return;
+ 	}
+ 	SCREEN.base = fb;

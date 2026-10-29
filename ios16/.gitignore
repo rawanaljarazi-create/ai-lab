@@ -1,0 +1,7 @@
+# Built on the machine that runs the guest. Never commit Apple's restore or the images made from it.
+hackios/
+*.apfs
+*.dmg
+*.ipsw
+*.img
+logs/

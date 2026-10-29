@@ -11,6 +11,7 @@ npm install
 | [`aetherwell/`](aetherwell) | First-person Three.js twilight mesa. Jump the terraces, gather five wellshards, return to the well, press E, and wake it. | `npm run dev:aetherwell` |
 | [`squishy/`](squishy) | Browser dough you can knead, with a live squelch. | `npm run dev:squishy` |
 | [`shellbox/`](shellbox) | Bridge that draws a Fireworks Mania show inside Garry's Mod. Windows + those two Steam games. Not on Vercel. | See [`shellbox/README.md`](shellbox/README.md) |
+| [`ios16/`](ios16) | iOS 16.5 lock screen and home screen in QEMU. Windows via WSL2. Not on Vercel. | See [`ios16/README.md`](ios16/README.md) |
 | [`site/`](site) | Dashboard that Vercel serves at `/`. | `npm run build:site` then `npm run preview:site` |
 
 `npm run dev` still starts Aetherwell locally.
