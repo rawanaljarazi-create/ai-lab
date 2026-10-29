@@ -38,6 +38,8 @@ test("falling onto a floor still lands and can jump again", () => {
 
 test("prompts walk the player through waking the well", () => {
   assert.equal(promptFor({ collected: 2, nearShard: true, nearWell: false, awake: false }), "Press E to gather the wellshard");
+  assert.equal(promptFor({ collected: 2, nearShard: true, nearWell: false, awake: false, phone: true }), "Tap Gather/Wake to gather the wellshard");
+  assert.equal(promptFor({ collected: 5, nearShard: false, nearWell: true, awake: false, phone: true }), "Tap Gather/Wake to wake the well");
   assert.equal(promptFor({ collected: 5, nearShard: false, nearWell: false, awake: false }), "Return to the well");
   assert.equal(promptFor({ collected: 5, nearShard: false, nearWell: true, awake: false }), "Press E to wake the well");
   assert.equal(promptFor({ collected: 5, nearShard: false, nearWell: true, awake: true }), "The well is awake.");

@@ -43,7 +43,7 @@ export function canStandOn(feetY, headY, surfaceY) {
 }
 
 export function promptFor({ collected, nearShard, nearWell, awake, phone = false, total = 5 }) {
-  const gather = phone ? "Tap Gather" : "Press E";
+  const gather = phone ? "Tap Gather/Wake" : "Press E";
   if (awake) return "The well is awake.";
   if (collected >= total && nearWell) return `${gather} to wake the well`;
   if (collected >= total) return "Return to the well";
