@@ -1,0 +1,8 @@
+@echo off
+cd /d "%~dp0"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0run-windows.ps1"
+if errorlevel 1 (
+  echo.
+  echo The virtual machine did not start.
+  pause
+)
