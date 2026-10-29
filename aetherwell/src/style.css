@@ -11,22 +11,27 @@ html,
 body {
   margin: 0;
   height: 100%;
+  height: 100dvh;
   overflow: hidden;
   background: #07060c;
   color: #f4ead8;
+  touch-action: none;
+  overscroll-behavior: none;
 }
 
 #game {
   display: block;
   width: 100%;
   height: 100%;
+  height: 100dvh;
+  touch-action: none;
 }
 
 #hud {
   pointer-events: none;
   position: fixed;
   inset: 0;
-  z-index: 2;
+  z-index: 4;
 }
 
 #lab-link {
@@ -139,4 +144,122 @@ h1 {
 #prompt {
   min-height: 16px;
   color: #9fd6c8;
+}
+
+#enter {
+  display: none;
+}
+
+#touch {
+  display: none;
+}
+
+body[data-client="phone"] #enter {
+  display: inline-block;
+  pointer-events: auto;
+  margin-top: 16px;
+  border: 1px solid rgba(159, 214, 200, 0.55);
+  background: rgba(159, 214, 200, 0.16);
+  color: #f4ead8;
+  font: 600 14px/1 "Segoe UI", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 16px;
+}
+
+body[data-client="phone"] #title-card,
+body[data-client="phone"] #win-card {
+  left: 16px;
+  right: 16px;
+  top: calc(env(safe-area-inset-top) + 52px);
+  bottom: auto;
+  max-width: none;
+}
+
+body[data-client="phone"] #title-card {
+  pointer-events: auto;
+}
+
+body[data-client="phone"] h1 {
+  font-size: 34px;
+}
+
+body[data-client="phone"] #status {
+  top: calc(env(safe-area-inset-top) + 16px);
+  right: 14px;
+  max-width: 48vw;
+  font-size: 11px;
+}
+
+body[data-client="phone"] #lab-link {
+  top: calc(env(safe-area-inset-top) + 16px);
+  left: 14px;
+}
+
+body[data-client="phone"] #touch {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+#look {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 62%;
+  z-index: 0;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+#stick {
+  position: absolute;
+  left: calc(18px + env(safe-area-inset-left));
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  width: 118px;
+  height: 118px;
+  border-radius: 50%;
+  border: 1px solid rgba(244, 234, 216, 0.28);
+  background: rgba(12, 10, 20, 0.35);
+  z-index: 1;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+#knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(159, 214, 200, 0.85);
+}
+
+#actions {
+  position: absolute;
+  right: calc(18px + env(safe-area-inset-right));
+  bottom: calc(28px + env(safe-area-inset-bottom));
+  display: flex;
+  gap: 12px;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+#jump,
+#act {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 1px solid rgba(244, 234, 216, 0.4);
+  background: rgba(12, 10, 20, 0.45);
+  color: #f4ead8;
+  font: 600 12px/1 "Segoe UI", sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  touch-action: none;
 }

@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <title>Aetherwell</title>
   </head>
   <body>
@@ -15,7 +16,8 @@
           A twilight mesa outpost around a sleeping well. Jump the terraces,
           gather five wellshards, return to the well, and wake the light.
         </p>
-        <p class="hint">Click to enter · WASD move · Shift sprint · Space jump · E collect / wake</p>
+        <p class="hint" id="play-hint">Click to enter · WASD move · Shift sprint · Space jump · E collect / wake</p>
+        <button id="enter" type="button">Tap to walk</button>
       </div>
       <div id="win-card" class="hidden">
         <p class="eyebrow">The outpost is lit</p>
@@ -24,12 +26,20 @@
           Five wellshards sit in the water again. The mesa keeps a pale green
           day for as long as you want to walk it.
         </p>
-        <p class="hint"><a href="/">Back to ai-lab</a> · Esc frees the mouse</p>
+        <p class="hint"><a href="/">Back to ai-lab</a> · <span id="win-hint">Esc frees the mouse</span></p>
       </div>
       <div id="crosshair">+</div>
       <div id="status">
         <span id="shards">Wellshards 0 / 5</span>
         <span id="prompt"></span>
+      </div>
+    </div>
+    <div id="touch">
+      <div id="stick" aria-label="Move"><div id="knob"></div></div>
+      <div id="look" aria-label="Look around"></div>
+      <div id="actions">
+        <button id="jump" type="button">Jump</button>
+        <button id="act" type="button">Gather</button>
       </div>
     </div>
     <canvas id="game"></canvas>
