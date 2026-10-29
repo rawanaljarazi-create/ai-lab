@@ -6,6 +6,8 @@
     { "source": "/aetherwell", "destination": "/aetherwell/index.html" },
     { "source": "/aetherwell/", "destination": "/aetherwell/index.html" },
     { "source": "/squishy", "destination": "/squishy/index.html" },
-    { "source": "/squishy/", "destination": "/squishy/index.html" }
+    { "source": "/squishy/", "destination": "/squishy/index.html" },
+    { "source": "/ios16", "destination": "/ios16/index.html" },
+    { "source": "/ios16/", "destination": "/ios16/index.html" }
   ]
 }
