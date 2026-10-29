@@ -9,26 +9,20 @@ import {
   resolveFloor,
 } from "./move.js";
 
-export function createPlayer(camera, canvas, colliders) {
-  const controls = new PointerLockControls(camera, canvas);
+const PITCH_LIMIT = 1.15;
+
+export function createPlayer(camera, canvas, colliders, { phone, input }) {
+  const controls = phone ? null : new PointerLockControls(camera, canvas);
   const velocity = new THREE.Vector3();
   const direction = new THREE.Vector3();
-  const keys = new Set();
   let jumpBuffer = 0;
   let coyote = 0;
   let grounded = false;
+  let pitch = 0;
 
+  camera.rotation.order = "YXZ";
   camera.position.set(0, PLAYER_HEIGHT + 0.6, 16);
-
-  document.addEventListener("keydown", (event) => {
-    if (event.code === "Space") event.preventDefault();
-    keys.add(event.code);
-    if (event.repeat) return;
-    if (event.code === "Space") jumpBuffer = JUMP_BUFFER;
-  });
-  document.addEventListener("keyup", (event) => keys.delete(event.code));
-
-  canvas.addEventListener("click", () => controls.lock());
+  if (!phone) canvas.addEventListener("click", () => controls.lock());
 
   function collides(origin) {
     const box = new THREE.Box3(
@@ -53,14 +47,17 @@ export function createPlayer(camera, canvas, colliders) {
   }
 
   function update(dt, shards) {
-    const sprint = keys.has("ShiftLeft") || keys.has("ShiftRight");
-    const speed = sprint ? 11 : 6.4;
-    direction.set(0, 0, 0);
-    if (keys.has("KeyW")) direction.z += 1;
-    if (keys.has("KeyS")) direction.z -= 1;
-    if (keys.has("KeyA")) direction.x -= 1;
-    if (keys.has("KeyD")) direction.x += 1;
-    if (direction.lengthSq() > 0) direction.normalize();
+    const sample = input.read();
+    if (phone) {
+      camera.rotation.y += sample.yaw;
+      pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, pitch + sample.pitch));
+      camera.rotation.x = pitch;
+    }
+    if (sample.jump) jumpBuffer = JUMP_BUFFER;
+
+    const speed = sample.sprint ? 11 : 6.4;
+    direction.set(sample.moveX, 0, sample.moveZ);
+    if (direction.lengthSq() > 1) direction.normalize();
 
     const forward = new THREE.Vector3();
     const right = new THREE.Vector3();
@@ -110,17 +107,14 @@ export function createPlayer(camera, canvas, colliders) {
     }
 
     const nearWell = Math.hypot(pos.x, pos.z) < 5.8 && pos.y < 6;
-    const interact = keys.has("KeyE");
-    if (interact) keys.delete("KeyE");
-
-    if (nearShard && interact) {
+    if (nearShard && sample.interact) {
       nearShard.taken = true;
       nearShard.mesh.visible = false;
       nearShard.glow.visible = false;
     }
 
-    return { nearShard, nearWell, interact };
+    return { nearShard, nearWell, interact: sample.interact };
   }
 
-  return { controls, update };
+  return { controls, update, phone };
 }

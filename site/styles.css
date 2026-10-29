@@ -103,9 +103,8 @@ main {
   border: 1px solid rgba(70, 48, 36, 0.12);
 }
 
-.cream p,
 .cream .go {
-  color: #5a4a3a;
+  color: #5b3eaa;
 }
 
 .preview {
@@ -220,7 +219,19 @@ h2 {
 .copy p {
   margin: 0;
   line-height: 1.45;
+}
+
+.night .copy p:not(.status) {
   color: var(--mute);
+}
+
+.cream .copy p:not(.status) {
+  color: #3a2e24;
+}
+
+.cream .status.new {
+  color: #5b3eaa;
+  background: rgba(107, 77, 179, 0.16);
 }
 
 .go {
@@ -230,10 +241,6 @@ h2 {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #9fd6c8;
-}
-
-.cream .go {
-  color: #6b4db3;
 }
 
 footer {
