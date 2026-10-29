@@ -1,0 +1,270 @@
+:root {
+  color-scheme: dark;
+  --ink: #e8dfcf;
+  --mute: rgba(232, 223, 207, 0.72);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: Outfit, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: #09080f;
+  overflow-x: hidden;
+}
+
+.sky {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(900px 420px at 12% -10%, rgba(90, 120, 170, 0.22), transparent 70%),
+    radial-gradient(700px 380px at 90% 0%, rgba(46, 90, 86, 0.2), transparent 65%),
+    linear-gradient(180deg, #141322, #09080f 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+header,
+main,
+footer {
+  position: relative;
+  z-index: 1;
+}
+
+header {
+  padding: 64px 8vw 28px;
+  max-width: 1100px;
+}
+
+.mark {
+  margin: 0 0 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: #c9b27a;
+}
+
+h1 {
+  margin: 0;
+  font-family: Fraunces, Georgia, serif;
+  font-size: clamp(48px, 8vw, 84px);
+  font-weight: 560;
+  letter-spacing: -0.03em;
+}
+
+.lede {
+  max-width: 38rem;
+  margin: 16px 0 0;
+  line-height: 1.5;
+  color: var(--mute);
+  font-size: 18px;
+}
+
+main {
+  padding: 12px 8vw 48px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  max-width: 1100px;
+}
+
+.card {
+  display: grid;
+  grid-template-rows: 210px auto;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 22px;
+  overflow: hidden;
+  min-height: 420px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.night {
+  background: #12101c;
+  border: 1px solid rgba(159, 214, 200, 0.18);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.cream {
+  background: #f3eadc;
+  color: #2a2218;
+  border: 1px solid rgba(70, 48, 36, 0.12);
+}
+
+.cream p,
+.cream .go {
+  color: #5a4a3a;
+}
+
+.preview {
+  position: relative;
+  overflow: hidden;
+}
+
+.night .preview {
+  background:
+    radial-gradient(circle at 78% 22%, #dfe6ff 0 5px, transparent 6px),
+    linear-gradient(180deg, #151328, #1a1630 40%, #2a2438);
+}
+
+.cream .preview {
+  background: linear-gradient(180deg, #f7f1e6, #e8dcc8);
+}
+
+.moon {
+  position: absolute;
+  right: 18%;
+  top: 18%;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #dce3ff;
+  box-shadow: 0 0 24px rgba(200, 210, 255, 0.45);
+}
+
+.well {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  width: 72px;
+  height: 28px;
+  margin-left: -36px;
+  border-radius: 50%;
+  background: #6ad7c4;
+  box-shadow: 0 0 32px rgba(106, 215, 196, 0.55), 0 -40px 50px rgba(106, 215, 196, 0.2);
+}
+
+.shard {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #e7f7c8;
+  transform: rotate(45deg);
+  box-shadow: 0 0 12px rgba(184, 255, 138, 0.8);
+}
+
+.shard.a {
+  left: 22%;
+  top: 46%;
+}
+
+.shard.b {
+  right: 24%;
+  top: 58%;
+}
+
+.table {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 38%;
+  background: #d7c4a4;
+}
+
+.dough {
+  position: absolute;
+  left: 50%;
+  bottom: 28%;
+  width: 92px;
+  height: 92px;
+  margin-left: -46px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #c9b4f0, #6b4db3 62%, #3d2a74);
+  box-shadow: 12px 18px 20px rgba(70, 40, 90, 0.18);
+}
+
+.copy {
+  padding: 22px 24px 24px;
+}
+
+.status {
+  display: inline-block;
+  margin: 0 0 10px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.live {
+  background: rgba(106, 215, 196, 0.16);
+  color: #9fd6c8;
+}
+
+.new {
+  background: rgba(107, 77, 179, 0.12);
+  color: #6b4db3;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-family: Fraunces, Georgia, serif;
+  font-size: 32px;
+  font-weight: 560;
+}
+
+.copy p {
+  margin: 0;
+  line-height: 1.45;
+  color: var(--mute);
+}
+
+.go {
+  display: inline-block;
+  margin-top: 18px;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9fd6c8;
+}
+
+.cream .go {
+  color: #6b4db3;
+}
+
+footer {
+  padding: 8px 8vw 56px;
+  max-width: 1100px;
+  color: var(--mute);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+footer p {
+  margin: 0 0 8px;
+}
+
+code {
+  font-size: 0.95em;
+  color: #9fd6c8;
+}
+
+@media (max-width: 840px) {
+  header {
+    padding: 40px 22px 18px;
+  }
+
+  main,
+  footer {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+
+  main {
+    grid-template-columns: 1fr;
+  }
+}
