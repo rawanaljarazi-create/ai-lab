@@ -63,7 +63,7 @@ git -C "$ROOT" checkout -f --detach "$COMMIT"
 # or the phone screen is never shown.
 # no-session-timer: SECS=0 omits loader_return_after and the host timeout.
 PATCH_DIR=$(cd "$(dirname "$0")/../patches" && pwd)
-for p in ramfb-volatile.patch no-session-timer.patch download-progress.patch no-virtio-sound.patch; do
+for p in ramfb-volatile.patch no-session-timer.patch download-progress.patch no-virtio-sound.patch serial-logfile.patch; do
 	patch -p1 -d "$ROOT" --forward --batch < "$PATCH_DIR/$p"
 done
 
