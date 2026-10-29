@@ -9,6 +9,6 @@ npm install
 npm run dev:squishy
 ```
 
-Drag to knead, Shift for a firmer thumb, hold Flatten, Space, and use the arrow keys to change squishy.
+Drag to knead, Shift for a firmer thumb, hold Flatten, Space, and use the arrow keys to change squishy. Back to ai-lab returns to the dashboard, the same way Aetherwell does.
 
 On the Vercel dashboard it lives at `/squishy/`.
