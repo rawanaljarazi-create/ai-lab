@@ -1,5 +1,11 @@
 {
   "installCommand": "npm install",
-  "buildCommand": "npm run build -w aetherwell",
-  "outputDirectory": "aetherwell/dist"
+  "buildCommand": "npm run build:site",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/aetherwell", "destination": "/aetherwell/index.html" },
+    { "source": "/aetherwell/", "destination": "/aetherwell/index.html" },
+    { "source": "/squishy", "destination": "/squishy/index.html" },
+    { "source": "/squishy/", "destination": "/squishy/index.html" }
+  ]
 }

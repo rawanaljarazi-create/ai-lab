@@ -12,7 +12,10 @@
     "dev:squishy": "npm run dev -w squishy --",
     "build": "npm run build -w aetherwell && npm run build -w squishy",
     "build:aetherwell": "npm run build -w aetherwell",
-    "build:squishy": "npm run build -w squishy"
+    "build:squishy": "npm run build -w squishy",
+    "build:site": "node scripts/build-site.mjs",
+    "preview:site": "vite preview --outDir dist --port 4170 --host 0.0.0.0 --strictPort",
+    "test": "node --test aetherwell/test/*.test.mjs"
   },
   "devDependencies": {
     "vite": "^5.4.10"

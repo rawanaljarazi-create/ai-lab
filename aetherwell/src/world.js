@@ -72,6 +72,39 @@ export function buildWorld(scene) {
   wellGlow.position.set(0, 2.8, 0);
   scene.add(wellGlow);
 
+  const wellBeam = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.45, 1.35, 32, 20, 1, true),
+    makeMat(0x9ff7e4, {
+      emissive: 0x5ee0c8,
+      emissiveIntensity: 1.1,
+      transparent: true,
+      opacity: 0.32,
+    })
+  );
+  wellBeam.position.y = 17;
+  wellBeam.visible = false;
+  scene.add(wellBeam);
+
+  let awake = false;
+
+  function awaken() {
+    if (awake) return;
+    awake = true;
+    wellLight.intensity = 18;
+    wellLight.distance = 95;
+    wellLight.color.setHex(0xc8fff4);
+    wellGlow.intensity = 8;
+    wellGlow.distance = 40;
+    wellInner.material.emissiveIntensity = 1.7;
+    wellInner.material.opacity = 1;
+    hemi.intensity = 1.28;
+    moon.intensity = 1.05;
+    scene.fog.color.setHex(0x173044);
+    scene.fog.density = 0.008;
+    scene.background.setHex(0x173044);
+    wellBeam.visible = true;
+  }
+
   function terrace(x, z, w, d, h = 0.7) {
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), stone);
     mesh.position.set(x, h / 2, z);
@@ -244,8 +277,14 @@ export function buildWorld(scene) {
   scene.add(moon2);
 
   function animate(t) {
-    wellInner.rotation.y = t * 0.35;
-    wellGlow.intensity = 1.4 + Math.sin(t * 1.6) * 0.5;
+    wellInner.rotation.y = t * (awake ? 0.9 : 0.35);
+    if (awake) {
+      wellGlow.intensity = 7.2 + Math.sin(t * 2.4) * 1.5;
+      wellBeam.material.opacity = 0.26 + Math.sin(t * 1.8) * 0.08;
+      wellBeam.rotation.y = t * 0.18;
+    } else {
+      wellGlow.intensity = 1.4 + Math.sin(t * 1.6) * 0.5;
+    }
     for (const shard of shards) {
       if (shard.taken) continue;
       shard.mesh.rotation.y = t * 1.4;
@@ -257,5 +296,5 @@ export function buildWorld(scene) {
     dust.rotation.y = t * 0.02;
   }
 
-  return { colliders, shards, animate, wellLight };
+  return { colliders, shards, animate, wellLight, awaken, isAwake: () => awake };
 }

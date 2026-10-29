@@ -10,3 +10,5 @@ npm run dev:squishy
 ```
 
 Drag to knead, Shift for a firmer thumb, hold Flatten, Space, and use the arrow keys to change squishy.
+
+On the Vercel dashboard it lives at `/squishy/`.

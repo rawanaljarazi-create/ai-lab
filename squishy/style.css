@@ -18,6 +18,19 @@ html, body {
   touch-action: none;
 }
 
+#lab-link {
+  position: fixed;
+  left: calc(var(--panel) + 28px);
+  top: 20px;
+  z-index: 5;
+  color: #6b4db3;
+  text-decoration: none;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 600;
+}
+
 #world {
   position: fixed;
   inset: 0;
@@ -258,6 +271,12 @@ button:focus-visible, .mat:focus-visible {
   }
 
   #hint span { display: none; }
+
+  #lab-link {
+    left: auto;
+    right: 16px;
+    top: 14px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

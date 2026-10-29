@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ai-lab</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,640&family=Outfit:wght@380;500;620&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="sky" aria-hidden="true"></div>
+    <header>
+      <p class="mark">Repository experiments</p>
+      <h1>ai-lab</h1>
+      <p class="lede">
+        Two browser pieces from this repo, on one page. Aetherwell is the mesa
+        that was already live. Squishy ships here for the first time.
+      </p>
+    </header>
+    <main>
+      <a class="card night" href="/aetherwell/">
+        <div class="preview" aria-hidden="true">
+          <span class="moon"></span>
+          <span class="well"></span>
+          <span class="shard a"></span>
+          <span class="shard b"></span>
+        </div>
+        <div class="copy">
+          <p class="status live">Live</p>
+          <h2>Aetherwell</h2>
+          <p>
+            First-person twilight mesa. Jump the terraces, gather five
+            wellshards, walk back to the well, and wake it.
+          </p>
+          <span class="go">Play Aetherwell</span>
+        </div>
+      </a>
+      <a class="card cream" href="/squishy/">
+        <div class="preview" aria-hidden="true">
+          <span class="table"></span>
+          <span class="dough"></span>
+        </div>
+        <div class="copy">
+          <p class="status new">New on this site</p>
+          <h2>Squishy</h2>
+          <p>
+            Slow dough in the browser. Knead it, flatten it, and listen to a
+            squelch that only speaks while the body is moving.
+          </p>
+          <span class="go">Play Squishy</span>
+        </div>
+      </a>
+    </main>
+    <footer>
+      <p>
+        Local only: <code>shellbox/</code> draws a Fireworks Mania show inside
+        Garry's Mod. It is not on this page.
+      </p>
+      <p>Install from the repo root with <code>npm install</code>, then <code>npm run dev:aetherwell</code> or <code>npm run dev:squishy</code>.</p>
+    </footer>
+  </body>
+</html>
