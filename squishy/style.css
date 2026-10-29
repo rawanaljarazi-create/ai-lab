@@ -19,16 +19,23 @@ html, body {
 }
 
 #lab-link {
-  position: fixed;
-  left: calc(var(--panel) + 28px);
-  top: 20px;
-  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 16px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(107, 77, 179, 0.28);
+  background: #fff;
   color: #6b4db3;
   text-decoration: none;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: 11px;
   font-weight: 600;
+}
+
+#lab-link:hover {
+  background: #f6f1ff;
 }
 
 #world {
@@ -234,7 +241,7 @@ h1 {
 #flatten:hover, #flatten.is-held { background: #fff; }
 #flatten.is-held { box-shadow: inset 0 0 0 1.5px var(--ink); }
 
-button:focus-visible, .mat:focus-visible {
+button:focus-visible, .mat:focus-visible, #lab-link:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
@@ -271,12 +278,6 @@ button:focus-visible, .mat:focus-visible {
   }
 
   #hint span { display: none; }
-
-  #lab-link {
-    left: auto;
-    right: 16px;
-    top: 14px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
