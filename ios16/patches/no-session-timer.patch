@@ -1,0 +1,40 @@
+--- a/qemu/run-ios.sh
++++ b/qemu/run-ios.sh
+@@ -78,9 +78,16 @@ if qemu-system-aarch64 -device help 2>/dev/null | grep -q '"virtio-sound-device
+ 	SOUND+=(-device virtio-sound-device,audiodev=snd,streams=1)   # one stream: output, no microphone of the host
+ 	CMDLINE="virtio_sound=1 $CMDLINE"
+ fi
++RETURN=()
++LIMIT=$((SECS + 40))
++if [ "$SECS" = 0 ]; then
++	LIMIT=0
++else
++	RETURN=("loader_return_after=$SECS")
++fi
+ xnuloader/mkpayload.py -o qemu/payload.bin kernel=$K ramdisk=$ROOT --rdres "$(printf '%x' "$(stat -c %s "$IMG")")" \
+-	--cmdline "loader_return_after=$SECS epoch=$(date +%s) virtio_input=1 $CMDLINE" >/dev/null || exit 1
+-QEMU_MEM=${RAM_GB}G exec qemu/run.sh $((SECS + 40)) \
++	--cmdline "${RETURN[*]} epoch=$(date +%s) virtio_input=1 $CMDLINE" >/dev/null || exit 1
++QEMU_MEM=${RAM_GB}G exec qemu/run.sh "$LIMIT" \
+ 	-object memory-backend-file,id=ram,size=$RAM_SIZE,mem-path="$PWD/qemu/ram.img",share=off \
+ 	-machine memory-backend=ram \
+ 	-global virtio-mmio.force-legacy=false -device virtio-tablet-device -device virtio-keyboard-device "${NET[@]}" "${SOUND[@]}" \
+--- a/qemu/run.sh
++++ b/qemu/run.sh
+@@ -16,10 +16,14 @@ cp "${QEMU_VARS:-/usr/share/edk2/aarch64/QEMU_VARS.fd}" vars.fd 2>/dev/null
+ # the one built here, or else the one that comes with the repository
+ L=../xnuloader/loader.efi; [ -f $L ] || L=../prebuilt/loader.efi
+ mkdir -p esp/EFI/BOOT && cp -u $L esp/EFI/BOOT/BOOTAA64.EFI
+-timeout "$T" qemu-system-aarch64 -M virt,gic-version=3 -cpu cortex-a76 -smp ${QEMU_SMP:-1} -m ${QEMU_MEM:-6G} \
++cmd=(qemu-system-aarch64 -M virt,gic-version=3 -cpu cortex-a76 -smp "${QEMU_SMP:-1}" -m "${QEMU_MEM:-6G}" \
+   -accel tcg,tb-size=${QEMU_TB_MB:-384} \
+   -drive if=pflash,format=raw,readonly=on,file="$EFI" \
+   -drive if=pflash,format=raw,file=vars.fd \
+   -drive file=fat:rw:esp,format=raw,if=virtio \
+   -device loader,file=payload.bin,addr=0xF0000000,force-raw=on \
+-  -display none -serial stdio -monitor none -no-reboot "$@" 2>&1
++  -display none -serial stdio -monitor none -no-reboot "$@")
++if [ "$T" = 0 ]; then
++	exec "${cmd[@]}" 2>&1
++fi
++exec timeout "$T" "${cmd[@]}" 2>&1

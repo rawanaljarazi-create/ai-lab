@@ -7,6 +7,10 @@ ROOT="${HAKIOS_ROOT:-$HOME/ios16-vm/hackios}"
 URL="${HAKIOS_URL:-https://github.com/oosexgang/hackios-xnu-kernel.git}"
 COMMIT="${HAKIOS_COMMIT:-88513176b1e96ecf0b764cd62c6f4e6ac71345e3}"
 
+if [ -n "${WSL_DISTRO_NAME:-}" ] && ! grep -qi 'microsoft-standard-WSL2' /proc/version; then
+	echo "setup.sh: this is WSL1. From Windows run: wsl --set-version ${WSL_DISTRO_NAME} 2" >&2
+	exit 1
+fi
 if [ -n "${WSL_DISTRO_NAME:-}" ] && [[ "$ROOT" == /mnt/* ]]; then
 	echo "setup.sh: HAKIOS_ROOT is on the Windows drive ($ROOT)." >&2
 	echo "setup.sh: unpacking iOS creates filenames with ':' which NTFS rejects. Use WSL's own disk, for example \$HOME/ios16-vm/hackios." >&2
@@ -28,9 +32,18 @@ fi
 
 $SUDO apt-get update -qq
 $SUDO DEBIAN_FRONTEND=noninteractive apt-get install -y \
-	git python3 build-essential clang lld 7zip \
+	git python3 build-essential clang lld 7zip patch \
 	qemu-system-arm qemu-system-gui qemu-efi-aarch64 \
 	ca-certificates
+
+mem_mb=$(awk '/^MemTotal:/ { print int($2 / 1024) }' /proc/meminfo)
+if [ "${mem_mb:-0}" -lt 12000 ]; then
+	echo "setup.sh: this environment has ${mem_mb} MB of RAM. The guest uses 7 GB." >&2
+	echo "setup.sh: on Windows, create %UserProfile%\\.wslconfig with:" >&2
+	echo "setup.sh:   [wsl2]" >&2
+	echo "setup.sh:   memory=12GB" >&2
+	echo "setup.sh: then run wsl --shutdown and start Setup again." >&2
+fi
 
 command -v 7z >/dev/null
 ver=$(7z | awk 'NR==2 { print $2; exit }')
@@ -46,10 +59,13 @@ if [ ! -d "$ROOT/.git" ]; then
 fi
 git -C "$ROOT" fetch --depth 1 origin "$COMMIT"
 git -C "$ROOT" checkout -f --detach "$COMMIT"
-# The display request is stored through MMIO, then the device clears the control word.
-# Without a volatile reload, clang keeps the old nonzero value, the loader gives up,
-# and iOS draws into a screen QEMU is not showing.
-patch -p1 -d "$ROOT" --forward --batch < "$(dirname "$0")/../patches/ramfb-volatile.patch"
+# ramfb-volatile: clang must re-read the display control word after the MMIO write,
+# or the phone screen is never shown.
+# no-session-timer: SECS=0 omits loader_return_after and the host timeout.
+PATCH_DIR=$(cd "$(dirname "$0")/../patches" && pwd)
+for p in ramfb-volatile.patch no-session-timer.patch; do
+	patch -p1 -d "$ROOT" --forward --batch < "$PATCH_DIR/$p"
+done
 
 if ! command -v lzfse >/dev/null 2>&1 && [ ! -x "$ROOT/xnu-deps/host/bin/lzfse" ]; then
 	tmp=$(mktemp -d)
