@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Squish</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,640&family=Outfit:wght@400;520;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <canvas id="world" aria-label="Squishy on a table. Drag to knead it."></canvas>
+    <aside id="plate">
+      <p class="mark">Real-time squish synthesis</p>
+      <h1 id="name">Nee-Doh</h1>
+      <p id="blurb"></p>
+      <p id="state">Relaxed</p>
+      <div id="specs"></div>
+      <nav id="dock" aria-label="Squishies"></nav>
+    </aside>
+    <section id="scope-wrap" aria-label="Sound engine">
+      <div class="scope-top">
+        <span class="mark" id="scope-label">Sound engine</span>
+        <button id="mute" type="button" aria-pressed="false">Sound on</button>
+      </div>
+      <canvas id="scope" width="480" height="120"></canvas>
+    </section>
+    <div id="hint">
+      <button id="flatten" type="button">Hold to flatten</button>
+      <span>Drag to knead · Shift firm thumb · Space · ← → change squishy</span>
+    </div>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
