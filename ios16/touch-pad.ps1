@@ -1,6 +1,11 @@
-# Click and drag on this window. TigerVNC is only the picture: a stream of
-# mouse moves arrives at iOS late enough that the screen ignores them.
-# One tap, or a short swipe, is sent when the button is released.
+# Click and drag on this window. The picture inside it is the phone's screen,
+# snapped every couple of seconds from QEMU's monitor port, so what you tap is
+# what the phone shows. TigerVNC is a bigger, faster copy of the same picture
+# but does not take touch.
+#
+# The window shows immediately and the connection is retried forever: if the
+# input port is busy or the VM restarts, this window reports it in the status
+# line and reconnects by itself.
 if ([Threading.Thread]::CurrentThread.ApartmentState -ne 'STA') {
     Start-Process -FilePath powershell.exe -ArgumentList @(
         '-NoProfile', '-Sta', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath
@@ -12,24 +17,11 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 $script:client = $null
+$script:stream = $null
 $script:reader = $null
 $script:writer = $null
-
-function Wait-Qmp {
-    $deadline = (Get-Date).AddMinutes(8)
-    while ((Get-Date) -lt $deadline) {
-        $probe = New-Object System.Net.Sockets.TcpClient
-        try {
-            $probe.Connect('127.0.0.1', 4445)
-            return $true
-        } catch {
-            Start-Sleep -Seconds 1
-        } finally {
-            $probe.Dispose()
-        }
-    }
-    return $false
-}
+$script:pngPath = '\\wsl$\Ubuntu\tmp\ios16-mirror.png'
+$script:pngStamp = 0
 
 function Read-QmpResult {
     while ($true) {
@@ -40,7 +32,7 @@ function Read-QmpResult {
 }
 
 function Send-Qmp([string]$json) {
-    if ($null -eq $script:writer) { throw 'The phone is not connected.' }
+    if ($null -eq $script:writer) { throw 'The phone is not connected yet.' }
     $script:writer.WriteLine($json)
     $reply = Read-QmpResult
     if ($reply.Contains('"error"')) { throw 'The phone rejected an input event.' }
@@ -87,22 +79,9 @@ function Send-Key([string]$name) {
     }
 }
 
-function Connect-Phone {
-    $script:client = New-Object System.Net.Sockets.TcpClient
-    $script:client.Connect('127.0.0.1', 4445)
-    $script:client.ReceiveTimeout = 3000
-    $stream = $script:client.GetStream()
-    $script:reader = New-Object System.IO.StreamReader($stream)
-    $script:writer = New-Object System.IO.StreamWriter($stream)
-    $script:writer.NewLine = "`n"
-    $script:writer.AutoFlush = $true
-    $null = $script:reader.ReadLine()
-    Send-Qmp '{"execute":"qmp_capabilities"}'
-}
-
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'iPhone touch'
-$form.ClientSize = New-Object System.Drawing.Size(320, 700)
+$form.ClientSize = New-Object System.Drawing.Size(320, 780)
 $form.FormBorderStyle = 'FixedSingle'
 $form.MaximizeBox = $false
 $form.StartPosition = 'CenterScreen'
@@ -113,7 +92,7 @@ $status.Dock = 'Top'
 $status.Height = 44
 $status.ForeColor = [System.Drawing.Color]::White
 $status.TextAlign = 'MiddleCenter'
-$status.Text = 'Waiting for the phone...'
+$status.Text = 'Starting...'
 $form.Controls.Add($status)
 
 $buttons = New-Object System.Windows.Forms.FlowLayoutPanel
@@ -127,7 +106,16 @@ $pad.Dock = 'Fill'
 $pad.BackColor = [System.Drawing.Color]::FromArgb(10, 10, 12)
 $pad.Cursor = [System.Windows.Forms.Cursors]::Hand
 $form.Controls.Add($pad)
-$pad.BringToFront()
+
+# The mirror picture fills the touch surface. 320x692 matches the phone
+# screen's shape (1125x2436), so a click's fractional position on the picture
+# is its fractional position on the phone - tap exactly where you see things.
+$pb = New-Object System.Windows.Forms.PictureBox
+$pb.Dock = 'Fill'
+$pb.SizeMode = 'Zoom'
+$pb.BackColor = [System.Drawing.Color]::FromArgb(10, 10, 12)
+$pb.Cursor = [System.Windows.Forms.Cursors]::Hand
+$pad.Controls.Add($pb)
 
 $script:origin = $null
 function Point-Fraction($e) {
@@ -140,6 +128,11 @@ $pad.Add_MouseDown({
     param($sender, $e)
     $script:origin = Point-Fraction $e
 })
+$pb.Add_MouseDown({
+    param($sender, $e)
+    $script:origin = Point-Fraction $e
+})
+
 $pad.Add_MouseUp({
     param($sender, $e)
     if ($null -eq $script:origin) { return }
@@ -151,7 +144,27 @@ $pad.Add_MouseUp({
     try {
         if (($dx * $dx + $dy * $dy) -lt 64) {
             Send-Tap $end.X $end.Y
-            $status.Text = 'Tap sent. Scroll the picture window if the phone is below the fold.'
+            $status.Text = 'Tap sent.'
+        } else {
+            Send-Swipe $start.X $start.Y $end.X $end.Y
+            $status.Text = 'Swipe sent.'
+        }
+    } catch {
+        $status.Text = $_.Exception.Message
+    }
+})
+$pb.Add_MouseUp({
+    param($sender, $e)
+    if ($null -eq $script:origin) { return }
+    $end = Point-Fraction $e
+    $start = $script:origin
+    $script:origin = $null
+    $dx = ($end.X - $start.X) * $pad.ClientSize.Width
+    $dy = ($end.Y - $start.Y) * $pad.ClientSize.Height
+    try {
+        if (($dx * $dx + $dy * $dy) -lt 64) {
+            Send-Tap $end.X $end.Y
+            $status.Text = 'Tap sent.'
         } else {
             Send-Swipe $start.X $start.Y $end.X $end.Y
             $status.Text = 'Swipe sent.'
@@ -184,18 +197,143 @@ foreach ($item in @(
     $buttons.Controls.Add($button)
 }
 
-if (Wait-Qmp) {
+# --- mirror: swap in a frame whenever the grabber wrote a newer picture ---
+function Show-MirrorFrame {
+    if (-not (Test-Path -LiteralPath $script:pngPath)) { return }
+    $stamp = (Get-Item -LiteralPath $script:pngPath).LastWriteTimeUtc.Ticks
+    if ($stamp -le $script:pngStamp) { return }
     try {
-        Connect-Phone
-        $status.Text = 'Click or drag here. The other window is the picture.'
+        $bytes = [System.IO.File]::ReadAllBytes($script:pngPath)
+        $ms = New-Object System.IO.MemoryStream (,$bytes)
+        $bmp = New-Object System.Drawing.Bitmap($ms)
+        $ms.Dispose()
+        $old = $pb.Image
+        $pb.Image = $bmp
+        if ($old) { $old.Dispose() }
+        $script:pngStamp = $stamp
+        if ($script:step -eq 'ready') {
+            $status.Text = 'Drag or tap the picture. TigerVNC is a bigger view.'
+        }
     } catch {
-        $status.Text = $_.Exception.Message
+        # a torn copy or a hiccup; the grabber writes the next frame anyway
     }
-} else {
-    $status.Text = 'The phone input port never opened.'
 }
-$form.Add_FormClosed({
-    if ($script:client) { $script:client.Dispose() }
+
+# --- connection engine: driven by a timer, so the window is never frozen ---
+$script:step = 'idle'
+$script:since = Get-Date
+
+function Retry-Later([string]$message) {
+    try { if ($script:client) { $script:client.Close() } } catch {}
+    $script:client = $null
+    $script:stream = $null
+    $script:reader = $null
+    $script:writer = $null
+    $script:step = 'idle'
+    $status.Text = $message
+}
+
+function Phone-Gone {
+    # The VM closed the connection (still running? then this is a busy port).
+    $lost = $false
+    try {
+        $sock = $script:client.Client
+        if ($sock.Poll(0, [System.Net.Sockets.SelectMode]::SelectRead) -and (-not $script:stream.DataAvailable)) {
+            $lost = $true
+        }
+    } catch {
+        $lost = $true
+    }
+    return $lost
+}
+
+function Expired([int]$seconds) {
+    return (((Get-Date) - $script:since).TotalSeconds -gt $seconds)
+}
+
+$engine = New-Object System.Windows.Forms.Timer
+$engine.Interval = 500
+$engine.Add_Tick({
+    Show-MirrorFrame
+    switch ($script:step) {
+        'idle' {
+            $status.Text = 'Waiting for the phone...'
+            $script:client = New-Object System.Net.Sockets.TcpClient
+            try {
+                $script:client.Connect('127.0.0.1', 4445)
+                $script:client.ReceiveTimeout = 3000
+                $script:stream = $script:client.GetStream()
+                $script:reader = New-Object System.IO.StreamReader($script:stream)
+                $script:writer = New-Object System.IO.StreamWriter($script:stream)
+                $script:writer.NewLine = "`n"
+                $script:writer.AutoFlush = $true
+                $script:step = 'greeting'
+                $script:since = Get-Date
+            } catch {
+                $script:client.Dispose()
+                $script:client = $null
+                $script:step = 'idle'   # the VM is not up yet; the tick retries
+            }
+        }
+        'greeting' {
+            if (Phone-Gone -or (Expired 5)) {
+                Retry-Later 'The input port is busy, retrying...'
+                return
+            }
+            try {
+                while ($script:stream.DataAvailable) {
+                    $line = $script:reader.ReadLine()
+                    if ([string]::IsNullOrEmpty($line)) { Retry-Later 'The phone closed the connection.'; return }
+                    if ($line.Contains('"QMP"')) {
+                        $script:writer.WriteLine('{"execute":"qmp_capabilities"}')
+                        $script:step = 'capabilities'
+                        $script:since = Get-Date
+                    }
+                }
+            } catch { Retry-Later 'The input port is busy, retrying...' }
+        }
+        'capabilities' {
+            if (Phone-Gone -or (Expired 5)) {
+                Retry-Later 'The input port is busy, retrying...'
+                return
+            }
+            try {
+                while ($script:stream.DataAvailable) {
+                    $line = $script:reader.ReadLine()
+                    if ([string]::IsNullOrEmpty($line)) { Retry-Later 'The phone closed the connection.'; return }
+                    if ($line.Contains('"return"')) {
+                        $script:step = 'ready'
+                        $status.Text = 'Drag or tap the picture. TigerVNC is a bigger view.'
+                    } elseif ($line.Contains('"error"')) {
+                        Retry-Later 'The phone refused the controller.'
+                    }
+                }
+            } catch { Retry-Later 'The input port is busy, retrying...' }
+        }
+        'ready' {
+            if (Phone-Gone) {
+                Retry-Later 'The phone stopped. Waiting for it to come back...'
+            }
+        }
+    }
 })
 
+# Frame grabber: one hidden helper that snapshots the screen every 2 seconds.
+# It exits by itself when this pad closes (its OwnerId dies).
+$mirror = Join-Path $PSScriptRoot 'touch-mirror.ps1'
+$script:mirrorProc = $null
+if (Test-Path -LiteralPath $mirror) {
+    $script:mirrorProc = Start-Process -FilePath powershell.exe -ArgumentList @(
+        '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $mirror, '-OwnerId', "$PID"
+    ) -WindowStyle Hidden -PassThru
+}
+
+$form.Add_FormClosed({
+    if ($script:client) { $script:client.Dispose() }
+    if ($script:mirrorProc) {
+        Stop-Process -Id $script:mirrorProc.Id -Force -ErrorAction SilentlyContinue
+    }
+})
+
+$engine.Start()
 [void]$form.ShowDialog()

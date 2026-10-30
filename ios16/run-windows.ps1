@@ -1,6 +1,8 @@
 # Start the iOS 16.5 virtual machine. The window stays up until you close it.
 # Double-click Run.bat, or from this folder:
 #   powershell -ExecutionPolicy Bypass -File .\run-windows.ps1
+# If the phone is already running, this only opens the picture and the touch
+# pad again (Run.bat twice is a safe thing to do).
 . "$PSScriptRoot\windows-common.ps1"
 
 $distro = Get-Ios16WslDistro
@@ -8,9 +10,28 @@ $here = Resolve-Ios16Dir $PSScriptRoot
 $wslHere = Get-Ios16WslPath $here
 $quoted = $wslHere.Replace("'", "'\''")
 
-Write-Host "Starting iOS 16.5 in $distro. Close the phone window to stop it."
-Write-Host "Click and drag in the iPhone touch window. TigerVNC is the picture."
-Write-Host "Home, Power, and volume are buttons on that window."
+# Is a phone already running? QMP answers within a second when it is.
+$phoneRunning = $false
+$probe = New-Object System.Net.Sockets.TcpClient
+try {
+    $probe.Connect('127.0.0.1', 4445)
+    $phoneRunning = $true
+} catch {
+} finally {
+    $probe.Dispose()
+}
+
+# Remove pads from a previous launch, then start a fresh one. The pad is the
+# controller on Windows 10 (TigerVNC is only the picture on this setup).
+$touchPad = Join-Path $PSScriptRoot 'touch-pad.ps1'
+if (Test-Path -LiteralPath $touchPad) {
+    Get-CimInstance Win32_Process -Filter "Name = 'powershell.exe'" |
+        Where-Object { $_.CommandLine -match 'touch-pad\.ps1' } |
+        ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+    Start-Process -FilePath powershell.exe -ArgumentList @(
+        '-NoProfile', '-Sta', '-ExecutionPolicy', 'Bypass', '-File', $touchPad
+    )
+}
 
 $viewer = Join-Path $env:LOCALAPPDATA "ios16\TigerVNC\vncviewer.exe"
 if (Test-Path -LiteralPath $viewer) {
@@ -29,15 +50,15 @@ Start-Process -FilePath `$viewer -ArgumentList @('-RemoteResize=0', '-PreferredE
     )
 }
 
-$touchPad = Join-Path $PSScriptRoot 'touch-pad.ps1'
-if (Test-Path -LiteralPath $touchPad) {
-    Get-CimInstance Win32_Process -Filter "Name = 'powershell.exe'" |
-        Where-Object { $_.CommandLine -match 'touch-pad\.ps1' } |
-        ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
-    Start-Process -FilePath powershell.exe -ArgumentList @(
-        '-NoProfile', '-Sta', '-ExecutionPolicy', 'Bypass', '-File', $touchPad
-    )
+if ($phoneRunning) {
+    Write-Host "The phone is already running. The pad and the picture are open."
+    Write-Host "To stop the VM entirely: wsl -d $distro -- pkill -f qemu-system-aarch64"
+    exit 0
 }
+
+Write-Host "Starting iOS 16.5 in $distro. Close the phone window to stop it."
+Write-Host "Click and drag in the iPhone touch window. TigerVNC is the picture."
+Write-Host "Home, Power, and volume are buttons on that window."
 
 & wsl.exe -d $distro -- bash -lc "bash '$quoted/wsl/run.sh'"
 exit $LASTEXITCODE

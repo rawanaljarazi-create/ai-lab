@@ -1,5 +1,7 @@
 # ai-lab
 
+WARNING!!!!!!!!!: For the iOS 16 VM, go to its dedicated branch.
+
 A folder per experiment. The Vercel site is a dashboard: [Aetherwell](https://ai-lab-zeta-lyart.vercel.app/aetherwell/) is the mesa that was already live, and [Squishy](https://ai-lab-zeta-lyart.vercel.app/squishy/) ships on that same site.
 
 ```bash
