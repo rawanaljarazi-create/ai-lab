@@ -1,0 +1,12 @@
+--- a/qemu/run-ios.sh
++++ b/qemu/run-ios.sh
+@@ -91,6 +91,6 @@ fi
+ QEMU_MEM=${RAM_GB}G exec qemu/run.sh "$LIMIT" \
+ 	-object memory-backend-file,id=ram,size=$RAM_SIZE,mem-path="$PWD/qemu/ram.img",share=off \
+ 	-machine memory-backend=ram \
+-	-global virtio-mmio.force-legacy=false -device virtio-tablet-device -device virtio-keyboard-device "${NET[@]}" "${SOUND[@]}" \
+-	-device ramfb -monitor tcp:127.0.0.1:$((4444 + 10 * INSTANCE)),server,nowait \
+-	-qmp tcp:127.0.0.1:$((4445 + 10 * INSTANCE)),server,nowait "$@"
++	-global virtio-mmio.force-legacy=false -device virtio-tablet-device -device virtio-keyboard-device "${NET[@]}" "${SOUND[@]}" \
++	-device ramfb -monitor tcp:127.0.0.1:$((4444 + 10 * INSTANCE)),server,nowait \
++	-qmp tcp:0.0.0.0:$((4445 + 10 * INSTANCE)),server,nowait "$@"

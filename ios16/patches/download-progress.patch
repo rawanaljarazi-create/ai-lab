@@ -1,0 +1,20 @@
+--- a/sysimage/fetch-from-ipsw.py
++++ b/sysimage/fetch-from-ipsw.py
+@@ -64,9 +64,17 @@
+         if have > csize:
+             have = 0
+         if have < csize:
++            print(f'{output}: {have} of {csize} bytes', flush=True)
++            shown = time.time()
+             with fetch(data + have, data + csize - 1) as stream, open(output, 'ab' if have else 'wb') as out:
+                 while chunk := stream.read(1 << 20):
+                     out.write(chunk)
++                    have += len(chunk)
++                    now = time.time()
++                    if now - shown >= 5:
++                        print(f'{output}: {have} of {csize} bytes', flush=True)
++                        shown = now
++            print(f'{output}: {have} of {csize} bytes', flush=True)
+         return os.path.getsize(output)
+     inflater = zlib.decompressobj(-15)
+     written = 0
