@@ -1,0 +1,12 @@
+--- a/qemu/run.sh
++++ b/qemu/run.sh
+@@ -22,7 +22,7 @@ cmd=(qemu-system-aarch64 -M virt,gic-version=3 -cpu cortex-a76 -smp "${QEMU_SMP:-1}" -m "${QEMU_MEM:-6G}" \
+   -drive if=pflash,format=raw,readonly=on,file="$EFI" \
+   -drive if=pflash,format=raw,file=vars.fd \
+   -drive file=fat:rw:esp,format=raw,if=virtio \
+   -device loader,file=payload.bin,addr=0xF0000000,force-raw=on \
+-  -display none -serial stdio -monitor none -no-reboot "$@")
++  -display none -serial file:../logs/serial.log -monitor none -no-reboot "$@")
+ if [ "$T" = 0 ]; then
+ 	exec "${cmd[@]}" 2>&1
+ fi
