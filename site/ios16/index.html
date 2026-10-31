@@ -17,34 +17,54 @@
     <div class="sky" aria-hidden="true"></div>
     <article class="sheet">
       <a class="back" href="/">Back to ai-lab</a>
-      <p class="mark">Windows virtual machine</p>
+      <p class="mark">Virtual machine</p>
       <h1>iOS 16</h1>
       <p>
         iOS 16.5, build 20F66, in a QEMU window. You get the lock screen and
-        the home screen. It does not run in this browser. Start it on a
-        Windows PC from the <code>ios16</code> folder of this repository.
+        the home screen. It does not run in this browser. Start it from the
+        <code>ios16</code> folder on Windows or on Linux.
       </p>
       <p>
         There is no Secure Enclave, so an Apple Account cannot sign in. The
         picture is drawn by the CPU, and the first frames are slow. The window
-        stays up until you close it.
+        stays up until you close it. The phone files are downloaded onto that
+        machine. This site does not host them.
       </p>
-      <h2>What you need</h2>
+      <h2>Windows</h2>
       <ul>
         <li>Windows 10 or 11, and WSL2 with Ubuntu.</li>
-        <li>About 20 GB free inside WSL, and 16 GB of RAM on the PC.</li>
+        <li>About 20 GB free inside WSL, and 16 GB of RAM on the PC. The guest map is 7 GB.</li>
       </ul>
-      <h2>Run it</h2>
       <ol>
         <li>Install Ubuntu for WSL if you have not already: <code>wsl --install -d Ubuntu</code></li>
         <li>Open Ubuntu once and create its user.</li>
-        <li>In <code>ios16</code>, double-click <code>Setup.bat</code>. That downloads the restore from Apple and builds the disk images.</li>
-        <li>Double-click <code>Run.bat</code>.</li>
+        <li>In <code>ios16</code>, double-click <code>Setup.bat</code>. That downloads the restore from Apple and builds the disk images under the Linux home directory.</li>
+        <li>Double-click <code>Run.bat</code>. Windows 11 shows a window. Windows 10 opens TigerVNC at <code>127.0.0.1:1</code>.</li>
       </ol>
+      <h2>Linux</h2>
+      <p>
+        Ubuntu or Debian, on the machine itself, with no WSL layer. Setup installs
+        QEMU, 7-Zip 23, and the UEFI firmware, clones the pinned HakiOS kernel,
+        and downloads the iOS 16.5 restore from Apple into
+        <code>~/ios16-vm/hackios</code>. The guest is an ARM64 phone, so on an
+        Intel or AMD PC the CPU is emulated and the lock screen is slow.
+        16 GB of RAM is comfortable. 8 GB still boots, and it will swap.
+      </p>
+      <p>
+        Run Setup from the repository root, then start the guest from a desktop
+        terminal so a window opens. An SSH shell with no display serves the
+        picture over VNC at <code>127.0.0.1:1</code> (port 5901).
+      </p>
+      <ol>
+        <li><code>bash ios16/wsl/setup.sh</code></li>
+        <li><code>bash ios16/wsl/run.sh</code></li>
+      </ol>
+      <h2>Once it is up</h2>
       <p>
         Hold the left mouse button to touch. <code>H</code> is Home,
         <code>L</code> is power, and the arrow keys are volume. The white
         Apple logo is the boot splash. The lock screen comes after it.
+        Close the window to stop the guest.
       </p>
       <p>
         <a href="https://github.com/rawanaljarazi-create/ai-lab/tree/main/ios16">The folder on GitHub</a>

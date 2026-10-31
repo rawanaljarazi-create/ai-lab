@@ -38,11 +38,13 @@ $SUDO DEBIAN_FRONTEND=noninteractive apt-get install -y \
 
 mem_mb=$(awk '/^MemTotal:/ { print int($2 / 1024) }' /proc/meminfo)
 if [ "${mem_mb:-0}" -lt 12000 ]; then
-	echo "setup.sh: this environment has ${mem_mb} MB of RAM. The guest uses 7 GB." >&2
-	echo "setup.sh: on Windows, create %UserProfile%\\.wslconfig with:" >&2
-	echo "setup.sh:   [wsl2]" >&2
-	echo "setup.sh:   memory=12GB" >&2
-	echo "setup.sh: then run wsl --shutdown and start Setup again." >&2
+	echo "setup.sh: this machine has ${mem_mb} MB of RAM. The guest map is 7 GB, so 16 GB is comfortable and 8 GB will swap." >&2
+	if [ -n "${WSL_DISTRO_NAME:-}" ]; then
+		echo "setup.sh: on Windows, create %UserProfile%\\.wslconfig with:" >&2
+		echo "setup.sh:   [wsl2]" >&2
+		echo "setup.sh:   memory=12GB" >&2
+		echo "setup.sh: then run wsl --shutdown and start Setup again." >&2
+	fi
 fi
 
 command -v 7z >/dev/null
