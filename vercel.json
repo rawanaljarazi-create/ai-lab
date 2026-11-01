@@ -9,6 +9,8 @@
     { "source": "/squishy/", "destination": "/squishy/index.html" },
     { "source": "/flappy", "destination": "/flappy/index.html" },
     { "source": "/flappy/", "destination": "/flappy/index.html" },
+    { "source": "/physics", "destination": "/physics/index.html" },
+    { "source": "/physics/", "destination": "/physics/index.html" },
     { "source": "/ios16", "destination": "/ios16/index.html" },
     { "source": "/ios16/", "destination": "/ios16/index.html" }
   ]

@@ -18,7 +18,9 @@ cpSync(join(root, "site"), dist, { recursive: true });
 run("npm", ["run", "build", "-w", "aetherwell", "--", "--base", "/aetherwell/"]);
 run("npm", ["run", "build", "-w", "squishy", "--", "--base", "/squishy/"]);
 run("npm", ["run", "build", "-w", "flappy", "--", "--base", "/flappy/"]);
+run("npm", ["run", "build", "-w", "physics", "--", "--base", "/physics/"]);
 
 cpSync(join(root, "aetherwell/dist"), join(dist, "aetherwell"), { recursive: true });
 cpSync(join(root, "squishy/dist"), join(dist, "squishy"), { recursive: true });
 cpSync(join(root, "flappy/dist"), join(dist, "flappy"), { recursive: true });
+cpSync(join(root, "physics/dist"), join(dist, "physics"), { recursive: true });

@@ -384,6 +384,80 @@ h2 {
   color: #1f7a34;
 }
 
+.felt {
+  background: #10241c;
+  color: #f4efe4;
+  border: 1px solid rgba(196, 164, 106, 0.22);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.felt .preview {
+  background: linear-gradient(180deg, #1f8a56, #14573a);
+}
+
+.felt .wood {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 16px;
+  background: linear-gradient(#e7c091, #c4844a 45%, #8a4e28);
+}
+
+.felt .wood.top {
+  top: 0;
+}
+
+.felt .wood.bottom {
+  bottom: 0;
+  background: linear-gradient(#8a4e28, #6a3d1e);
+}
+
+.felt .disc {
+  position: absolute;
+  left: 18%;
+  bottom: 28%;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 32%, #ffd0c6, #ff5a36 62%, #c13a22);
+  box-shadow: 4px 8px 0 rgba(8, 30, 16, 0.18);
+}
+
+.felt .block {
+  position: absolute;
+  left: 46%;
+  top: 34%;
+  width: 38px;
+  height: 38px;
+  border-radius: 4px;
+  background: linear-gradient(160deg, #ffe08a, #ffb703 55%, #d59200);
+  transform: rotate(16deg);
+  box-shadow: 6px 10px 0 rgba(8, 30, 16, 0.16);
+}
+
+.felt .gem {
+  position: absolute;
+  right: 16%;
+  top: 46%;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(160deg, #e2c6ff, #b388eb 60%, #8b62c9);
+  clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+}
+
+.felt .copy p:not(.status) {
+  color: rgba(244, 239, 228, 0.78);
+}
+
+.felt .go {
+  color: #f2c14e;
+}
+
+.sand {
+  background: rgba(242, 193, 78, 0.16);
+  color: #f2c14e;
+}
+
 .cream .status.new {
   color: #5b3eaa;
   background: rgba(107, 77, 179, 0.16);
