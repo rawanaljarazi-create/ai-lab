@@ -18,6 +18,8 @@
     { "source": "/typing", "destination": "/typing/index.html" },
     { "source": "/typing/", "destination": "/typing/index.html" },
     { "source": "/ios16", "destination": "/ios16/index.html" },
-    { "source": "/ios16/", "destination": "/ios16/index.html" }
+    { "source": "/ios16/", "destination": "/ios16/index.html" },
+    { "source": "/shellbox", "destination": "/shellbox/index.html" },
+    { "source": "/shellbox/", "destination": "/shellbox/index.html" }
   ]
 }

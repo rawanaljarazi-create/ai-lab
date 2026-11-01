@@ -626,6 +626,10 @@ h2 {
   color: rgba(244, 239, 230, 0.78);
 }
 
+.flare .go {
+  color: #f2c14e;
+}
+
 .folio .copy p:not(.status) {
   color: rgba(243, 236, 223, 0.74);
 }

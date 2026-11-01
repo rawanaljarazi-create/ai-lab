@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shellbox — ai-lab</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,640&family=Outfit:wght@380;500;620&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="sky" aria-hidden="true"></div>
+    <article class="sheet">
+      <a class="back" href="/">Back to ai-lab</a>
+      <p class="mark">Local only</p>
+      <h1>Shellbox</h1>
+      <p>
+        Fireworks Mania and Garry's Mod run at the same time. Shells, rockets,
+        fountains, whistlers, and zippers from Fireworks Mania are drawn in
+        Garry's Mod around your eyes, using that game's sprites and explosion
+        effect. The firework game keeps doing the physics. It does not run in
+        this browser. Start it from the <code>shellbox</code> folder on Windows.
+      </p>
+      <p>
+        Garry's Mod owns your body and the firework list. Fireworks Mania owns
+        the shells. Your Garry's Mod health is not involved. Single-player
+        only. Fireworks Mania can host public lobbies, so start it without
+        this mod before you join anyone.
+      </p>
+      <h2>What you need</h2>
+      <ul>
+        <li>Windows.</li>
+        <li>Fireworks Mania and Garry's Mod, both from Steam.</li>
+        <li>BepInEx 5.4.23.6 win-x64, extracted into the Fireworks Mania folder.</li>
+      </ul>
+      <h2>Install</h2>
+      <p>From the <code>shellbox</code> folder, after BepInEx is in place:</p>
+      <ol>
+        <li>Copy <code>host/addon</code> to <code>GarrysMod/garrysmod/addons/shellbox</code>.</li>
+        <li>
+          Compile <code>guest/Plugin.cs</code> against
+          <code>BepInEx/core/BepInEx.dll</code> and copy the DLL to
+          <code>Fireworks Mania/BepInEx/plugins/Shellbox.Guest.dll</code>.
+        </li>
+      </ol>
+      <p>
+        <code>tools/install.ps1</code> does those steps. It does not change
+        saves. The new guest plugin loads only when Fireworks Mania is
+        restarted.
+      </p>
+      <h2>Play</h2>
+      <ol>
+        <li>Start Fireworks Mania and load a single-player map.</li>
+        <li>Start Garry's Mod on a local map. <code>gm_construct</code> is fine.</li>
+        <li>
+          Hold Alt and click a name in the firework list, or press 1-9, to
+          spawn that firework on the crosshair and light it. A shell that hits
+          the map or a prop stops, bursts, and the blast pushes nearby props.
+        </li>
+      </ol>
+      <p>
+        The top-left line is the bridge status. It should say <code>live</code>
+        and a rising tick. <code>no camera</code> means Fireworks Mania is
+        still in a menu. <code>stale</code> means that game stopped publishing.
+        If the list is missing without a map change, run
+        <code>lua_openscript_cl autorun/client/shellbox.lua</code> in Garry's Mod.
+      </p>
+      <h2>Remove</h2>
+      <p>
+        <code>tools/uninstall.ps1</code> deletes the addon, the
+        <code>data/shellbox</code> folder, the plugin, and the BepInEx files
+        the installer added (<code>winhttp.dll</code>,
+        <code>doorstop_config.ini</code>, and the <code>BepInEx</code> folder).
+        It does not remove retail game files.
+      </p>
+      <p>
+        <a href="https://github.com/rawanaljarazi-create/ai-lab/tree/main/shellbox">The folder on GitHub</a>
+      </p>
+    </article>
+  </body>
+</html>
