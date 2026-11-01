@@ -133,6 +133,59 @@ main {
   background: linear-gradient(180deg, #f7f1e6, #e8dcc8);
 }
 
+.ink {
+  background: #1a1c2c;
+  color: #f4f4f4;
+  border: 1px solid rgba(244, 244, 244, 0.14);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.ink .preview {
+  background-color: #33374d;
+  background-image:
+    linear-gradient(45deg, #2a2d40 25%, transparent 25%),
+    linear-gradient(-45deg, #2a2d40 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #2a2d40 75%),
+    linear-gradient(-45deg, transparent 75%, #2a2d40 75%);
+  background-size: 32px 32px;
+  background-position: 0 0, 0 16px, 16px -16px, -16px 0;
+}
+
+.ink .sprite {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -36px 0 0 -36px;
+  background: #ef7d57;
+  box-shadow:
+    18px 0 #ffcd75,
+    36px 0 #38b764,
+    54px 0 #41a6f6,
+    0 18px #b13e53,
+    18px 18px #ffcd75,
+    36px 18px #a7f070,
+    54px 18px #3b5dc9,
+    0 36px #5d275d,
+    18px 36px #ef7d57,
+    36px 36px #73eff7,
+    54px 36px #f4f4f4;
+}
+
+.ink .copy p:not(.status) {
+  color: var(--mute);
+}
+
+.ink .status.new {
+  background: rgba(255, 205, 117, 0.16);
+  color: #ffcd75;
+}
+
+.ink .go {
+  color: #ffcd75;
+}
+
 .day {
   background: #e7f6ff;
   color: #1b3344;
