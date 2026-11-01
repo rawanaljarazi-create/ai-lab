@@ -133,6 +133,96 @@ main {
   background: linear-gradient(180deg, #f7f1e6, #e8dcc8);
 }
 
+.day {
+  background: #e7f6ff;
+  color: #1b3344;
+  border: 1px solid rgba(36, 92, 120, 0.12);
+}
+
+.day .preview {
+  background: linear-gradient(180deg, #79c8ff 0%, #d7f3ff 46%, #b7e38c 46%, #8ed06a 100%);
+}
+
+.day .cloud {
+  position: absolute;
+  right: 16%;
+  top: 16%;
+  width: 54px;
+  height: 18px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: -22px 8px 0 -2px rgba(255, 255, 255, 0.85);
+}
+
+.day .pipe {
+  position: absolute;
+  left: 24%;
+  width: 36px;
+  background: #3caf4c;
+  border: 3px solid #1f7a32;
+}
+
+.day .pipe::after {
+  content: "";
+  position: absolute;
+  left: -8px;
+  right: -8px;
+  height: 16px;
+  background: #5ed36a;
+  border: 3px solid #1f7a32;
+}
+
+.day .pipe.up {
+  top: 0;
+  height: 27%;
+}
+
+.day .pipe.up::after {
+  bottom: -3px;
+}
+
+.day .pipe.down {
+  bottom: 22%;
+  height: 24%;
+}
+
+.day .pipe.down::after {
+  top: -3px;
+}
+
+.day .bird {
+  position: absolute;
+  left: 48%;
+  top: 38%;
+  width: 36px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffe58a, #f5c431 55%, #e39a22);
+  box-shadow: 0 8px 0 rgba(70, 90, 40, 0.08);
+}
+
+.day .bird::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fffdf8;
+  box-shadow: 3px 1px 0 #24180f;
+}
+
+.day .bird::after {
+  content: "";
+  position: absolute;
+  right: -10px;
+  top: 11px;
+  border-left: 12px solid #ef6a2a;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+
 .moon {
   position: absolute;
   right: 18%;
@@ -261,6 +351,11 @@ main {
   color: #e8dfcf;
 }
 
+.play {
+  background: rgba(31, 122, 52, 0.12);
+  color: #1f7a34;
+}
+
 h2 {
   margin: 0 0 8px;
   font-family: Fraunces, Georgia, serif;
@@ -279,6 +374,14 @@ h2 {
 
 .cream .copy p:not(.status) {
   color: #3a2e24;
+}
+
+.day .copy p:not(.status) {
+  color: #234255;
+}
+
+.day .go {
+  color: #1f7a34;
 }
 
 .cream .status.new {
@@ -347,6 +450,18 @@ footer p {
 code {
   font-size: 0.95em;
   color: #9fd6c8;
+}
+
+@media (min-width: 1200px) {
+  header,
+  main,
+  footer {
+    max-width: 1200px;
+  }
+
+  main {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 841px) {
