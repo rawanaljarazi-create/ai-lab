@@ -105,7 +105,7 @@ export function createBird(scene) {
       }
       group.rotation.z = THREE.MathUtils.damp(group.rotation.z, tilt, 8, dt);
 
-      const wing = 0.62 - game.flapPulse * 1.45;
+      const wing = 0.22 - game.flapPulse * 1.15;
       const idle = game.phase === "dying" || game.phase === "dead" ? 0 : Math.sin(game.time * 14) * 0.1;
       rightPivot.rotation.z = wing + idle;
       leftPivot.rotation.z = wing + idle;
@@ -136,13 +136,14 @@ export function createBird(scene) {
 
 function wingPivot(geo, mat, z) {
   const pivot = new THREE.Group();
-  pivot.position.set(-0.06, 0.02, z);
+  const side = Math.sign(z) || 1;
+  pivot.position.set(-0.04, 0.04, side * 0.08);
   const vane = new THREE.Mesh(geo, mat);
-  vane.scale.set(2.15, 0.42, 0.48);
-  vane.position.set(-0.4, -0.02, 0);
+  vane.scale.set(1.35, 0.22, 1.25);
+  vane.position.set(-0.22, 0, side * 0.32);
   const tip = new THREE.Mesh(geo, mat);
-  tip.scale.set(1.15, 0.28, 0.36);
-  tip.position.set(-0.78, 0.02, 0);
+  tip.scale.set(0.72, 0.16, 0.82);
+  tip.position.set(-0.5, 0.02, side * 0.48);
   pivot.add(vane, tip);
   return pivot;
 }

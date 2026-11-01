@@ -4,6 +4,7 @@ import { createAudio } from "./audio.js";
 import { createBird } from "./bird.js";
 import { createCourse } from "./course.js";
 import { createGame, flap, tick } from "./game.js";
+import { againFor, hintFor, isPhone, viewFor } from "./view.js";
 
 const BEST_KEY = "flappy-best";
 const MUTE_KEY = "flappy-muted";
@@ -17,6 +18,9 @@ const doneEl = document.querySelector("#done");
 const doneTitleEl = document.querySelector("#done-title");
 const resultEl = document.querySelector("#result");
 const muteBtn = document.querySelector("#mute");
+const playHint = document.querySelector("#play-hint");
+const againHint = document.querySelector("#again-hint");
+const phone = isPhone();
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -35,6 +39,9 @@ let shownPhase = game.phase;
 
 audio.muted = loadMute();
 paintMute();
+document.body.dataset.client = phone ? "phone" : "desk";
+playHint.textContent = hintFor(phone);
+againHint.textContent = againFor(phone);
 syncHud();
 
 const look = new THREE.Vector3();
@@ -42,15 +49,19 @@ let shake = 0;
 let last = performance.now();
 
 function fit() {
-  const width = window.visualViewport?.width || window.innerWidth;
-  const height = window.visualViewport?.height || window.innerHeight;
+  const viewport = window.visualViewport;
+  const width = viewport?.width || window.innerWidth;
+  const height = viewport?.height || window.innerHeight;
   const aspect = Math.max(width, 1) / Math.max(height, 1);
-  const halfH = THREE.MathUtils.degToRad(36);
-  const halfV = Math.atan(Math.tan(halfH) / Math.max(aspect, 0.35));
-  camera.fov = THREE.MathUtils.clamp(THREE.MathUtils.radToDeg(halfV * 2), 42, 96);
+  const view = viewFor(aspect);
+  camera.fov = view.fov;
   camera.aspect = aspect;
   camera.updateProjectionMatrix();
+  const ratioCap = view.narrow ? 1.5 : 2;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, ratioCap));
   renderer.setSize(width, height, false);
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
 }
 
 function frame(now) {
@@ -70,8 +81,13 @@ function frame(now) {
   shake = Math.max(0, shake - dt * 1.7);
   const jx = (Math.random() - 0.5) * shake * 0.16;
   const jy = (Math.random() - 0.5) * shake * 0.12;
-  camera.position.set(game.x - 1.15 + jx, 0.55 + jy, 11.15);
-  look.set(game.x + 1.9, 0.2, 0);
+  const view = viewFor(camera.aspect);
+  if (camera.fov !== view.fov) {
+    camera.fov = view.fov;
+    camera.updateProjectionMatrix();
+  }
+  camera.position.set(game.x + view.cam.x + jx, view.cam.y + jy, view.cam.z);
+  look.set(game.x + view.look.x, view.look.y, view.look.z);
   camera.lookAt(look);
 
   bird.update(game, dt);
@@ -146,8 +162,12 @@ function paintMute() {
 
 window.addEventListener("pointerdown", (event) => {
   if (event.target instanceof Element && event.target.closest("a, button")) return;
+  event.preventDefault();
   onFlap();
 });
+
+window.addEventListener("touchmove", (event) => event.preventDefault(), { passive: false });
+window.addEventListener("contextmenu", (event) => event.preventDefault());
 
 window.addEventListener("keydown", (event) => {
   if (event.repeat) return;
@@ -168,5 +188,6 @@ muteBtn.addEventListener("click", () => {
 
 window.addEventListener("resize", fit);
 window.visualViewport?.addEventListener("resize", fit);
+window.visualViewport?.addEventListener("scroll", fit);
 fit();
 requestAnimationFrame(frame);
