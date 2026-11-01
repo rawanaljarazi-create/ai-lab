@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pixel</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Pixel</h1>
+      <canvas id="board" width="512" height="512" aria-label="Drawing grid"></canvas>
+      <div id="palette" role="toolbar" aria-label="Colors"></div>
+      <div class="tools">
+        <button data-tool="pen" class="on">Pen</button>
+        <button data-tool="fill">Fill</button>
+        <button data-tool="erase">Erase</button>
+        <label><input type="checkbox" id="mirror" /> Mirror</label>
+        <button id="undo">Undo</button>
+        <button id="clear">Clear</button>
+        <button id="save">Save PNG</button>
+      </div>
+      <p class="hint">Click or drag to draw. Your drawing is kept in the page link, so you can share it.</p>
+    </main>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

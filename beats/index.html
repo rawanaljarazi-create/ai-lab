@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Beats</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Outfit:wght@380;500;620&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Beats</h1>
+        <a href="/">ai-lab</a>
+      </header>
+      <p class="lede">A sixteen-step loop. Tap squares to add hits, then press play. The link saves your pattern.</p>
+      <div id="grid"></div>
+      <div class="controls">
+        <button id="play" class="ctl" type="button" aria-pressed="false">Play</button>
+        <button id="clear" class="ctl" type="button">Clear</button>
+        <button id="demo" class="ctl" type="button">Demo beat</button>
+        <label class="tempo">Tempo <input id="bpm" type="range" min="60" max="180" value="110" /> <span id="bpm-value">110</span> BPM</label>
+      </div>
+    </main>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
