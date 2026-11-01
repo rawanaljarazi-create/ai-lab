@@ -15,6 +15,8 @@
     { "source": "/pixel/", "destination": "/pixel/index.html" },
     { "source": "/physics", "destination": "/physics/index.html" },
     { "source": "/physics/", "destination": "/physics/index.html" },
+    { "source": "/typing", "destination": "/typing/index.html" },
+    { "source": "/typing/", "destination": "/typing/index.html" },
     { "source": "/ios16", "destination": "/ios16/index.html" },
     { "source": "/ios16/", "destination": "/ios16/index.html" }
   ]

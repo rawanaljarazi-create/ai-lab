@@ -8,7 +8,8 @@
     "flappy",
     "beats",
     "pixel",
-    "physics"
+    "physics",
+    "typing"
   ],
   "scripts": {
     "dev": "npm run dev -w aetherwell --",
@@ -18,16 +19,18 @@
     "dev:beats": "npm run dev -w beats --",
     "dev:pixel": "npm run dev -w pixel --",
     "dev:physics": "npm run dev -w physics --",
-    "build": "npm run build -w aetherwell && npm run build -w squishy && npm run build -w flappy && npm run build -w beats && npm run build -w pixel && npm run build -w physics",
+    "dev:typing": "npm run dev -w typing --",
+    "build": "npm run build -w aetherwell && npm run build -w squishy && npm run build -w flappy && npm run build -w beats && npm run build -w pixel && npm run build -w physics && npm run build -w typing",
     "build:aetherwell": "npm run build -w aetherwell",
     "build:squishy": "npm run build -w squishy",
     "build:flappy": "npm run build -w flappy",
     "build:beats": "npm run build -w beats",
     "build:pixel": "npm run build -w pixel",
     "build:physics": "npm run build -w physics",
+    "build:typing": "npm run build -w typing",
     "build:site": "node scripts/build-site.mjs",
     "preview:site": "vite preview --outDir dist --port 4170 --host 0.0.0.0 --strictPort",
-    "test": "node --test aetherwell/test/*.test.mjs flappy/test/*.test.mjs beats/test/*.test.mjs pixel/test/*.test.mjs physics/test/*.test.mjs"
+    "test": "node --test aetherwell/test/*.test.mjs flappy/test/*.test.mjs beats/test/*.test.mjs pixel/test/*.test.mjs physics/test/*.test.mjs typing/test/*.test.mjs"
   },
   "devDependencies": {
     "vite": "^5.4.10"
