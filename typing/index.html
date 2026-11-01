@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#12100e" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>Typing</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2312100e'/%3E%3Crect x='7' y='8' width='12' height='3' rx='1' fill='%23f4efe6'/%3E%3Crect x='7' y='15' width='9' height='3' rx='1' fill='%23f4efe6' opacity='.45'/%3E%3Crect x='18' y='8' width='2' height='10' fill='%23e07a2f'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,560;9..144,640&family=Outfit:wght@380;500;620&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <div class="lamp" aria-hidden="true"></div>
+    <div class="app">
+      <header>
+        <div class="brand">
+          <a class="lab" href="/">ai-lab</a>
+          <h1>Typing</h1>
+        </div>
+        <div class="modes" role="radiogroup" aria-label="Round length">
+          <button type="button" role="radio" data-duration="15" aria-checked="false">15s</button>
+          <button type="button" role="radio" data-duration="30" aria-checked="true">30s</button>
+          <button type="button" role="radio" data-duration="60" aria-checked="false">60s</button>
+        </div>
+      </header>
+      <section class="stats" aria-label="Live score">
+        <p><strong id="wpm">0</strong><span>wpm</span></p>
+        <p><strong id="acc">100</strong><span>accuracy</span></p>
+        <p><strong id="time">30</strong><span>seconds</span></p>
+      </section>
+      <section class="paper">
+        <div id="play">
+          <p id="passage" class="passage"></p>
+          <p id="hint" class="hint"></p>
+        </div>
+        <div id="results" class="results" hidden>
+          <p id="badge" class="badge" hidden></p>
+          <p class="eyebrow">Words per minute</p>
+          <p id="final-wpm" class="final">0</p>
+          <p id="quip" class="quip"></p>
+          <dl class="breakdown">
+            <div>
+              <dt>Accuracy</dt>
+              <dd id="final-acc">100%</dd>
+            </div>
+            <div>
+              <dt>Correct</dt>
+              <dd id="final-correct">0</dd>
+            </div>
+            <div>
+              <dt>Raw wpm</dt>
+              <dd id="final-raw">0</dd>
+            </div>
+            <div>
+              <dt>Best</dt>
+              <dd id="final-best">0</dd>
+            </div>
+          </dl>
+          <button id="again" type="button">Try again</button>
+        </div>
+      </section>
+    </div>
+    <input
+      id="catch"
+      aria-label="Typing input"
+      autocomplete="off"
+      autocapitalize="none"
+      autocorrect="off"
+      spellcheck="false"
+    />
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

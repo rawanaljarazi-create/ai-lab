@@ -7,24 +7,27 @@
     "squishy",
     "flappy",
     "beats",
-    "pixel"
+    "pixel",
+    "typing"
   ],
   "scripts": {
     "dev": "npm run dev -w aetherwell --",
     "dev:aetherwell": "npm run dev -w aetherwell --",
     "dev:squishy": "npm run dev -w squishy --",
     "dev:flappy": "npm run dev -w flappy --",
-    "build": "npm run build -w aetherwell && npm run build -w squishy && npm run build -w flappy && npm run build -w beats && npm run build -w pixel",
+    "dev:beats": "npm run dev -w beats --",
+    "dev:pixel": "npm run dev -w pixel --",
+    "dev:typing": "npm run dev -w typing --",
+    "build": "npm run build -w aetherwell && npm run build -w squishy && npm run build -w flappy && npm run build -w beats && npm run build -w pixel && npm run build -w typing",
     "build:aetherwell": "npm run build -w aetherwell",
     "build:squishy": "npm run build -w squishy",
     "build:flappy": "npm run build -w flappy",
+    "build:beats": "npm run build -w beats",
+    "build:pixel": "npm run build -w pixel",
+    "build:typing": "npm run build -w typing",
     "build:site": "node scripts/build-site.mjs",
     "preview:site": "vite preview --outDir dist --port 4170 --host 0.0.0.0 --strictPort",
-    "test": "node --test aetherwell/test/*.test.mjs flappy/test/*.test.mjs beats/test/*.test.mjs pixel/test/*.test.mjs",
-    "dev:beats": "npm run dev -w beats --",
-    "build:beats": "npm run build -w beats",
-    "dev:pixel": "npm run dev -w pixel --",
-    "build:pixel": "npm run build -w pixel"
+    "test": "node --test aetherwell/test/*.test.mjs flappy/test/*.test.mjs beats/test/*.test.mjs pixel/test/*.test.mjs typing/test/*.test.mjs"
   },
   "devDependencies": {
     "vite": "^5.4.10"
