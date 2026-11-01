@@ -11,6 +11,8 @@
     { "source": "/flappy/", "destination": "/flappy/index.html" },
     { "source": "/beats", "destination": "/beats/index.html" },
     { "source": "/beats/", "destination": "/beats/index.html" },
+    { "source": "/pixel", "destination": "/pixel/index.html" },
+    { "source": "/pixel/", "destination": "/pixel/index.html" },
     { "source": "/ios16", "destination": "/ios16/index.html" },
     { "source": "/ios16/", "destination": "/ios16/index.html" }
   ]
