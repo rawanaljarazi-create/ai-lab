@@ -384,6 +384,77 @@ h2 {
   color: #1f7a34;
 }
 
+.ink {
+  background: #1c1612;
+  color: #f3ecdf;
+  border: 1px solid rgba(243, 236, 223, 0.14);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.ink .preview {
+  background:
+    radial-gradient(420px 180px at 50% 0%, rgba(224, 164, 92, 0.28), transparent 70%),
+    linear-gradient(180deg, #2a2118, #14110e);
+}
+
+.ink .paper {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  width: 168px;
+  height: 96px;
+  margin: -48px 0 0 -84px;
+  border-radius: 8px;
+  background: #f4efe4;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.28);
+}
+
+.ink .inkline {
+  position: absolute;
+  left: 16px;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(34, 28, 22, 0.18);
+}
+
+.ink .inkline.a {
+  top: 22px;
+  right: 16px;
+}
+
+.ink .inkline.b {
+  top: 40px;
+  width: 62%;
+  background: rgba(34, 28, 22, 0.78);
+}
+
+.ink .inkline.c {
+  top: 58px;
+  width: 40%;
+}
+
+.ink .caret {
+  position: absolute;
+  left: calc(16px + 62%);
+  top: 36px;
+  width: 2px;
+  height: 16px;
+  background: #e07a2f;
+}
+
+.ink .copy p:not(.status) {
+  color: rgba(243, 236, 223, 0.74);
+}
+
+.ink .go {
+  color: #e7b56a;
+}
+
+.keys {
+  background: rgba(224, 164, 92, 0.16);
+  color: #e7b56a;
+}
+
 .cream .status.new {
   color: #5b3eaa;
   background: rgba(107, 77, 179, 0.16);

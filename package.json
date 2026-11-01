@@ -5,20 +5,23 @@
   "workspaces": [
     "aetherwell",
     "squishy",
-    "flappy"
+    "flappy",
+    "typing"
   ],
   "scripts": {
     "dev": "npm run dev -w aetherwell --",
     "dev:aetherwell": "npm run dev -w aetherwell --",
     "dev:squishy": "npm run dev -w squishy --",
     "dev:flappy": "npm run dev -w flappy --",
-    "build": "npm run build -w aetherwell && npm run build -w squishy && npm run build -w flappy",
+    "dev:typing": "npm run dev -w typing --",
+    "build": "npm run build -w aetherwell && npm run build -w squishy && npm run build -w flappy && npm run build -w typing",
     "build:aetherwell": "npm run build -w aetherwell",
     "build:squishy": "npm run build -w squishy",
     "build:flappy": "npm run build -w flappy",
+    "build:typing": "npm run build -w typing",
     "build:site": "node scripts/build-site.mjs",
     "preview:site": "vite preview --outDir dist --port 4170 --host 0.0.0.0 --strictPort",
-    "test": "node --test aetherwell/test/*.test.mjs flappy/test/*.test.mjs"
+    "test": "node --test aetherwell/test/*.test.mjs flappy/test/*.test.mjs typing/test/*.test.mjs"
   },
   "devDependencies": {
     "vite": "^5.4.10"
