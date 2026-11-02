@@ -8,6 +8,7 @@ import { createAudio } from "./audio.js";
 import { createCarView, syncCarView } from "./cars.js";
 import {
   controlInput,
+  padAmount,
   createRace,
   formatTime,
   placeLabel,
@@ -149,7 +150,8 @@ function frame(now) {
   else slowFrames = Math.max(0, slowFrames - 1);
   if (slowFrames > 45) useBloom = false;
 
-  steerPad.style.setProperty("--steer", String(-input.steer));
+  const puck = typeof controls.steerTouch === "number" ? -controls.steerTouch : -input.steer;
+  steerPad.style.setProperty("--steer", String(puck));
   if (race.phase !== was || result.lap || result.finished || race.phase === "racing" || race.phase === "lights") {
     syncHud();
   }
@@ -459,8 +461,7 @@ hold(brakeBtn, (down) => {
 let steerId = null;
 function steerFrom(event) {
   const rect = steerPad.getBoundingClientRect();
-  const amount = ((event.clientX - rect.left) / Math.max(rect.width, 1)) * 2 - 1;
-  controls.steerTouch = Math.max(-1, Math.min(1, amount));
+  controls.steerTouch = padAmount(event.clientX, rect.left, rect.width);
 }
 steerPad.addEventListener("pointerdown", (event) => {
   event.preventDefault();

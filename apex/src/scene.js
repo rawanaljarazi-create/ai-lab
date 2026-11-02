@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { standPieces, standPose, standSites } from "./stands.js";
 import { pointAt } from "./track.js";
 
 export function createWorld(renderer, track, quality) {
@@ -84,7 +85,7 @@ export function createWorld(renderer, track, quality) {
 
   scene.add(startLine(track, renderer));
   const lamps = gantry(scene, track);
-  scene.add(grandstand(track));
+  scene.add(grandstands(track));
   addLamps(scene, track, quality);
   addReflectors(scene, track);
   addTrees(scene, track, quality.trees);
@@ -307,24 +308,65 @@ function gantry(scene, track) {
   return lamps;
 }
 
-function grandstand(track) {
-  const p = pointAt(track, 0.02);
+function grandstands(track) {
+  const root = new THREE.Group();
+  const concrete = new THREE.MeshStandardMaterial({ color: 0x2c313a, roughness: 0.9, metalness: 0.04 });
+  const seatA = new THREE.MeshStandardMaterial({ color: 0x8e2f3a, roughness: 0.76 });
+  const seatB = new THREE.MeshStandardMaterial({ color: 0x1a3c64, roughness: 0.76 });
+  for (const site of standSites()) root.add(buildStand(standPose(track, site), { concrete, seatA, seatB }));
+  return root;
+}
+
+function buildStand(pose, mats) {
   const group = new THREE.Group();
-  const lat = track.half + track.runoff + 4;
-  group.position.set(p.x + p.nx * lat, 0, p.z + p.nz * lat);
-  group.rotation.y = p.heading;
-  const concrete = new THREE.MeshStandardMaterial({ color: 0x2c3038, roughness: 0.88 });
-  const seat = new THREE.MeshStandardMaterial({ color: 0x8e2f3a, roughness: 0.8 });
-  for (let row = 0; row < 5; row += 1) {
-    const deck = new THREE.Mesh(new THREE.BoxGeometry(28, 0.45, 2.1), row % 2 ? seat : concrete);
-    deck.position.set(0, 0.6 + row * 0.7, row * 1.7);
-    deck.castShadow = true;
-    deck.receiveShadow = true;
-    group.add(deck);
+  group.position.set(pose.x, pose.y, pose.z);
+  group.rotation.y = pose.rotation;
+  const pieces = standPieces();
+  let fins = 0;
+  for (const piece of pieces) {
+    if (piece.name === "cushion") fins += Math.max(1, Math.floor((piece.sz - 0.4) / 0.7));
   }
-  const roof = new THREE.Mesh(new THREE.BoxGeometry(30, 0.18, 10), concrete);
-  roof.position.set(0, 4.6, 4);
-  group.add(roof);
+  const finMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(0.05, 0.22, 0.08), mats.seatA, fins);
+  finMesh.castShadow = true;
+  const dummy = new THREE.Object3D();
+  let fin = 0;
+  for (const piece of pieces) {
+    const colored = piece.name === "cushion" || piece.name === "back";
+    const material = !colored ? mats.concrete : piece.row % 2 ? mats.seatA : mats.seatB;
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(piece.sx, piece.sy, piece.sz), material);
+    mesh.position.set(piece.x, piece.y, piece.z);
+    mesh.castShadow = true;
+    mesh.receiveShadow = piece.name === "deck" || piece.name === "plinth";
+    group.add(mesh);
+    if (piece.name !== "cushion") continue;
+    const count = Math.max(1, Math.floor((piece.sz - 0.4) / 0.7));
+    const span = (count - 1) * 0.7;
+    for (let i = 0; i < count; i += 1) {
+      dummy.position.set(piece.x, piece.y + 0.18, -span / 2 + i * 0.7);
+      dummy.rotation.set(0, 0, 0);
+      dummy.scale.set(1, 1, 1);
+      dummy.updateMatrix();
+      finMesh.setMatrixAt(fin, dummy.matrix);
+      fin += 1;
+    }
+  }
+  finMesh.instanceMatrix.needsUpdate = true;
+  group.add(finMesh);
+
+  const roof = pieces.find((piece) => piece.name === "roof");
+  const post = new THREE.BoxGeometry(0.16, roof.y, 0.16);
+  const corners = [
+    [roof.x + roof.sx / 2 - 0.18, roof.sz / 2 - 0.2],
+    [roof.x + roof.sx / 2 - 0.18, -roof.sz / 2 + 0.2],
+    [roof.x - roof.sx / 2 + 0.18, roof.sz / 2 - 0.2],
+    [roof.x - roof.sx / 2 + 0.18, -roof.sz / 2 + 0.2],
+  ];
+  for (const [x, z] of corners) {
+    const column = new THREE.Mesh(post, mats.concrete);
+    column.position.set(x, roof.y / 2, z);
+    column.castShadow = true;
+    group.add(column);
+  }
   return group;
 }
 

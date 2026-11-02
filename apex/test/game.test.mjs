@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   controlInput,
+  padAmount,
   createRace,
   formatTime,
   LAPS,
@@ -108,6 +109,10 @@ test("left and right match the chase view, and a finger on the pad wins", () => 
     brake: 1,
     steer: -0.4,
   });
+  assert.equal(padAmount(0, 0, 100), 1);
+  assert.equal(padAmount(100, 0, 100), -1);
+  assert.equal(controlInput({ steerTouch: padAmount(0, 0, 100) }).steer, -1);
+  assert.equal(controlInput({ steerTouch: padAmount(100, 0, 100) }).steer, 1);
 });
 
 test("holding left turns the car toward the left of the chase view", () => {
