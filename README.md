@@ -1,6 +1,6 @@
 # ai-lab
 
-A folder per experiment. The Vercel site is a dashboard: [Aetherwell](https://ai-lab-zeta-lyart.vercel.app/aetherwell/) is the mesa that was already live, and [Squishy](https://ai-lab-zeta-lyart.vercel.app/squishy/), [Flappy](https://ai-lab-zeta-lyart.vercel.app/flappy/), [Beats](https://ai-lab-zeta-lyart.vercel.app/beats/), [Pixel](https://ai-lab-zeta-lyart.vercel.app/pixel/), [Physics](https://ai-lab-zeta-lyart.vercel.app/physics/), and [Typing](https://ai-lab-zeta-lyart.vercel.app/typing/) ship on that same site.
+A folder per experiment. The Vercel site is a dashboard: [Aetherwell](https://ai-lab-zeta-lyart.vercel.app/aetherwell/) is the mesa that was already live, and [Squishy](https://ai-lab-zeta-lyart.vercel.app/squishy/), [Flappy](https://ai-lab-zeta-lyart.vercel.app/flappy/), [Beats](https://ai-lab-zeta-lyart.vercel.app/beats/), [Pixel](https://ai-lab-zeta-lyart.vercel.app/pixel/), [Physics](https://ai-lab-zeta-lyart.vercel.app/physics/), [Typing](https://ai-lab-zeta-lyart.vercel.app/typing/), and [Apex](https://ai-lab-zeta-lyart.vercel.app/apex/) ship on that same site.
 
 ```bash
 npm install
@@ -15,6 +15,7 @@ npm install
 | [`pixel/`](pixel) | A 16 by 16 drawing toy. Pen, fill, mirror, undo, and a picture you can share as a link. | `npm run dev:pixel` |
 | [`physics/`](physics) | A 2D felt table. Drop circles, boxes, and polygons, then throw them. | `npm run dev:physics` |
 | [`typing/`](typing) | Timed typing desk. Live WPM and accuracy, 15/30/60 second runs, a local best. | `npm run dev:typing` |
+| [`apex/`](apex) | Night harbor grand prix. Three laps, a chase camera, and touch pedals on a phone. | `npm run dev:apex` |
 | [`shellbox/`](shellbox) | Bridge that draws a Fireworks Mania show inside Garry's Mod. Windows + those two Steam games. Not on Vercel. | See [`shellbox/README.md`](shellbox/README.md) |
 | [`ios16/`](ios16) | iOS 16.5 lock screen and home screen in QEMU. Windows via WSL2, or Linux directly. Listed on the site at `/ios16/`. | See [`ios16/README.md`](ios16/README.md) |
 | [`site/`](site) | Dashboard that Vercel serves at `/`. | `npm run build:site` then `npm run preview:site` |
@@ -26,4 +27,4 @@ npm test
 npm run build:site
 ```
 
-`build:site` writes `dist/` with the dashboard plus `/aetherwell/`, `/squishy/`, `/flappy/`, `/beats/`, `/pixel/`, `/physics/`, and `/typing/`. That is what Vercel publishes.
+`build:site` writes `dist/` with the dashboard plus `/aetherwell/`, `/squishy/`, `/flappy/`, `/beats/`, `/pixel/`, `/physics/`, `/typing/`, and `/apex/`. That is what Vercel publishes.

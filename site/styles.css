@@ -694,6 +694,84 @@ h2 {
   color: #f4efe6;
 }
 
+.circuit {
+  background: #10141c;
+  color: #f4f1ea;
+  border: 1px solid rgba(255, 177, 90, 0.28);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.circuit .preview {
+  background:
+    radial-gradient(120px 80px at 18% 18%, rgba(255, 122, 60, 0.35), transparent 70%),
+    linear-gradient(180deg, #141822 0%, #1a140f 42%, #10243a 42%, #0c3048 100%);
+}
+
+.circuit .harbor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 58%;
+  background: linear-gradient(180deg, transparent, rgba(8, 40, 64, 0.2));
+}
+
+.circuit .road {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 18%;
+  bottom: 16%;
+  border-radius: 46%;
+  border: 14px solid #2a2e36;
+  box-shadow:
+    inset 0 0 0 3px rgba(255, 255, 255, 0.35),
+    0 0 0 3px rgba(210, 31, 42, 0.8);
+}
+
+.circuit .lamp {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffb15a;
+  box-shadow: 0 0 16px #ffb15a;
+}
+
+.circuit .lamp.a {
+  left: 22%;
+  top: 28%;
+}
+
+.circuit .lamp.b {
+  right: 24%;
+  bottom: 30%;
+}
+
+.circuit .racer {
+  position: absolute;
+  left: 46%;
+  top: 58%;
+  width: 28px;
+  height: 14px;
+  border-radius: 4px 6px 3px 3px;
+  background: #f4f7fb;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+}
+
+.circuit .copy p:not(.status) {
+  color: rgba(244, 241, 234, 0.78);
+}
+
+.circuit .status.new {
+  background: rgba(255, 177, 90, 0.16);
+  color: #ffb15a;
+}
+
+.circuit .go {
+  color: #ffb15a;
+}
+
 footer {
   padding: 8px 8vw 56px;
   max-width: 1100px;
