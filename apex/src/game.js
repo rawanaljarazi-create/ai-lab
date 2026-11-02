@@ -180,10 +180,12 @@ export function controlInput(state) {
   if (state?.left) steer -= 1;
   if (state?.right) steer += 1;
   if (typeof state?.steerTouch === "number") steer = state.steerTouch;
+  // The chase camera looks along the car, so world +X is the left side of the screen.
+  // Flip the stick here and leave the racing line on the physics sign.
   return {
     throttle: state?.up || state?.gas ? 1 : 0,
     brake: state?.down || state?.brake ? 1 : 0,
-    steer: clamp(steer, -1, 1),
+    steer: clamp(-steer, -1, 1),
   };
 }
 
