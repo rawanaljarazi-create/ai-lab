@@ -100,13 +100,25 @@ test("times and places format for the board", () => {
   assert.equal(LAPS, 3);
 });
 
-test("touch steer replaces the keyboard and gas is a held pedal", () => {
-  assert.deepEqual(controlInput({ left: true, up: true }), { throttle: 1, brake: 0, steer: -1 });
+test("left and right match the chase view, and a finger on the pad wins", () => {
+  assert.deepEqual(controlInput({ left: true, up: true }), { throttle: 1, brake: 0, steer: 1 });
+  assert.deepEqual(controlInput({ right: true }), { throttle: 0, brake: 0, steer: -1 });
   assert.deepEqual(controlInput({ left: true, right: true, steerTouch: 0.4, gas: true, brake: true }), {
     throttle: 1,
     brake: 1,
-    steer: 0.4,
+    steer: -0.4,
   });
+});
+
+test("holding left turns the car toward the left of the chase view", () => {
+  const track = buildHarbor();
+  const race = createRace(track, { grid: soloGrid() });
+  startRace(race, track);
+  race.phase = "racing";
+  const start = race.cars[0].car.heading;
+  const input = controlInput({ left: true, up: true });
+  for (let i = 0; i < 50; i += 1) tickRace(race, track, input, 1 / 60);
+  assert.ok(race.cars[0].car.heading > start + 0.05, `heading ${race.cars[0].car.heading} from ${start}`);
 });
 
 test("phones get a lower pixel cap and the touch hint", () => {
