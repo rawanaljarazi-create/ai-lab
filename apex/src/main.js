@@ -150,8 +150,7 @@ function frame(now) {
   else slowFrames = Math.max(0, slowFrames - 1);
   if (slowFrames > 45) useBloom = false;
 
-  const puck = typeof controls.steerTouch === "number" ? -controls.steerTouch : -input.steer;
-  steerPad.style.setProperty("--steer", String(puck));
+  steerPad.style.setProperty("--steer", String(-input.steer));
   if (race.phase !== was || result.lap || result.finished || race.phase === "racing" || race.phase === "lights") {
     syncHud();
   }
