@@ -149,7 +149,7 @@ function frame(now) {
   else slowFrames = Math.max(0, slowFrames - 1);
   if (slowFrames > 45) useBloom = false;
 
-  steerPad.style.setProperty("--steer", String(input.steer));
+  steerPad.style.setProperty("--steer", String(-input.steer));
   if (race.phase !== was || result.lap || result.finished || race.phase === "racing" || race.phase === "lights") {
     syncHud();
   }
@@ -192,7 +192,7 @@ function placeCamera(dt) {
     smooth.lerp(desired, 1 - Math.exp(-(race.phase === "lights" ? 3.4 : 4.8) * dt));
   }
   camera.position.copy(smooth);
-  const roll = cameraMode === "chase" && race.phase === "racing" ? -car.steer * 0.55 : 0;
+  const roll = cameraMode === "chase" && race.phase === "racing" ? car.steer * 0.55 : 0;
   camera.up.set(Math.cos(car.heading) * Math.sin(roll), Math.cos(roll), -Math.sin(car.heading) * Math.sin(roll));
   camera.lookAt(look);
   const base = cameraMode === "hood" ? (narrow ? 78 : 70) : narrow ? 68 : phone ? 60 : 56;
