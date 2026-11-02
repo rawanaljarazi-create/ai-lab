@@ -177,9 +177,7 @@ export function placeLabel(place) {
 
 export function padAmount(clientX, left, width) {
   const raw = ((clientX - left) / Math.max(width, 1)) * 2 - 1;
-  // Keys already flip for the chase view. The pad's raw axis came out mirrored
-  // on a phone, so a finger on the left has to enter that flip as a positive value.
-  return clamp(-raw, -1, 1);
+  return clamp(raw, -1, 1);
 }
 
 export function controlInput(state) {
