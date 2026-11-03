@@ -15,6 +15,7 @@ BMP = '/tmp/ios16-mirror.bmp'
 RUN = '/tmp/ios16-mirror.run'
 STEP = 2
 PERIOD = 0.2
+DEBUG = '/tmp/ios16-mirror.debug'  # touch this file to keep each raw PPM (RAW + '.keep')
 
 
 def read_until_prompt(sock):
@@ -58,14 +59,16 @@ def shrink_ppm(src, dst):
     small_h = height // STEP
     if small_w < 1 or small_h < 1:
         return False
-    stride = (small_w * 3 + 3) & ~3
+    bpp = 4  # 32-bit truecolour B|G|R|A pixels, per user request
+    stride = (small_w * bpp + 3) & ~3
     pixels = bytearray(stride * small_h)
     # Whole-row operations: three strided slices pick one colour channel of
     # every STEPth pixel (byte-step = STEP pixels x 3 bytes), and three slice
-    # assignments interleave them into the BMP row. Byte-slicing cannot grab
-    # 3-byte pixels in one operation, so channels travel as separate blocks.
+    # assignments interleave them into the BMP row (the 4th byte is the
+    # alpha pad and stays 0 in a fresh zeroed buffer). Byte-slicing cannot
+    # grab 3-byte pixels in one operation, so channels travel as blocks.
     # The per-pixel version took ~0.5 s of pure Python per frame; this is ~0.02 s.
-    row_len = small_w * 3
+    row_len = small_w * bpp
     span = STEP * small_w * 3
     for y in range(small_h):
         src_row = (y * STEP) * width * 3
@@ -77,13 +80,13 @@ def shrink_ppm(src, dst):
         if len(blk_r) != small_w:
             return False
         dst_row = (small_h - 1 - y) * stride
-        pixels[dst_row : dst_row + row_len : 3] = blk_b
-        pixels[dst_row + 1 : dst_row + row_len : 3] = blk_g
-        pixels[dst_row + 2 : dst_row + row_len : 3] = blk_r
+        pixels[dst_row : dst_row + row_len : bpp] = blk_b
+        pixels[dst_row + 1 : dst_row + row_len : bpp] = blk_g
+        pixels[dst_row + 2 : dst_row + row_len : bpp] = blk_r
     image_size = len(pixels)
     file_size = 54 + image_size
     header = struct.pack('<2sIHHI', b'BM', file_size, 0, 0, 54)
-    info = struct.pack('<IiiHHIIiiII', 40, small_w, small_h, 1, 24, 0, image_size, 2835, 2835, 0, 0)
+    info = struct.pack('<IiiHHIIiiII', 40, small_w, small_h, 1, 32, 0, image_size, 2835, 2835, 0, 0)
     part = dst + '.part'
     with open(part, 'wb') as f:
         f.write(header)
@@ -102,7 +105,11 @@ def grab(sock):
     read_until_prompt(sock)
     if not os.path.isfile(RAW) or os.path.getsize(RAW) < 16:
         return False
-    return shrink_ppm(RAW, BMP)
+    ok = shrink_ppm(RAW, BMP)
+    if ok and os.path.isfile(DEBUG):
+        import shutil
+        shutil.copyfile(RAW, RAW + '.keep')
+    return ok
 
 
 def main():
