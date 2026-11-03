@@ -1,72 +1,141 @@
-# One frame of the phone screen for the Windows touch pad.
+# Frames of the phone screen for the Windows touch pad.
 #
-# Grabs the display straight from QEMU's monitor socket (port 4444) and leaves
-# it as /tmp/ios16-mirror.png, which the pad reads through \\wsl$. Runs once
-# per call; the repeat loop lives in touch-mirror.ps1 on the Windows side.
-# Nothing here touches the pad's QMP connection, so taps and swipes are never
-# delayed by the mirror. Stale frame sets are guarded by rename (readers never
-# see a half-written PNG) and by age stamps cleared releases.
+# One process, one monitor connection. Each pass asks QEMU for a PPM, keeps
+# every second pixel, and publishes a small BMP. The pad reads that file.
+# Nothing here uses the pad's QMP socket, so taps are not queued behind frames.
+# Stop by deleting /tmp/ios16-mirror.run.
 import os
 import socket
+import struct
 import sys
 import time
 
-TMP = '/tmp/ios16-mirror'
-RAW = TMP + '.raw'
-PNG = TMP + '.png'
+RAW = '/tmp/ios16-mirror.raw'
+BMP = '/tmp/ios16-mirror.bmp'
+RUN = '/tmp/ios16-mirror.run'
+STEP = 2
+PERIOD = 0.2
 
 
-def drain(s):
-    # Let the monitor finish printing so the next grab can connect cleanly.
-    deadline = time.time() + 1
-    try:
-        s.settimeout(0.2)
-        while time.time() < deadline:
-            if not s.recv(65536):
-                break
-    except (socket.timeout, OSError):
-        pass
+def read_until_prompt(sock):
+    buf = b''
+    sock.settimeout(8)
+    while b'(qemu)' not in buf:
+        chunk = sock.recv(65536)
+        if not chunk:
+            raise OSError('monitor closed')
+        buf += chunk
+        if len(buf) > 1_000_000:
+            buf = buf[-1000:]
+    return buf
 
 
-def main():
+def connect():
+    sock = socket.create_connection(('127.0.0.1', 4444), 5)
+    read_until_prompt(sock)
+    return sock
+
+
+def shrink_ppm(src, dst):
+    with open(src, 'rb') as f:
+        if f.readline().strip() != b'P6':
+            return False
+        tokens = []
+        while len(tokens) < 3:
+            line = f.readline()
+            if not line:
+                return False
+            if line.startswith(b'#'):
+                continue
+            tokens.extend(line.split())
+        width, height, depth = (int(tokens[0]), int(tokens[1]), int(tokens[2]))
+        if depth != 255:
+            return False
+        rgb = f.read(width * height * 3)
+    if len(rgb) < width * height * 3:
+        return False
+    small_w = width // STEP
+    small_h = height // STEP
+    if small_w < 1 or small_h < 1:
+        return False
+    stride = (small_w * 3 + 3) & ~3
+    pixels = bytearray(stride * small_h)
+    # Whole-row operations: three strided slices pick one colour channel of
+    # every STEPth pixel (byte-step = STEP pixels x 3 bytes), and three slice
+    # assignments interleave them into the BMP row. Byte-slicing cannot grab
+    # 3-byte pixels in one operation, so channels travel as separate blocks.
+    # The per-pixel version took ~0.5 s of pure Python per frame; this is ~0.02 s.
+    row_len = small_w * 3
+    span = STEP * small_w * 3
+    for y in range(small_h):
+        src_row = (y * STEP) * width * 3
+        if len(rgb) < src_row + span:
+            return False
+        blk_b = rgb[src_row + 2 : src_row + span : STEP * 3]
+        blk_g = rgb[src_row + 1 : src_row + span : STEP * 3]
+        blk_r = rgb[src_row : src_row + span : STEP * 3]
+        if len(blk_r) != small_w:
+            return False
+        dst_row = (small_h - 1 - y) * stride
+        pixels[dst_row : dst_row + row_len : 3] = blk_b
+        pixels[dst_row + 1 : dst_row + row_len : 3] = blk_g
+        pixels[dst_row + 2 : dst_row + row_len : 3] = blk_r
+    image_size = len(pixels)
+    file_size = 54 + image_size
+    header = struct.pack('<2sIHHI', b'BM', file_size, 0, 0, 54)
+    info = struct.pack('<IiiHHIIiiII', 40, small_w, small_h, 1, 24, 0, image_size, 2835, 2835, 0, 0)
+    part = dst + '.part'
+    with open(part, 'wb') as f:
+        f.write(header)
+        f.write(info)
+        f.write(pixels)
+    os.replace(part, dst)
+    return True
+
+
+def grab(sock):
     try:
         os.unlink(RAW)
     except OSError:
         pass
-    try:
-        s = socket.create_connection(('127.0.0.1', 4444))
-        s.settimeout(3)
-    except OSError as e:
-        print('monitor down:', e)
-        sys.exit(1)
-    s.sendall(b'\n')
-    time.sleep(0.15)
-    s.sendall(b'screendump ' + RAW.encode() + b' -f png\n')
-    deadline = time.time() + 4
-    ok = False
-    while time.time() < deadline:
+    sock.sendall(b'screendump ' + RAW.encode() + b' -f ppm\n')
+    read_until_prompt(sock)
+    if not os.path.isfile(RAW) or os.path.getsize(RAW) < 16:
+        return False
+    return shrink_ppm(RAW, BMP)
+
+
+def main():
+    sock = None
+    misses = 0
+    while os.path.isfile(RUN):
+        started = time.time()
         try:
-            if os.path.exists(RAW) and os.path.getsize(RAW) > 0:
-                ok = True
-                break
-        except OSError:
-            pass
-        time.sleep(0.02)
-    drain(s)
-    s.close()
-    if not ok:
-        print('no frame')
-        sys.exit(1)
-    with open(RAW, 'rb') as f:
-        first = f.read(8)
-    if first == b'\x89PNG\r\n\x1a\n':
-        os.replace(RAW, PNG)
-        print('frame', os.path.getsize(PNG))
-    else:
-        os.unlink(RAW)
-        print('bad frame magic', first[:4])
-        sys.exit(1)
+            if sock is None:
+                sock = connect()
+            if grab(sock):
+                misses = 0
+                print('frame', os.path.getsize(BMP), flush=True)
+            else:
+                misses += 1
+        except (OSError, socket.timeout):
+            misses += 1
+            if sock is not None:
+                try:
+                    sock.close()
+                except OSError:
+                    pass
+                sock = None
+        if misses > 40:
+            print('monitor down', flush=True)
+            return 1
+        leftover = PERIOD - (time.time() - started)
+        if leftover > 0:
+            time.sleep(leftover)
+    if sock is not None:
+        sock.close()
+    return 0
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

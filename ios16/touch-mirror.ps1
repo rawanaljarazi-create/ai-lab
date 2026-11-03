@@ -1,6 +1,7 @@
 # Keeps a picture of the phone updating in the touch pad.
-# One grabber stays connected to QEMU and writes a new frame about five
-# times a second. This process exits when the pad that started it is gone.
+# One grabber stays connected to QEMU and writes a new frame a few times a
+# second (the screendump itself is the speed limit). This process exits when
+# the pad that started it is gone.
 param([int]$OwnerId = 0)
 
 $full = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot 'touch-mirror.py'))

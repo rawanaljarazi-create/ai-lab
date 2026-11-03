@@ -1,5 +1,5 @@
 # Click and drag on this window. The picture inside it is the phone's screen,
-# snapped several times a second from QEMU, so what you tap is what the phone
+# snapped a few times a second from QEMU, so what you tap is what the phone
 # shows. TigerVNC is a bigger copy of the same picture but does not take touch.
 #
 # The window shows immediately and the connection is retried forever: if the
