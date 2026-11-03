@@ -1,7 +1,6 @@
 # Click and drag on this window. The picture inside it is the phone's screen,
-# snapped every couple of seconds from QEMU's monitor port, so what you tap is
-# what the phone shows. TigerVNC is a bigger, faster copy of the same picture
-# but does not take touch.
+# snapped several times a second from QEMU, so what you tap is what the phone
+# shows. TigerVNC is a bigger copy of the same picture but does not take touch.
 #
 # The window shows immediately and the connection is retried forever: if the
 # input port is busy or the VM restarts, this window reports it in the status
@@ -20,7 +19,7 @@ $script:client = $null
 $script:stream = $null
 $script:reader = $null
 $script:writer = $null
-$script:pngPath = '\\wsl$\Ubuntu\tmp\ios16-mirror.png'
+$script:pngPath = '\\wsl$\Ubuntu\tmp\ios16-mirror.bmp'
 $script:pngStamp = 0
 
 function Read-QmpResult {
@@ -252,9 +251,17 @@ function Expired([int]$seconds) {
 }
 
 $engine = New-Object System.Windows.Forms.Timer
-$engine.Interval = 500
+$engine.Interval = 120
 $engine.Add_Tick({
     Show-MirrorFrame
+    if ($null -eq $script:mirrorProc -or $script:mirrorProc.HasExited) {
+        if ((Test-Path -LiteralPath $script:mirrorScript) -and (Get-Date) -gt $script:mirrorNext) {
+            $script:mirrorProc = Start-Process -FilePath powershell.exe -ArgumentList @(
+                '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $script:mirrorScript, '-OwnerId', "$PID"
+            ) -WindowStyle Hidden -PassThru
+            $script:mirrorNext = (Get-Date).AddSeconds(15)
+        }
+    }
     switch ($script:step) {
         'idle' {
             $status.Text = 'Waiting for the phone...'
@@ -318,17 +325,20 @@ $engine.Add_Tick({
     }
 })
 
-# Frame grabber: one hidden helper that snapshots the screen every 2 seconds.
-# It exits by itself when this pad closes (its OwnerId dies).
-$mirror = Join-Path $PSScriptRoot 'touch-mirror.ps1'
-$script:mirrorProc = $null
-if (Test-Path -LiteralPath $mirror) {
+# Frame grabber: one hidden helper. It exits on its own when this pad closes,
+# and the pad's tick brings it back if it ever dies (VM restart, reboot).
+$script:mirrorScript = Join-Path $PSScriptRoot 'touch-mirror.ps1'
+$script:mirrorNext = (Get-Date).AddSeconds(5)
+if (Test-Path -LiteralPath $script:mirrorScript) {
     $script:mirrorProc = Start-Process -FilePath powershell.exe -ArgumentList @(
-        '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $mirror, '-OwnerId', "$PID"
+        '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $script:mirrorScript, '-OwnerId', "$PID"
     ) -WindowStyle Hidden -PassThru
 }
 
 $form.Add_FormClosed({
+    # Stop the flag first: the grabber polls it and quits by itself, so no
+    # orphan daemon is left running inside the WSL VM.
+    & wsl.exe -d Ubuntu -- rm -f /tmp/ios16-mirror.run 2>$null
     if ($script:client) { $script:client.Dispose() }
     if ($script:mirrorProc) {
         Stop-Process -Id $script:mirrorProc.Id -Force -ErrorAction SilentlyContinue
