@@ -1,6 +1,6 @@
 # ai-lab
 
-WARNING! The iOS 16 VM Project broke and will be fixed soon.
+WARNING! The iOS 16 VM Screen Mirror broke and will be fixed soon.
 
 A folder per experiment. The Vercel site is a dashboard: [Aetherwell](https://ai-lab-zeta-lyart.vercel.app/aetherwell/) is the mesa that was already live, and [Squishy](https://ai-lab-zeta-lyart.vercel.app/squishy/), [Flappy](https://ai-lab-zeta-lyart.vercel.app/flappy/), [Beats](https://ai-lab-zeta-lyart.vercel.app/beats/), [Pixel](https://ai-lab-zeta-lyart.vercel.app/pixel/), [Physics](https://ai-lab-zeta-lyart.vercel.app/physics/), and [Typing](https://ai-lab-zeta-lyart.vercel.app/typing/) ship on that same site.
 
