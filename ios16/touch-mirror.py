@@ -37,24 +37,97 @@ def connect():
     return sock
 
 
+def _header_end(blob, i):
+    """Index of the first raster byte, or None.
+
+    One whitespace byte closes the header. A CRLF pair is that one line
+    ending. Spaces or tabs in front of a '#' comment belong to the header,
+    and the newline after the comment is the separator.
+    """
+    n = len(blob)
+    j = i
+    while j < n and blob[j] in b' \t':
+        j += 1
+    if j < n and blob[j] == 35:
+        while j < n and blob[j] not in b'\r\n':
+            j += 1
+        if j >= n:
+            return None
+        if blob[j:j + 2] == b'\r\n':
+            return j + 2
+        return j + 1
+    if i >= n:
+        return None
+    if blob[i:i + 2] == b'\r\n':
+        return i + 2
+    if blob[i] in b' \t\r\n':
+        return i + 1
+    return None
+
+
+def parse_p6(blob):
+    """Return (width, height, row_stride, raster) or None.
+
+    The raster may be packed (width*3 bytes per row) or dword-padded, which is
+    how QEMU writes a screendump: each row is pixman's 4-byte stride, so a
+    1125-wide row is 3376 bytes and the last byte is unused. Which one this
+    file is comes from the byte count. A short file, a trailing extra byte, or
+    a header that is not three decimal tokens is rejected rather than decoded.
+    """
+    if len(blob) < 3 or blob[:2] != b'P6' or blob[2] not in b' \t\r\n':
+        return None
+    i = 2
+    n = len(blob)
+    tokens = []
+    while len(tokens) < 3 and i < n:
+        c = blob[i]
+        if c in b' \t\r\n':
+            i += 1
+            continue
+        if c == 35:  # '#'
+            while i < n and blob[i] not in b'\r\n':
+                i += 1
+            continue
+        start = i
+        while i < n and blob[i] not in b' \t\r\n#':
+            i += 1
+        token = blob[start:i]
+        if not token.isdigit():
+            return None
+        tokens.append(token)
+    if len(tokens) != 3:
+        return None
+    width = int(tokens[0])
+    height = int(tokens[1])
+    depth = int(tokens[2])
+    # Phone frames are 1125x2436. Anything larger is a bad header, and the
+    # product below would try to allocate it.
+    if width < 1 or height < 1 or width > 8192 or height > 8192 or depth != 255:
+        return None
+    end = _header_end(blob, i)
+    if end is None:
+        return None
+    payload = blob[end:]
+    tight = width * 3
+    padded = (tight + 3) & ~3
+    if len(payload) == tight * height:
+        row_stride = tight
+    elif padded != tight and len(payload) == padded * height:
+        row_stride = padded
+    else:
+        return None
+    return width, height, row_stride, payload
+
+
 def shrink_ppm(src, dst):
-    with open(src, 'rb') as f:
-        if f.readline().strip() != b'P6':
-            return False
-        tokens = []
-        while len(tokens) < 3:
-            line = f.readline()
-            if not line:
-                return False
-            if line.startswith(b'#'):
-                continue
-            tokens.extend(line.split())
-        width, height, depth = (int(tokens[0]), int(tokens[1]), int(tokens[2]))
-        if depth != 255:
-            return False
-        rgb = f.read(width * height * 3)
-    if len(rgb) < width * height * 3:
+    try:
+        with open(src, 'rb') as f:
+            parsed = parse_p6(f.read())
+    except OSError:
         return False
+    if parsed is None:
+        return False
+    width, height, row_stride, rgb = parsed
     small_w = width // STEP
     small_h = height // STEP
     if small_w < 1 or small_h < 1:
@@ -68,11 +141,16 @@ def shrink_ppm(src, dst):
     # alpha pad and stays 0 in a fresh zeroed buffer). Byte-slicing cannot
     # grab 3-byte pixels in one operation, so channels travel as blocks.
     # The per-pixel version took ~0.5 s of pure Python per frame; this is ~0.02 s.
+    # src rows step by row_stride, which is width*3 when the PPM is packed and
+    # the next multiple of 4 when QEMU padded the row. The samples themselves
+    # stay inside the RGB bytes and never read the pad.
     row_len = small_w * bpp
     span = STEP * small_w * 3
+    if span > width * 3:
+        return False
     for y in range(small_h):
-        src_row = (y * STEP) * width * 3
-        if len(rgb) < src_row + span:
+        src_row = (y * STEP) * row_stride
+        if src_row + span > len(rgb):
             return False
         blk_b = rgb[src_row + 2 : src_row + span : STEP * 3]
         blk_g = rgb[src_row + 1 : src_row + span : STEP * 3]
