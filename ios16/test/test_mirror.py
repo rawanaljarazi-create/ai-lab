@@ -13,6 +13,8 @@ import unittest
 import zlib
 from pathlib import Path
 
+from PIL import Image
+
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 spec = importlib.util.spec_from_file_location("touch_mirror", ROOT / "touch-mirror.py")
@@ -84,24 +86,10 @@ def read_png_rgb(path):
     return width, height, b"".join(rows)
 
 
-def read_bmp(path):
-    blob = Path(path).read_bytes()
-    magic, file_size, _r1, _r2, off = struct.unpack_from("<2sIHHI", blob, 0)
-    dib, bw, bh, planes, bits, comp, img, _x, _y, _u, _i = struct.unpack_from("<IiiHHIIiiII", blob, 14)
-    if magic != b"BM" or dib != 40 or planes != 1 or bits != 32 or comp != 0 or bh < 1:
-        raise ValueError("unexpected bmp header")
-    if file_size != len(blob) or off != 54:
-        raise ValueError("bmp size does not match the header")
-    stride = ((bw * 4 + 3) & ~3)
-    if img != stride * bh or len(blob) != 54 + img:
-        raise ValueError("bmp stride does not match the payload")
-    pix = blob[off:]
-    out = bytearray(bw * bh * 4)
-    for y in range(bh):
-        src = (bh - 1 - y) * stride
-        dst = y * bw * 4
-        out[dst:dst + bw * 4] = pix[src:src + bw * 4]
-    return bw, bh, bytes(out)
+def open_rgb(path):
+    """Colours as a normal decoder shows them, not raw BMP channel bytes."""
+    with Image.open(path) as im:
+        return im.convert("RGB")
 
 
 def write_ppm(path, w, h, pixel, padded, header=None):
@@ -126,21 +114,26 @@ class MirrorTests(unittest.TestCase):
     def convert(self, src):
         dst = src.with_suffix(".bmp")
         self.assertTrue(mirror.shrink_ppm(str(src), str(dst)))
-        return read_bmp(dst)
+        return dst
 
     def assert_matches(self, bmp, w, h, pixel, padded):
-        bw, bh, pix = bmp
+        im = open_rgb(bmp)
+        bw, bh = im.size
         self.assertEqual((bw, bh), (w // mirror.STEP, h // mirror.STEP))
         for y in range(bh):
             for x in range(bw):
+                got = im.getpixel((x, y))
                 want = pixel(x * mirror.STEP, y * mirror.STEP)
-                i = (y * bw + x) * 4
-                got = (pix[i + 2], pix[i + 1], pix[i], pix[i + 3])
-                self.assertEqual(got, want + (0,), "x=%s y=%s padded=%s" % (x, y, padded))
+                self.assertEqual(got, want, "x=%s y=%s padded=%s" % (x, y, padded))
 
     def test_real_qemu_frame_matches_native_png(self):
+        native = open_rgb(FIXTURES / "native-1125x2436.png")
+        self.assertEqual(native.size, (1125, 2436))
+        # The stdlib reader is only a cross-check that Pillow's PNG agrees
+        # with the bytes. Displayed colour is Pillow's RGB, below.
         png_w, png_h, png = read_png_rgb(FIXTURES / "native-1125x2436.png")
-        self.assertEqual((png_w, png_h), (1125, 2436))
+        self.assertEqual(native.tobytes(), png)
+        self.assertEqual((png_w, png_h), native.size)
         with tempfile.TemporaryDirectory() as tmp:
             ppm = Path(tmp) / "frame.ppm"
             with gzip.open(FIXTURES / "native-1125x2436.ppm.gz", "rb") as src:
@@ -149,20 +142,28 @@ class MirrorTests(unittest.TestCase):
             self.assertIsNotNone(parsed)
             width, height, row_stride, _payload = parsed
             self.assertEqual((width, height, row_stride), (1125, 2436, 3376))
-            bw, bh, pix = self.convert(ppm)
-        self.assertEqual((bw, bh), (562, 1218))
+            got = open_rgb(self.convert(ppm))
+        self.assertEqual(got.size, (562, 1218))
         mismatches = 0
-        for y in range(bh):
-            src_row = (y * mirror.STEP) * (png_w * 3)
-            for x in range(bw):
-                s = src_row + (x * mirror.STEP) * 3
-                want = png[s:s + 3]
-                i = (y * bw + x) * 4
-                got = bytes((pix[i + 2], pix[i + 1], pix[i]))
-                if got != want or pix[i + 3] != 0:
+        swapped = 0
+        for y in range(got.height):
+            for x in range(got.width):
+                want = native.getpixel((x * mirror.STEP, y * mirror.STEP))
+                seen = got.getpixel((x, y))
+                if seen != want:
                     mismatches += 1
-        self.assertEqual(mismatches, 0)
-        self.assertEqual(bw * bh, 684516)
+                    if seen[0] == want[2] and seen[2] == want[0] and seen[1] == want[1]:
+                        swapped += 1
+        self.assertEqual(mismatches, 0, "red/blue swaps %s" % swapped)
+        self.assertEqual(got.width * got.height, 684516)
+        # Upright: the top and bottom rows are the native top and bottom,
+        # and they are not the same colour, so a vertical flip would fail.
+        top = got.getpixel((0, 0))
+        bottom = got.getpixel((0, got.height - 1))
+        self.assertEqual(top, native.getpixel((0, 0)))
+        self.assertEqual(bottom, native.getpixel((0, (got.height - 1) * mirror.STEP)))
+        self.assertNotEqual(top, bottom)
+        self.assertGreater(top[2], top[0])  # wallpaper blue, not the swapped orange
 
     def test_packed_and_padded_agree_on_colour_and_orientation(self):
         cases = (
@@ -180,8 +181,7 @@ class MirrorTests(unittest.TestCase):
                     with tempfile.TemporaryDirectory() as tmp:
                         src = Path(tmp) / "shot.ppm"
                         write_ppm(src, w, h, colour_at, padded)
-                        bmp = self.convert(src)
-                    self.assert_matches(bmp, w, h, colour_at, padded)
+                        self.assert_matches(self.convert(src), w, h, colour_at, padded)
 
     def test_top_row_stays_on_top(self):
         def pixel(x, y):
@@ -191,12 +191,9 @@ class MirrorTests(unittest.TestCase):
             with tempfile.TemporaryDirectory() as tmp:
                 src = Path(tmp) / "rows.ppm"
                 write_ppm(src, 1125, 6, pixel, padded)
-                bw, bh, pix = self.convert(src)
-            self.assertEqual(pix[2], 255)          # top-left red
-            self.assertEqual(pix[0], 0)
-            last = (bh - 1) * bw * 4
-            self.assertEqual(pix[last], 255)       # bottom-left blue, stored in B
-            self.assertEqual(pix[last + 2], 0)
+                im = open_rgb(self.convert(src))
+            self.assertEqual(im.getpixel((0, 0)), (255, 0, 0))
+            self.assertEqual(im.getpixel((0, im.height - 1)), (0, 0, 255))
 
     def test_primary_channels_land_in_bmp_order(self):
         colours = ((255, 0, 0), (0, 255, 0), (0, 0, 255), (10, 20, 30))
@@ -207,11 +204,21 @@ class MirrorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             src = Path(tmp) / "bars.ppm"
             write_ppm(src, 8, 2, pixel, True)
-            bw, _bh, pix = self.convert(src)
-        self.assertEqual(bw, 4)
-        for x, (r, g, b) in enumerate(colours):
-            i = x * 4
-            self.assertEqual((pix[i], pix[i + 1], pix[i + 2], pix[i + 3]), (b, g, r, 0))
+            dst = self.convert(src)
+            im = open_rgb(dst)
+            blob = dst.read_bytes()
+        self.assertEqual(im.size[0], 4)
+        for x, rgb in enumerate(colours):
+            self.assertEqual(im.getpixel((x, 0)), rgb)
+        # On disk the first displayed pixel is B,G,R,A. Red is stored 0,0,255,0.
+        # Image.frombytes("RGBA") on these bytes swaps red and blue; Pillow's
+        # BMP decoder does not.
+        _off = struct.unpack_from("<I", blob, 10)[0]
+        width, height = struct.unpack_from("<ii", blob, 18)
+        stride = width * 4
+        top = blob[_off + (height - 1) * stride:_off + (height - 1) * stride + 4]
+        self.assertEqual(tuple(top), (0, 0, 255, 0))
+        self.assertEqual(im.getpixel((0, 0)), (255, 0, 0))
 
     def test_header_variants_of_a_packed_image(self):
         def pixel(x, y):
