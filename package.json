@@ -30,7 +30,7 @@
     "build:typing": "npm run build -w typing",
     "build:site": "node scripts/build-site.mjs",
     "preview:site": "vite preview --outDir dist --port 4170 --host 0.0.0.0 --strictPort",
-    "test": "node --test aetherwell/test/*.test.mjs flappy/test/*.test.mjs beats/test/*.test.mjs pixel/test/*.test.mjs physics/test/*.test.mjs typing/test/*.test.mjs && python3 ios16/test/test_mirror.py"
+    "test": "node --test aetherwell/test/*.test.mjs flappy/test/*.test.mjs beats/test/*.test.mjs pixel/test/*.test.mjs physics/test/*.test.mjs typing/test/*.test.mjs && python3 ios16/test/test_mirror.py && python3 ios16/test/test_linux_touch.py"
   },
   "devDependencies": {
     "vite": "^5.4.10"
