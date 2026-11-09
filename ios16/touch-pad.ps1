@@ -53,29 +53,151 @@ function Send-Pointer([double]$x, [double]$y, $down) {
     Send-Qmp "{`"execute`":`"input-send-event`",`"arguments`":{`"events`":[$(($events -join ','))]}}"
 }
 
-function Send-Tap([double]$x, [double]$y) {
-    Send-Pointer $x $y $null
-    Send-Pointer $x $y $true
-    Start-Sleep -Milliseconds 60
-    Send-Pointer $x $y $false
+function Send-KeyState([string]$name, [bool]$down) {
+    if ($name -notin @('h', 'l', 'up', 'down')) { throw 'Unknown key.' }
+    $flag = $(if ($down) { 'true' } else { 'false' })
+    # Built without expanding the whole document as one quoted string, so a
+    # key name cannot break the JSON.
+    $json = '{"execute":"input-send-event","arguments":{"events":[{"type":"key","data":{"down":' + $flag + ',"key":{"type":"qcode","data":"' + $name + '"}}}]}}'
+    Send-Qmp $json
 }
 
-function Send-Swipe([double]$x0, [double]$y0, [double]$x1, [double]$y1) {
-    Send-Pointer $x0 $y0 $null
-    Send-Pointer $x0 $y0 $true
-    foreach ($i in 1..6) {
-        Start-Sleep -Milliseconds 28
-        Send-Pointer ($x0 + ($x1 - $x0) * $i / 6) ($y0 + ($y1 - $y0) * $i / 6) $null
-    }
-    Start-Sleep -Milliseconds 20
-    Send-Pointer $x1 $y1 $false
+# A finger that wobbles a few dozen pixels is still a tap. Turning that into
+# a six-step swipe keeps the contact down for several round-trips through
+# WSL, and SpringBoard reads it as a hold or drops the click.
+$script:tapSlopPx = 36
+$script:minTapMs = 110
+$script:minKeyMs = 220
+$script:fingerDown = $false
+$script:dragging = $false
+$script:press = $null
+$script:movePoint = $null
+$script:upDue = $null
+$script:upPoint = $null
+$script:downAt = [datetime]::MinValue
+$script:keyHeld = $null
+$script:keyDownAt = [datetime]::MinValue
+$script:keyUpDue = $false
+$script:keyLabel = @{ h = 'Home'; l = 'Power'; up = 'Vol +'; down = 'Vol -' }
+
+function Send-UpNow {
+    if ($null -eq $script:upPoint) { return }
+    $point = $script:upPoint
+    Send-Pointer $point.X $point.Y $false
+    $script:upDue = $null
+    $script:upPoint = $null
+    $script:movePoint = $null
 }
 
-function Send-Key([string]$name) {
-    foreach ($down in @('true', 'false')) {
-        Send-Qmp "{`"execute`":`"input-send-event`",`"arguments`":{`"events`":[{`"type`":`"key`",`"data`":{`"down`":$down,`"key`":{`"type`":`"qcode`",`"data`":`"$name`"}}}]}}"
-        if ($down -eq 'true') { Start-Sleep -Milliseconds 80 }
+function Flush-Input {
+    $now = Get-Date
+    if ($null -ne $script:upDue -and $now -ge $script:upDue) {
+        Send-UpNow
     }
+    if ($script:keyUpDue -and $script:keyHeld -and (($now - $script:keyDownAt).TotalMilliseconds -ge $script:minKeyMs)) {
+        $name = $script:keyHeld
+        $script:keyHeld = $null
+        $script:keyUpDue = $false
+        Send-KeyState $name $false
+        $status.Text = "$($script:keyLabel[$name]) sent."
+    }
+    if ($script:fingerDown -and $script:dragging -and $null -ne $script:movePoint -and $null -eq $script:upDue) {
+        $point = $script:movePoint
+        $script:movePoint = $null
+        Send-Pointer $point.X $point.Y $null
+    }
+}
+
+function Image-Fraction($e) {
+    $cw = [double][Math]::Max(1, $pb.ClientSize.Width)
+    $ch = [double][Math]::Max(1, $pb.ClientSize.Height)
+    $ox = 0.0
+    $oy = 0.0
+    $dw = $cw
+    $dh = $ch
+    if ($null -ne $pb.Image -and $pb.Image.Width -gt 0 -and $pb.Image.Height -gt 0) {
+        $scale = [Math]::Min($cw / $pb.Image.Width, $ch / $pb.Image.Height)
+        $dw = $pb.Image.Width * $scale
+        $dh = $pb.Image.Height * $scale
+        $ox = ($cw - $dw) / 2
+        $oy = ($ch - $dh) / 2
+    }
+    $x = $e.X - $ox
+    $y = $e.Y - $oy
+    $inside = ($x -ge 0 -and $y -ge 0 -and $x -lt $dw -and $y -lt $dh)
+    if (-not $inside) { return $null }
+    return @{ X = $x / $dw; Y = $y / $dh; PX = [int]$e.X; PY = [int]$e.Y }
+}
+
+function Begin-Finger($point) {
+    # Finish the previous contact before a new one, including a lift that
+    # was still waiting out the minimum tap time.
+    if ($script:fingerDown) { End-Finger $script:press }
+    Send-UpNow
+    if ($script:keyHeld) {
+        Send-KeyState $script:keyHeld $false
+        $script:keyHeld = $null
+        $script:keyUpDue = $false
+    }
+    try {
+        # Position and button-down travel together, so the click is one
+        # round-trip instead of two.
+        Send-Pointer $point.X $point.Y $true
+    } catch {
+        try { Send-Pointer $point.X $point.Y $false } catch {}
+        $script:fingerDown = $false
+        throw
+    }
+    $script:fingerDown = $true
+    $script:dragging = $false
+    $script:press = $point
+    $script:movePoint = $null
+    $script:upDue = $null
+    $script:upPoint = $null
+    $script:downAt = Get-Date
+}
+
+function Note-Finger($point) {
+    if (-not $script:fingerDown -or $null -eq $script:press) { return }
+    $dx = $point.PX - $script:press.PX
+    $dy = $point.PY - $script:press.PY
+    if (-not $script:dragging) {
+        if (($dx * $dx + $dy * $dy) -lt ($script:tapSlopPx * $script:tapSlopPx)) { return }
+        $script:dragging = $true
+    }
+    $script:movePoint = $point
+}
+
+function End-Finger($point) {
+    if (-not $script:fingerDown) { return }
+    $script:fingerDown = $false
+    if ($null -eq $point) { $point = $script:movePoint }
+    $script:movePoint = $null
+    # A shaky click stays on the icon that was pressed. A real drag ends
+    # where the finger lifted.
+    if (-not $script:dragging -or $null -eq $point) { $point = $script:press }
+    $script:upPoint = $point
+    $wait = $script:minTapMs - ((Get-Date) - $script:downAt).TotalMilliseconds
+    if ($wait -le 0) {
+        Send-UpNow
+    } else {
+        $script:upDue = (Get-Date).AddMilliseconds($wait)
+    }
+}
+
+function Start-HardwareKey([string]$name) {
+    if ($script:fingerDown) { End-Finger $script:press }
+    Send-UpNow
+    Flush-Input
+    if ($script:keyHeld) { return }
+    Send-KeyState $name $true
+    $script:keyHeld = $name
+    $script:keyDownAt = Get-Date
+    $script:keyUpDue = $false
+}
+
+function Request-KeyUp {
+    if ($script:keyHeld) { $script:keyUpDue = $true }
 }
 
 $form = New-Object System.Windows.Forms.Form
@@ -116,61 +238,41 @@ $pb.BackColor = [System.Drawing.Color]::FromArgb(10, 10, 12)
 $pb.Cursor = [System.Windows.Forms.Cursors]::Hand
 $pad.Controls.Add($pb)
 
-$script:origin = $null
-function Point-Fraction($e) {
-    $w = [Math]::Max(1, $pad.ClientSize.Width)
-    $h = [Math]::Max(1, $pad.ClientSize.Height)
-    return @{ X = $e.X / $w; Y = $e.Y / $h }
+function Test-Ready {
+    if ($script:step -ne 'ready' -or $null -eq $script:writer) {
+        $status.Text = 'The phone is not connected yet.'
+        return $false
+    }
+    return $true
 }
 
-$pad.Add_MouseDown({
-    param($sender, $e)
-    $script:origin = Point-Fraction $e
-})
 $pb.Add_MouseDown({
     param($sender, $e)
-    $script:origin = Point-Fraction $e
+    if ($e.Button -ne [System.Windows.Forms.MouseButtons]::Left) { return }
+    $point = Image-Fraction $e
+    if ($null -eq $point) { return }
+    if (-not (Test-Ready)) { return }
+    $pb.Capture = $true
+    try { Begin-Finger $point } catch { $status.Text = $_.Exception.Message }
 })
-
-$pad.Add_MouseUp({
+$pb.Add_MouseMove({
     param($sender, $e)
-    if ($null -eq $script:origin) { return }
-    $end = Point-Fraction $e
-    $start = $script:origin
-    $script:origin = $null
-    $dx = ($end.X - $start.X) * $pad.ClientSize.Width
-    $dy = ($end.Y - $start.Y) * $pad.ClientSize.Height
-    try {
-        if (($dx * $dx + $dy * $dy) -lt 64) {
-            Send-Tap $end.X $end.Y
-            $status.Text = 'Tap sent.'
-        } else {
-            Send-Swipe $start.X $start.Y $end.X $end.Y
-            $status.Text = 'Swipe sent.'
-        }
-    } catch {
-        $status.Text = $_.Exception.Message
-    }
+    if (-not $script:fingerDown) { return }
+    $point = Image-Fraction $e
+    if ($null -eq $point) { return }
+    Note-Finger $point
 })
 $pb.Add_MouseUp({
     param($sender, $e)
-    if ($null -eq $script:origin) { return }
-    $end = Point-Fraction $e
-    $start = $script:origin
-    $script:origin = $null
-    $dx = ($end.X - $start.X) * $pad.ClientSize.Width
-    $dy = ($end.Y - $start.Y) * $pad.ClientSize.Height
-    try {
-        if (($dx * $dx + $dy * $dy) -lt 64) {
-            Send-Tap $end.X $end.Y
-            $status.Text = 'Tap sent.'
-        } else {
-            Send-Swipe $start.X $start.Y $end.X $end.Y
-            $status.Text = 'Swipe sent.'
-        }
-    } catch {
-        $status.Text = $_.Exception.Message
-    }
+    if ($e.Button -ne [System.Windows.Forms.MouseButtons]::Left) { return }
+    if (-not $script:fingerDown) { $pb.Capture = $false; return }
+    $point = Image-Fraction $e
+    try { End-Finger $point } catch { $status.Text = $_.Exception.Message }
+    $pb.Capture = $false
+})
+$pb.Add_MouseCaptureChanged({
+    if ($pb.Capture -or -not $script:fingerDown) { return }
+    try { End-Finger $null } catch { $status.Text = $_.Exception.Message }
 })
 
 foreach ($item in @(
@@ -183,16 +285,29 @@ foreach ($item in @(
     $button.Text = $item.Label
     $button.Width = 70
     $button.Height = 28
-    $keyName = $item.Key
-    $keyLabel = $item.Label
-    $button.Add_Click({
+    # Each button keeps its own key. Home is h, not whichever key the
+    # loop variable held when a shared closure ran.
+    $button.Tag = $item.Key
+    $button.Add_MouseDown({
+        param($sender, $e)
+        if ($e.Button -ne [System.Windows.Forms.MouseButtons]::Left) { return }
+        $this.Capture = $true
+        $name = [string]$this.Tag
+        $label = [string]$this.Text
+        if (-not (Test-Ready)) { return }
         try {
-            Send-Key $keyName
-            $status.Text = "$keyLabel sent."
-        } catch {
-            $status.Text = $_.Exception.Message
-        }
-    }.GetNewClosure())
+            Start-HardwareKey $name
+            $status.Text = "$label held."
+        } catch { $status.Text = $_.Exception.Message }
+    })
+    $button.Add_MouseUp({
+        param($sender, $e)
+        $this.Capture = $false
+        Request-KeyUp
+    })
+    $button.Add_MouseCaptureChanged({
+        if (-not $this.Capture) { Request-KeyUp }
+    })
     $buttons.Controls.Add($button)
 }
 
@@ -210,7 +325,7 @@ function Show-MirrorFrame {
         $pb.Image = $bmp
         if ($old) { $old.Dispose() }
         $script:pngStamp = $stamp
-        if ($script:step -eq 'ready') {
+        if ($script:step -eq 'ready' -and $status.Text -like 'Waiting*') {
             $status.Text = 'Drag or tap the picture. TigerVNC is a bigger view.'
         }
     } catch {
@@ -251,8 +366,9 @@ function Expired([int]$seconds) {
 }
 
 $engine = New-Object System.Windows.Forms.Timer
-$engine.Interval = 120
+$engine.Interval = 40
 $engine.Add_Tick({
+    try { Flush-Input } catch { $status.Text = $_.Exception.Message }
     Show-MirrorFrame
     if ($null -eq $script:mirrorProc -or $script:mirrorProc.HasExited) {
         if ((Test-Path -LiteralPath $script:mirrorScript) -and (Get-Date) -gt $script:mirrorNext) {
