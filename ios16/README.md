@@ -107,4 +107,12 @@ A GTK window opens, scaled to fit. The first picture is the white Apple logo on 
 
 Close the QEMU window to stop the guest. Nothing inside the guest is on a timer.
 
+The same touch pad Windows opens is available here as a Tk window. It does not start the guest. It reads the picture from QEMU's monitor and sends taps, drags, and the hardware keys over QMP, and it only dials loopback. You need Python 3 with tkinter. On Ubuntu or Debian that is `sudo apt-get install python3-tk`. With the guest already running:
+
+```bash
+bash ios16/linux/touch.sh
+```
+
+The defaults are monitor `127.0.0.1:4444` and QMP `127.0.0.1:4445`. `IOS16_HOST`, `IOS16_MONITOR_PORT`, and `IOS16_QMP_PORT` override them. `IOS16_HOST` must be `127.0.0.1`, `localhost`, or `::1`. Hold the left button and drag on the picture. Home, Power, and volume are buttons on that window.
+
 If Setup says 7-Zip is too old, the `p7zip` package from older Debian releases cannot read the restore. Install the `7zip` package (7-Zip 23 or newer) and run Setup again. If it says the guest tree has no session-timer patch, run Setup again so the patches in `ios16/patches` are applied.
