@@ -11,7 +11,7 @@ The guest stays up until you close the window.
 ## What you need
 
 - Windows 10 or 11, 64-bit
-- WSL2 with Ubuntu. Windows 11 shows the QEMU window through WSLg. Windows 10 uses a VNC viewer on port 5901.
+- WSL2 with Ubuntu. The QEMU window is shown by WSLg.
 - About 20 GB free inside the WSL disk
 - 16 GB of RAM on the PC. The guest takes 7 GB, so WSL itself needs about 12 GB.
 
@@ -47,29 +47,9 @@ The first picture is the white Apple logo on black. SpringBoard is already start
 - Hold the left mouse button and drag. That is a finger.
 - `H` is Home, `L` is the power button, `↑` and `↓` are volume.
 
-On Windows 10 there is no WSLg window and TigerVNC only shows the picture, so
-`Run.bat` starts `touch-pad.ps1` alongside it. That pad window is the
-controller, and the phone picture lives inside it (a snapshot every two
-seconds, taken from QEMU's monitor port, never from the viewer's socket) -
-click or drag on the picture to touch the phone, and use its Home, Power,
-and volume buttons. The picture area is shaped like the phone's screen, so
-you tap where you see the thing you want. Input goes through QEMU's QMP
-control port, which Setup patches to listen on all interfaces; the stock
-listener binds `127.0.0.1` only, and WSL does not forward that to Windows,
-so on a stock tree the pad stays on "Waiting for the phone..." forever.
-
-The pad takes the long view on trouble: it shows up right away, keeps
-retrying the connection, and says so in its status line if the input port
-is busy or the phone stopped. QEMU's control socket serves one connection
-at a time, so if a half-open connection is ever stuck in limbo and the pad
-can't get through after another window was force-closed, run this (no
-password needed) and the pad reconnects on its own:
-
-    wsl -d Ubuntu -u root -- ss -K sport = :4445
-
 Close the window to stop the guest. Nothing inside the guest is on a timer.
 
-If no window opens, this shell has no WSLg display and the script prints a VNC address on port 5901. A viewer such as TigerVNC can open it. On Windows 11, start `Run.bat` from the desktop so WSLg can attach.
+WSLg shows the phone window. The console is `logs/serial.log` inside the guest tree, not the window you started `Run.bat` from.
 
 ## Linux
 
@@ -80,7 +60,7 @@ What you need:
 - A 64-bit PC. The guest is an ARM64 machine, so on a typical Intel or AMD PC the CPU is emulated and the first frames are slow.
 - About 20 GB free under your home directory. The restore from Apple and the two disk images are large, and they are stored in `~/ios16-vm/hackios`, not next to this folder.
 - 16 GB of RAM is comfortable. The guest map is 7 GB. An 8 GB PC can still boot it, and it will use swap, so the lock screen takes longer.
-- A desktop session if you want the phone in a window. From an SSH shell with no `DISPLAY` and no `WAYLAND_DISPLAY`, the script prints a VNC address instead: `127.0.0.1:1` in TigerVNC, which is port 5901.
+- A desktop session if you want the phone in a window. From an SSH shell with no `DISPLAY` and no `WAYLAND_DISPLAY`, the script prints a VNC address instead: display 1, port 5901.
 
 Install, from the repository root:
 
