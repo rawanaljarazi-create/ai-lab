@@ -1,0 +1,24 @@
+--- a/userland/src/inject.c
++++ b/userland/src/inject.c
+@@ -653,7 +653,11 @@
+ static CFNumberRef
+ number(int value)
+ {
+-	return CFNumberCreate(NULL, kCFNumberIntType, &value);
++	long long wide = value;
++
++	/* backboardd reads these as 64-bit. A 32-bit number comes back as 0, and the
++	   touch screen is then "not a digitizer", so the lock screen never appears. */
++	return CFNumberCreate(NULL, kCFNumberSInt64Type, &wide);
+ }
+ 
+ /* A service of ours (the callbacks' refcon): what it says of itself, and whether the event server has taken it. */
+@@ -776,6 +780,8 @@
+ 	CFDictionarySetValue(properties, CFSTR("DeviceUsage"), usage_number);
+ 	CFDictionarySetValue(properties, CFSTR("DeviceUsagePairs"), pairs);
+ 	CFDictionarySetValue(properties, CFSTR("Built-In"), kCFBooleanTrue);
++	CFDictionarySetValue(properties, CFSTR("BuiltIn"), kCFBooleanTrue);
++	CFDictionarySetValue(properties, CFSTR("Authenticated"), kCFBooleanTrue);
+ 	CFDictionarySetValue(properties, CFSTR("Transport"), CFSTR("SPI"));
+ 	CFDictionarySetValue(properties, CFSTR("Manufacturer"), CFSTR("redwood"));
+ 	CFDictionarySetValue(properties, CFSTR("Product"), name);

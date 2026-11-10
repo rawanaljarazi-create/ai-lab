@@ -64,10 +64,36 @@ git -C "$ROOT" checkout -f --detach "$COMMIT"
 # ramfb-volatile: clang must re-read the display control word after the MMIO write,
 # or the phone screen is never shown.
 # no-session-timer: SECS=0 omits loader_return_after and the host timeout.
+# digitizer-startup: 64-bit HID usages, so backboardd accepts the touch screen at boot.
 PATCH_DIR=$(cd "$(dirname "$0")/../patches" && pwd)
-for p in ramfb-volatile.patch no-session-timer.patch qmp-open.patch download-progress.patch no-virtio-sound.patch serial-logfile.patch; do
+for p in ramfb-volatile.patch no-session-timer.patch qmp-open.patch download-progress.patch no-virtio-sound.patch serial-logfile.patch digitizer-startup.patch; do
 	patch -p1 -d "$ROOT" --forward --batch < "$PATCH_DIR/$p"
 done
+
+# inject.c is already in an existing root.apfs. Compile it again when the cross
+# SDK is here. A first Setup compiles it inside userland/build.sh below.
+if [ -f "$ROOT/userland/root.apfs" ] && [ -d "$ROOT/userland/root/lib" ]; then
+	(
+		cd "$ROOT"
+		# shellcheck disable=SC1091
+		source ./xnu-env.sh
+		sdk="${THEOS}/sdks/iPhoneOS16.5.sdk"
+		if ! command -v xnu-clang >/dev/null 2>&1 || ! command -v ld64 >/dev/null 2>&1 || [ ! -d "$sdk" ]; then
+			echo "setup.sh: digitizer patch is in the source. No iPhoneOS 16.5 SDK, xnu-clang, or ld64, so libhakios.dylib was not rebuilt." >&2
+			exit 0
+		fi
+		cd userland
+		mkdir -p obj root/lib ../prebuilt/userland
+		xnu-clang -arch arm64 -isysroot "$sdk" -O1 \
+			-dynamiclib -install_name /redwood/lib/libhakios.dylib \
+			-framework CoreFoundation -framework IOKit -lobjc \
+			-o obj/libhakios.dylib src/inject.c
+		cp obj/libhakios.dylib root/lib/libhakios.dylib
+		cp obj/libhakios.dylib ../prebuilt/userland/libhakios.dylib
+		python3 ../tools/apfs/mkapfs.py -z --plain fw -o root.apfs redwood=root
+		echo "setup.sh: libhakios.dylib rebuilt and packed into root.apfs"
+	)
+fi
 
 if ! command -v lzfse >/dev/null 2>&1 && [ ! -x "$ROOT/xnu-deps/host/bin/lzfse" ]; then
 	tmp=$(mktemp -d)
