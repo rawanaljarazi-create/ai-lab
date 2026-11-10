@@ -1,7 +1,5 @@
 # iOS 16 virtual machine
 
-WARNING!!!! You cannot interact with the VM on Linux, and any issues with Windows WON'T be fixed for the week.
-
 A window that boots **iOS 16.5** (build 20F66, the iPhone X restore Apple publishes) on Windows or Linux.
 
 The guest is [HakiOS](https://github.com/oosexgang/hackios-xnu-kernel): the open-source XNU kernel from the iOS 16 generation (`xnu-8796.121.2`) plus the stock iOS 16.5 user space, in QEMU. It reaches `launchd`, `backboardd`, and SpringBoard, so you get the lock screen and the home screen. It is not an iPhone. There is no Secure Enclave, so an Apple Account cannot sign in, and the picture is drawn by the CPU.
@@ -49,11 +47,9 @@ The first picture is the white Apple logo on black. SpringBoard is already start
 - Hold the left mouse button and drag. That is a finger.
 - `H` is Home, `L` is the power button, `↑` and `↓` are volume.
 
-On Windows 10 there is no WSLg window and TigerVNC only shows the picture, so
-`Run.bat` starts `touch-pad.ps1` alongside it. That pad window is the
-controller, and the phone picture lives inside it (a snapshot a few times a
-second, taken from QEMU's monitor port, never from the viewer's socket) -
-click or drag on the picture to touch the phone, and use its Home, Power,
+`Run.bat` opens the touch window (`touch-pad.ps1`) on its own, then starts the VM if it is not already up. On Windows 10 there is no WSLg window and TigerVNC only shows the picture, so that pad is the controller. The phone picture lives inside it (a snapshot a few times a second, taken from QEMU's monitor port, never from the viewer's socket).
+QEMU pads each screendump row to 4 bytes, so a 1125-wide frame is 3376 bytes per row; the pad keeps that stride and the picture stays upright.
+Click or drag on the picture to touch the phone, and use its Home, Power,
 and volume buttons. The picture area is shaped like the phone's screen, so
 you tap where you see the thing you want. For animation-speed video, still
 use the TigerVNC window; the pad is the aim-and-click controller. Input goes
@@ -107,12 +103,12 @@ A GTK window opens, scaled to fit. The first picture is the white Apple logo on 
 
 Close the QEMU window to stop the guest. Nothing inside the guest is on a timer.
 
-The same touch pad Windows opens is available here as a Tk window. It does not start the guest. It reads the picture from QEMU's monitor and sends taps, drags, and the hardware keys over QMP, and it only dials loopback. You need Python 3 with tkinter. On Ubuntu or Debian that is `sudo apt-get install python3-tk`. With the guest already running:
+`bash ios16/wsl/run.sh` starts the guest and does not open a touch window. After the VM is up, start that window yourself:
 
 ```bash
 bash ios16/linux/touch.sh
 ```
 
-The defaults are monitor `127.0.0.1:4444` and QMP `127.0.0.1:4445`. `IOS16_HOST`, `IOS16_MONITOR_PORT`, and `IOS16_QMP_PORT` override them. `IOS16_HOST` must be `127.0.0.1`, `localhost`, or `::1`. Hold the left button and drag on the picture. Home, Power, and volume are buttons on that window.
+You need Python 3 with tkinter. On Ubuntu or Debian: `sudo apt-get install python3-tk`. The window reads the monitor screendump (same 4-byte row stride as the Windows pad) and sends taps, drags, and the hardware keys over QMP. It only dials loopback. Defaults are monitor `127.0.0.1:4444` and QMP `127.0.0.1:4445`. `IOS16_HOST`, `IOS16_MONITOR_PORT`, and `IOS16_QMP_PORT` override them. `IOS16_HOST` must be `127.0.0.1`, `localhost`, or `::1`. Hold the left button and drag on the picture. Home, Power, and volume are buttons on that window.
 
 If Setup says 7-Zip is too old, the `p7zip` package from older Debian releases cannot read the restore. Install the `7zip` package (7-Zip 23 or newer) and run Setup again. If it says the guest tree has no session-timer patch, run Setup again so the patches in `ios16/patches` are applied.

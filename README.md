@@ -16,7 +16,7 @@ npm install
 | [`physics/`](physics) | A 2D felt table. Drop circles, boxes, and polygons, then throw them. | `npm run dev:physics` |
 | [`typing/`](typing) | Timed typing desk. Live WPM and accuracy, 15/30/60 second runs, a local best. | `npm run dev:typing` |
 | [`shellbox/`](shellbox) | Bridge that draws a Fireworks Mania show inside Garry's Mod. Windows + those two Steam games. | See [`shellbox/README.md`](shellbox/README.md) |
-| [`ios16/`](ios16) | iOS 16.5 lock screen and home screen in QEMU. Windows via WSL2, or Linux directly. Listed on the site at `/ios16/`. | See [`ios16/README.md`](ios16/README.md) |
+| [`ios16/`](ios16) | iOS 16.5 lock screen and home screen in QEMU. Windows opens the touch window with the VM. On Linux, after boot, run `bash ios16/linux/touch.sh` yourself. | See [`ios16/README.md`](ios16/README.md) |
 | [`site/`](site) | Dashboard that Vercel serves at `/`. | `npm run build:site` then `npm run preview:site` |
 
 `npm run dev` still starts Aetherwell locally.
@@ -25,5 +25,7 @@ npm install
 npm test
 npm run build:site
 ```
+
+`npm test` runs the Node tests, then `python3 ios16/test/test_mirror.py` and `python3 ios16/test/test_linux_touch.py`. `package.json` did not gain a new npm package; the only devDependency is still `vite`. The mirror test imports Pillow (`pip install pillow`). The Linux touch test uses the Python standard library.
 
 `build:site` writes `dist/` with the dashboard plus `/aetherwell/`, `/squishy/`, `/flappy/`, `/beats/`, `/pixel/`, `/physics/`, and `/typing/`. That is what Vercel publishes.
