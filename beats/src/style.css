@@ -1,0 +1,21 @@
+:root { color-scheme: dark; --bg: #16131f; --ink: #f4efe6; --dim: #8d86a3; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 20% 0%, #2c2340, var(--bg) 60%); color: var(--ink); font-family: Outfit, system-ui, sans-serif; display: grid; place-items: center; padding: 24px; }
+main { width: min(960px, 100%); }
+header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+h1 { font-family: Fraunces, serif; font-size: 3rem; margin: 0; }
+.lede { color: var(--dim); margin: 4px 0 20px; }
+a { color: var(--dim); }
+#grid { display: grid; grid-template-columns: 64px repeat(16, 1fr); gap: 5px; }
+.label { align-self: center; font-size: 0.85rem; color: var(--dim); }
+.cell { aspect-ratio: 1; border: 0; border-radius: 6px; background: #2a2438; cursor: pointer; transition: transform 0.08s; }
+.cell.beat { background: #352d47; }
+.cell.on { background: var(--c); box-shadow: 0 0 12px var(--c); }
+.cell.now { outline: 2px solid var(--ink); transform: scale(1.06); }
+.kick { --c: #ff6b6b; } .snare { --c: #ffb84d; } .hat { --c: #ffe66d; }
+.clap { --c: #6bdc8f; } .bass { --c: #5ec8ff; } .pluck { --c: #c58bff; }
+.controls { display: flex; gap: 12px; align-items: center; margin-top: 20px; flex-wrap: wrap; }
+button.ctl { font: inherit; padding: 8px 18px; border-radius: 999px; border: 1px solid #4a4160; background: #241e33; color: var(--ink); cursor: pointer; }
+button#play { background: var(--ink); color: var(--bg); font-weight: 620; }
+label.tempo { display: flex; gap: 8px; align-items: center; color: var(--dim); }
+@media (max-width: 600px) { #grid { grid-template-columns: 44px repeat(16, 1fr); gap: 2px; } .label { font-size: 0.65rem; } }

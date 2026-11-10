@@ -19,8 +19,10 @@
       <p class="mark">Repository experiments</p>
       <h1>ai-lab</h1>
       <p class="lede">
-        Experiments from this repo. Aetherwell and Squishy run in the browser.
-        iOS 16 is a virtual machine you start on Windows or Linux.
+        Experiments from this repo. Aetherwell, Squishy, Flappy, Beats, Pixel,
+        Physics, and Typing run in the browser. Shellbox draws a Fireworks
+        Mania show inside Garry's Mod and runs on your machine. iOS 16 is a
+        virtual machine you start on Windows or Linux.
       </p>
     </header>
     <main>
@@ -41,6 +43,20 @@
           <span class="go">Play Aetherwell</span>
         </div>
       </a>
+      <a class="card ink" href="/pixel/">
+        <div class="preview" aria-hidden="true">
+          <span class="sprite"></span>
+        </div>
+        <div class="copy">
+          <p class="status new">New on this site</p>
+          <h2>Pixel</h2>
+          <p>
+            A tiny 16 by 16 drawing toy with a retro palette, fill, mirror mode
+            and PNG export. The picture lives in the link, so you can share it.
+          </p>
+          <span class="go">Draw with Pixel</span>
+        </div>
+      </a>
       <a class="card cream" href="/squishy/">
         <div class="preview" aria-hidden="true">
           <span class="table"></span>
@@ -54,6 +70,90 @@
             squelch that only speaks while the body is moving.
           </p>
           <span class="go">Play Squishy</span>
+        </div>
+      </a>
+      <a class="card day" href="/flappy/">
+        <div class="preview" aria-hidden="true">
+          <span class="cloud"></span>
+          <span class="pipe up"></span>
+          <span class="pipe down"></span>
+          <span class="bird"></span>
+        </div>
+        <div class="copy">
+          <p class="status play">In the browser</p>
+          <h2>Flappy</h2>
+          <p>
+            A round bird in a wide meadow. Flap through the pipes. The ground
+            is closer than it looks.
+          </p>
+          <span class="go">Play Flappy</span>
+        </div>
+      </a>
+      <a class="card night" href="/beats/">
+        <div class="preview" aria-hidden="true">
+          <span class="moon"></span>
+        </div>
+        <div class="copy">
+          <p class="status new">New on this site</p>
+          <h2>Beats</h2>
+          <p>
+            A sixteen-step drum machine. Tap squares, press play, and share
+            the link to send your loop.
+          </p>
+          <span class="go">Play Beats</span>
+        </div>
+      </a>
+      <a class="card felt" href="/physics/">
+        <div class="preview" aria-hidden="true">
+          <span class="wood top"></span>
+          <span class="wood bottom"></span>
+          <span class="block"></span>
+          <span class="disc"></span>
+          <span class="gem"></span>
+        </div>
+        <div class="copy">
+          <p class="status sand">In the browser</p>
+          <h2>Physics</h2>
+          <p>
+            A felt table for circles, boxes, and polygons. Throw them. Gravity,
+            bounce, and friction do the rest.
+          </p>
+          <span class="go">Play Physics</span>
+        </div>
+      </a>
+      <a class="card folio" href="/typing/">
+        <div class="preview" aria-hidden="true">
+          <span class="paper">
+            <span class="inkline a"></span>
+            <span class="inkline b"></span>
+            <span class="inkline c"></span>
+            <span class="caret"></span>
+          </span>
+        </div>
+        <div class="copy">
+          <p class="status keys">In the browser</p>
+          <h2>Typing</h2>
+          <p>
+            A timed desk. Type the words, watch the misses, and keep a local
+            best for 15, 30, or 60 seconds.
+          </p>
+          <span class="go">Play Typing</span>
+        </div>
+      </a>
+      <a class="card flare" href="/shellbox/">
+        <div class="preview" aria-hidden="true">
+          <span class="burst a"></span>
+          <span class="burst b"></span>
+          <span class="burst c"></span>
+        </div>
+        <div class="copy">
+          <p class="status desk">Local only</p>
+          <h2>Shellbox</h2>
+          <p>
+            Draws a Fireworks Mania show inside Garry's Mod. Run it locally from
+            <code>shellbox/</code>.
+          </p>
+          <span class="go">Open Shellbox</span>
         </div>
       </a>
       <a class="card slate wide" href="/ios16/">
@@ -72,11 +172,7 @@
       </a>
     </main>
     <footer>
-      <p>
-        Local only: <code>shellbox/</code> draws a Fireworks Mania show inside
-        Garry's Mod. It is not on this page.
-      </p>
-      <p>Install from the repo root with <code>npm install</code>, then <code>npm run dev:aetherwell</code> or <code>npm run dev:squishy</code>.</p>
+      <p>Install from the repo root with <code>npm install</code>, then <code>npm run dev:aetherwell</code>, <code>npm run dev:squishy</code>, <code>npm run dev:flappy</code>, <code>npm run dev:beats</code>, <code>npm run dev:pixel</code>, <code>npm run dev:physics</code>, or <code>npm run dev:typing</code>.</p>
     </footer>
   </body>
 </html>
