@@ -1,19 +1,20 @@
 --- a/userland/src/inject.c
 +++ b/userland/src/inject.c
-@@ -653,7 +653,11 @@
+@@ -653,7 +653,12 @@
  static CFNumberRef
  number(int value)
  {
 -	return CFNumberCreate(NULL, kCFNumberIntType, &value);
-+	long long wide = value;
++	int32_t bits = value;
 +
-+	/* backboardd reads these as 64-bit. A 32-bit number comes back as 0, and the
-+	   touch screen is then "not a digitizer", so the lock screen never appears. */
-+	return CFNumberCreate(NULL, kCFNumberSInt64Type, &wide);
++	/* IOHID stores these only from a SInt32 CFNumber. Int and SInt64 both come
++	   back as usage page 0, so this is not a digitizer and the lock screen
++	   never appears. */
++	return CFNumberCreate(NULL, kCFNumberSInt32Type, &bits);
  }
  
  /* A service of ours (the callbacks' refcon): what it says of itself, and whether the event server has taken it. */
-@@ -776,6 +780,8 @@
+@@ -776,6 +781,8 @@
  	CFDictionarySetValue(properties, CFSTR("DeviceUsage"), usage_number);
  	CFDictionarySetValue(properties, CFSTR("DeviceUsagePairs"), pairs);
  	CFDictionarySetValue(properties, CFSTR("Built-In"), kCFBooleanTrue);
@@ -22,3 +23,12 @@
  	CFDictionarySetValue(properties, CFSTR("Transport"), CFSTR("SPI"));
  	CFDictionarySetValue(properties, CFSTR("Manufacturer"), CFSTR("redwood"));
  	CFDictionarySetValue(properties, CFSTR("Product"), name);
+@@ -902,7 +909,7 @@ micros(uint64_t absolute)
+ static void *
+ input_thread(__unused void *arg)
+ {
+-	static const int types[] = { HID_CLIENT_SIMPLE, HID_CLIENT_RATE_CONTROLLED };
++	static const int types[] = { HID_CLIENT_RATE_CONTROLLED, HID_CLIENT_SIMPLE };
+ 	IOHIDEventSystemClientRef client = NULL;
+ 	IOHIDServiceClientRef screen = NULL, buttons = NULL;
+ 	struct hakios_touch t;
