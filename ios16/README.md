@@ -1,5 +1,8 @@
 # iOS 16 virtual machine
 
+> [!WARNING]
+> **The VM can't be used right now.** Touch input has been removed, so you can't interact with iOS in the window. Hold off on running it until touch is rebuilt.
+
 A window that boots **iOS 16.5** (build 20F66, the iPhone X restore Apple publishes) on Windows or Linux.
 
 The guest is [HakiOS](https://github.com/oosexgang/hackios-xnu-kernel): the open-source XNU kernel from the iOS 16 generation (`xnu-8796.121.2`) plus the stock iOS 16.5 user space, in QEMU. It reaches `launchd`, `backboardd`, and SpringBoard, so you get the lock screen and the home screen. It is not an iPhone. There is no Secure Enclave, so an Apple Account cannot sign in, and the picture is drawn by the CPU.
