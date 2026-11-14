@@ -17,18 +17,12 @@
 @@ -776,6 +781,8 @@
  	CFDictionarySetValue(properties, CFSTR("DeviceUsage"), usage_number);
  	CFDictionarySetValue(properties, CFSTR("DeviceUsagePairs"), pairs);
--	CFDictionarySetValue(properties, CFSTR("Built-In"), kCFBooleanTrue);
-+	CFDictionarySetValue(properties, CFSTR("Built-In"), number(1));
-+	CFDictionarySetValue(properties, CFSTR("BuiltIn"), number(1));
-+	CFDictionarySetValue(properties, CFSTR("Authenticated"), number(1));
+ 	CFDictionarySetValue(properties, CFSTR("Built-In"), kCFBooleanTrue);
++	CFDictionarySetValue(properties, CFSTR("BuiltIn"), kCFBooleanTrue);
++	CFDictionarySetValue(properties, CFSTR("Authenticated"), kCFBooleanTrue);
  	CFDictionarySetValue(properties, CFSTR("Transport"), CFSTR("SPI"));
  	CFDictionarySetValue(properties, CFSTR("Manufacturer"), CFSTR("redwood"));
  	CFDictionarySetValue(properties, CFSTR("Product"), name);
-@@ -784,3 +791,3 @@
- 	if (display) {
--		CFDictionarySetValue(properties, CFSTR("DisplayIntegrated"), kCFBooleanTrue);
-+		CFDictionarySetValue(properties, CFSTR("DisplayIntegrated"), number(1));
- 	}
 @@ -902,7 +909,7 @@ micros(uint64_t absolute)
  static void *
  input_thread(__unused void *arg)
