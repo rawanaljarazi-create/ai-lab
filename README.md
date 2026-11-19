@@ -26,6 +26,6 @@ npm test
 npm run build:site
 ```
 
-`npm test` runs the Node tests, then `python3 ios16/test/test_linux_touch.py` and `python3 ios16/test/test_touch.py`. Both are the Python standard library. No npm package was added; the only devDependency is still `vite`. `ios16/test/test_mirror.py` is not part of that command: it imported `touch-mirror.py`, and that Windows mirror was removed.
+`npm test` runs the Node tests, then `python3 ios16/test/test_touch.py`. That test uses the Python standard library. No npm package was added; the only devDependency is still `vite`.
 
 `build:site` writes `dist/` with the dashboard plus `/aetherwell/`, `/squishy/`, `/flappy/`, `/beats/`, `/pixel/`, `/physics/`, and `/typing/`. That is what Vercel publishes.
