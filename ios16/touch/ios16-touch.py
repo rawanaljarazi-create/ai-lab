@@ -1,36 +1,62 @@
 #!/usr/bin/env python3
-"""Linux touch window for the iOS 16 guest.
+"""Touch window for the iOS 16 guest on Windows, Linux, and macOS.
 
-One window, next to the VM that is already running. It grabs a PPM from
-QEMU's monitor on 127.0.0.1:4444 and sends taps, drags, and the hardware
-keys to QMP on 127.0.0.1:4445. Those are the same two ports the Windows
-touch pad uses. Nothing here listens, and the host is forced to loopback.
+One Tk window, next to a VM that is already running. It grabs a PPM from
+QEMU's monitor and sends taps, drags, and the hardware keys to QMP.
+Nothing here listens. The host is forced to loopback.
 
-The picture path is the row-stride fix from the mirror converter: a QEMU
-screendump is packed RGB only when width*3 is a multiple of 4. Otherwise
-each row is padded to 4 bytes (1125-wide rows are 3376 bytes). Sampling
-uses that stride, keeps every second pixel, and shows the rows top-down.
+QEMU pads each screendump row to 4 bytes, so a 1125-wide frame is 3376
+bytes per row. Sampling uses that stride, keeps every second pixel, and
+shows the rows top-down.
 
-This does not start, stop, or reconfigure the guest.
+Home goes down when the button is pressed and stays down for at least
+220 ms, or for as long as the button is held. This does not start or
+stop the guest.
 """
 import json
 import os
 import socket
 import sys
+import tempfile
 import threading
 import time
 
 STEP = 2
 MONITOR_PORT = 4444
 QMP_PORT = 4445
-RAW = "/tmp/ios16-linux-touch.ppm"
 AXIS = 32767
+MIN_KEY_MS = 220
+KEYS = ("h", "l", "up", "down")
 
 
 def check_loopback(host):
     if host not in ("127.0.0.1", "localhost", "::1"):
         raise SystemExit("ios16-touch.py: refusing %s. This window only dials loopback." % host)
     return host
+
+
+def screendump_paths(system, distro="Ubuntu"):
+    """Path QEMU writes, and the path this process reads.
+
+    On Linux and macOS those are the same file. On Windows, QEMU is in WSL,
+    so the screendump name is a Linux path and the bytes are read back
+    through the WSL share.
+    """
+    qemu_path = "/tmp/ios16-touch.ppm"
+    if system == "nt":
+        return qemu_path, "\\\\wsl$\\%s\\tmp\\ios16-touch.ppm" % distro
+    return qemu_path, qemu_path
+
+
+def key_release_delay_ms(held_ms, minimum=MIN_KEY_MS):
+    """Wait after release so a short Home press still lasts `minimum` ms.
+
+    A longer hold returns 0 and the key is released immediately.
+    """
+    if held_ms < 0:
+        held_ms = 0
+    remaining = minimum - held_ms
+    return remaining if remaining > 0 else 0
 
 
 def _header_end(blob, i):
@@ -199,6 +225,8 @@ def pointer_command(x, y, down):
 
 
 def key_command(name, down):
+    if name not in KEYS:
+        raise ValueError("unknown key")
     event = {
         "type": "key",
         "data": {"down": bool(down), "key": {"type": "qcode", "data": name}},
@@ -313,15 +341,15 @@ def read_until(sock, token):
     return buf
 
 
-def grab_ppm(sock, path):
+def grab_ppm(sock, qemu_path, read_path):
     try:
-        os.unlink(path)
+        os.unlink(read_path)
     except OSError:
         pass
-    sock.sendall(b"screendump " + path.encode() + b" -f ppm\n")
+    sock.sendall(b"screendump " + qemu_path.encode() + b" -f ppm\n")
     read_until(sock, b"(qemu)")
     try:
-        with open(path, "rb") as handle:
+        with open(read_path, "rb") as handle:
             blob = handle.read()
     except OSError:
         return None
@@ -347,7 +375,10 @@ class Mirror(threading.Thread):
                     sock = socket.create_connection((self.host, self.port), 5)
                     sock.settimeout(8)
                     read_until(sock, b"(qemu)")
-                frame = grab_ppm(sock, RAW)
+                qemu_path, read_path = screendump_paths(
+                    os.name, os.environ.get("IOS16_WSL_DISTRO", "Ubuntu")
+                )
+                frame = grab_ppm(sock, qemu_path, read_path)
                 if frame is None:
                     self.state.set_status("Waiting for a picture from the phone...")
                 else:
@@ -398,7 +429,7 @@ def run_window(host, monitor_port, qmp_port):
         import tkinter as tk
     except ModuleNotFoundError:
         raise SystemExit(
-            "ios16-touch.py: Python has no tkinter. On Ubuntu or Debian: sudo apt-get install python3-tk"
+            "ios16-touch.py: Python has no tkinter. On Ubuntu or Debian: sudo apt-get install python3-tk. On Windows, install Python from python.org and include Tcl/Tk."
         )
 
     state = State()
@@ -453,23 +484,71 @@ def run_window(host, monitor_port, qmp_port):
     view.bind("<ButtonPress-1>", press)
     view.bind("<ButtonRelease-1>", release)
 
-    def send_key(name, label):
+    held = {"name": None, "label": None, "at": 0.0}
+
+    def finish_key(name, label):
+        if held["name"] != name:
+            return
         try:
-            qmp.key(name)
+            qmp.command(key_command(name, False))
         except OSError as exc:
             status.set(str(exc))
             return
+        held["name"] = None
         status.set(label + " sent.")
 
-    for label, qcode in (("Home", "h"), ("Power", "l"), ("Vol +", "up"), ("Vol -", "down")):
-        tk.Button(
-            buttons,
-            text=label,
-            command=lambda code=qcode, text=label: send_key(code, text),
-            width=8,
-        ).pack(side="left", padx=4)
+    def key_down(name, label):
+        if held["name"] == name:
+            return
+        if held["name"]:
+            try:
+                qmp.command(key_command(held["name"], False))
+            except OSError as exc:
+                status.set(str(exc))
+                return
+            held["name"] = None
+        try:
+            qmp.command(key_command(name, True))
+        except OSError as exc:
+            status.set(str(exc))
+            return
+        held["name"] = name
+        held["label"] = label
+        held["at"] = time.monotonic()
+        status.set(label + " held.")
 
-    paths = ["/tmp/ios16-linux-touch-view-0.ppm", "/tmp/ios16-linux-touch-view-1.ppm"]
+    def key_up(name, label):
+        if held["name"] != name:
+            return
+        delay = key_release_delay_ms((time.monotonic() - held["at"]) * 1000.0)
+        if delay:
+            root.after(int(delay), lambda: finish_key(name, label))
+        else:
+            finish_key(name, label)
+
+    for label, qcode in (("Home", "h"), ("Power", "l"), ("Vol +", "up"), ("Vol -", "down")):
+        button = tk.Button(buttons, text=label, width=8)
+        button.pack(side="left", padx=4)
+
+        def press(_event, code=qcode, text=label, widget=button):
+            widget.grab_set()
+            key_down(code, text)
+
+        def release(_event, code=qcode, text=label, widget=button):
+            try:
+                widget.grab_release()
+            except tk.TclError:
+                pass
+            key_up(code, text)
+
+        button.bind("<ButtonPress-1>", press)
+        button.bind("<ButtonRelease-1>", release)
+
+    view_dir = tempfile.gettempdir()
+    paths = [
+        os.path.join(view_dir, "ios16-touch-view-0.ppm"),
+        os.path.join(view_dir, "ios16-touch-view-1.ppm"),
+    ]
     slot = {"n": 0}
 
     def connect_qmp():
@@ -504,6 +583,13 @@ def run_window(host, monitor_port, qmp_port):
         root.after(80, poll)
 
     def close():
+        name = held["name"]
+        if name:
+            try:
+                qmp.command(key_command(name, False))
+            except OSError:
+                pass
+            held["name"] = None
         stop.set()
         qmp.close()
         root.destroy()
@@ -521,7 +607,7 @@ def main(argv):
     monitor = int(os.environ.get("IOS16_MONITOR_PORT", str(MONITOR_PORT)))
     qmp_port = int(os.environ.get("IOS16_QMP_PORT", str(QMP_PORT)))
     if argv[1:] not in ([],):
-        raise SystemExit("usage: python3 ios16-touch.py")
+        raise SystemExit("usage: python3 ios16/touch/ios16-touch.py")
     run_window(host, monitor, qmp_port)
     return 0
 

@@ -13,7 +13,7 @@ from pathlib import Path
 
 IOS16 = Path(__file__).resolve().parents[1]
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
-spec = importlib.util.spec_from_file_location("ios16_touch", IOS16 / "linux" / "ios16-touch.py")
+spec = importlib.util.spec_from_file_location("ios16_touch", IOS16 / "touch" / "ios16-touch.py")
 touch = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(touch)
 
@@ -180,6 +180,24 @@ class TouchLogicTests(unittest.TestCase):
         self.assertRaises(SystemExit, touch.check_loopback, "10.0.0.1")
         self.assertEqual(touch.check_loopback("127.0.0.1"), "127.0.0.1")
         self.assertEqual(touch.check_loopback("localhost"), "localhost")
+
+    def test_home_hold_extends_a_short_press_and_keeps_a_long_one(self):
+        self.assertEqual(touch.key_release_delay_ms(50), 170)
+        self.assertEqual(touch.key_release_delay_ms(220), 0)
+        self.assertEqual(touch.key_release_delay_ms(800), 0)
+        down = touch.key_command("h", True)
+        up = touch.key_command("h", False)
+        self.assertIn('"data":"h"', down)
+        self.assertIn('"down":true', down)
+        self.assertIn('"down":false', up)
+        self.assertRaises(ValueError, touch.key_command, "home", True)
+
+    def test_screendump_path_stays_local_except_on_windows(self):
+        same = touch.screendump_paths("posix")
+        self.assertEqual(same, ("/tmp/ios16-touch.ppm", "/tmp/ios16-touch.ppm"))
+        qemu, read = touch.screendump_paths("nt", "Ubuntu")
+        self.assertEqual(qemu, "/tmp/ios16-touch.ppm")
+        self.assertEqual(read, "\\\\wsl$\\Ubuntu\\tmp\\ios16-touch.ppm")
 
 
 if __name__ == "__main__":
