@@ -49,7 +49,7 @@ The first picture is the white Apple logo on black. SpringBoard is already start
 
 Close the window to stop the guest. Nothing inside the guest is on a timer.
 
-`Run.bat` does not open a touch window. The old Windows pad was removed. After the guest is up, start the touch window yourself with `ios16\touch\touch.bat`. That needs Python 3 with tkinter, which the python.org installer includes when Tcl/Tk is selected.
+`Run.bat` does not open a touch window. The old Windows pad was removed. After the guest is up, start the touch window yourself with `ios16\touch\touch.bat`. That needs Python 3 with tkinter, which the python.org installer includes when Tcl/Tk is selected. Touch has not been verified against a running guest.
 
 WSLg shows the phone window. The console is `logs/serial.log` inside the guest tree, not the window you started `Run.bat` from.
 
@@ -92,6 +92,8 @@ bash ios16/touch/touch.sh
 ```
 
 On Windows the same app is `ios16\touch\touch.bat`. You need Python 3 with tkinter. On Ubuntu or Debian: `sudo apt-get install python3-tk`. The window reads the monitor screendump, including QEMU's 4-byte row stride, and sends taps, drags, and the hardware keys over QMP. Holding Home keeps that key down; a short press is held for at least 220 ms. It only dials loopback. Defaults are monitor `127.0.0.1:4444` and QMP `127.0.0.1:4445`. `IOS16_HOST`, `IOS16_MONITOR_PORT`, and `IOS16_QMP_PORT` override them. `IOS16_HOST` must be `127.0.0.1`, `localhost`, or `::1`.
+
+Touch has not been verified against a running guest. The window has not been tried with QEMU or backboardd, so a tap or Home from this window is not known to be accepted.
 
 Setup applies `ios16/patches/digitizer-startup.patch` to HakiOS `userland/src/inject.c`. The touch screen's usage numbers are SInt32, which is the CFNumber type IOHID copies, and the service is marked built-in and authenticated. That is what backboardd reads before it will leave the Apple logo and draw the lock screen. The rate-controlled HID client is registered first, because the send-only client cannot answer those property reads. When `root.apfs` is already on disk and the iPhoneOS 16.5 SDK, `xnu-clang`, and `ld64` are installed, Setup compiles `libhakios.dylib` again and packs it into `root.apfs`. Without that SDK, Setup leaves the prebuilt library as it is. Install the SDK and run Setup again to put the change in the guest.
 
