@@ -83,5 +83,6 @@ cd "$ROOT"
 echo "run.sh: iOS 16.5 guest, ${QEMU_RAM_GB} GB RAM, ${QEMU_SMP} cores"
 echo "run.sh: stays up until the window is closed"
 echo "run.sh: hold the left mouse button to touch. H home, L power, Up and Down volume."
+echo "run.sh: this does not open the touch window. After the guest is up, from the repo: bash ios16/touch/touch.sh"
 # 0 means no loader_return_after and no host timeout. See patches/no-session-timer.patch.
 exec qemu/run-ios.sh 0 "${display[@]}"
