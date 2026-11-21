@@ -122,7 +122,7 @@ export function mountSileo(root, session, hooks) {
         <p class="ver">${count} packages · suite ${esc(DEVICE.suite)} · main</p>
       </article>
     </div>
-    <p class="fine">Sileo refreshes this source with apt update. The index is local to the simulation.</p>
+    <p class="fine">Not a real apt.procurs.us index. Refresh only rewrites the local package list.</p>
     <button class="wide" data-act="refresh">Refresh Sources</button>`;
   }
 
@@ -222,6 +222,7 @@ export function mountSileo(root, session, hooks) {
       <button class="back" data-act="back" ${back}>Back</button>
       <h2>${esc(title())}</h2>
     </header>
+    <p class="sileo-warn">Not real Sileo. Confirm does not install anything on a device.</p>
     <div class="sileo-body">${body()}</div>
     <div class="queue-bar" ${count ? "" : "hidden"}>
       <div><strong>Queued</strong><span>${count} Package${count === 1 ? "" : "s"}</span></div>

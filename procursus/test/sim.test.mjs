@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { CATALOG } from "../src/catalog.js";
 import { confirmQueue, queueInstall } from "../src/queue.js";
-import { complete, createSession, promptText, runLine } from "../src/shell.js";
+import { bannerText, complete, createSession, promptText, runLine } from "../src/shell.js";
 
 function boot() {
   return createSession();
@@ -27,6 +27,9 @@ test("the bootstrap looks like a rootless Procursus iPhone", () => {
   assert.match(run(session, "sw_vers").stdout, /18\.1/);
   assert.match(run(session, "whoami").stdout, /mobile/);
   assert.equal(run(session, "pwd").stdout.trim(), "/var/mobile");
+  assert.match(bannerText(), /NOT real Procursus/);
+  assert.match(run(session, "dopamine").stdout, /NOT real/);
+  assert.match(run(session, "cat /var/jb/etc/os-release").stdout, /NOT real Procursus/);
 });
 
 test("sudo switches to root and exit returns", () => {

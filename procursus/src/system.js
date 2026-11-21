@@ -32,6 +32,7 @@ VERSION_ID=${DEVICE.procursus}
 PRETTY_NAME="Procursus ${DEVICE.procursus} (rootless)"
 HOME_URL="https://procurs.us"
 ARCHITECTURE="iphoneos-arm64"
+NOTE="NOT real Procursus. Browser simulation only."
 `;
 
 export function unameLine() {

@@ -27,13 +27,13 @@ app.innerHTML = `
     <div class="brand">
       <a href="/">ai-lab</a>
       <strong>Procursus</strong>
-      <small>Simulated rootless shell. No network, no device.</small>
     </div>
     <div class="switch" role="tablist" aria-label="View">
       <button type="button" id="show-term" role="tab" aria-selected="true">Terminal</button>
       <button type="button" id="show-sileo" role="tab" aria-selected="false">Sileo</button>
     </div>
   </header>
+  <p class="not-real" role="status">Not real Procursus. This shell, apt, and Sileo exist only in this browser.</p>
   <section id="term" class="term">
     <div id="screen" class="screen" tabindex="0">
       <div id="log" class="log"></div>

@@ -754,6 +754,11 @@ code {
   color: #8fbf9f;
 }
 
+.phone .status.notreal {
+  background: rgba(231, 179, 168, 0.16);
+  color: #e7b3a8;
+}
+
 @media (min-width: 1200px) {
   header,
   main,

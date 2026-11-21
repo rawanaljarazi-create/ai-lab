@@ -91,6 +91,9 @@ export function bannerText(now = new Date()) {
     timeZone: "UTC",
   });
   return [
+    "NOT real Procursus.",
+    "This is a browser simulation. There is no phone, no bootstrap, and apt.procurs.us is never contacted.",
+    "",
     `Last login: ${stamp} UTC from 127.0.0.1`,
     `Procursus ${DEVICE.procursus} — rootless — Dopamine ${DEVICE.dopamine}`,
     `${DEVICE.product} · iOS ${DEVICE.productVersion} (${DEVICE.build}) · Darwin ${DEVICE.arch}`,
@@ -936,6 +939,7 @@ function cmdKillall(argv) {
 
 function cmdJb(argv) {
   const lines = [
+    "NOT real. This status is not a jailbreak.",
     `Dopamine ${DEVICE.dopamine}`,
     "jailbreak: active",
     "type: rootless",
