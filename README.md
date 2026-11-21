@@ -1,6 +1,6 @@
 # ai-lab
 
-A folder per experiment. The Vercel site is a dashboard: [Aetherwell](https://ai-lab-zeta-lyart.vercel.app/aetherwell/) is the mesa that was already live, and [Squishy](https://ai-lab-zeta-lyart.vercel.app/squishy/), [Flappy](https://ai-lab-zeta-lyart.vercel.app/flappy/), [Beats](https://ai-lab-zeta-lyart.vercel.app/beats/), [Pixel](https://ai-lab-zeta-lyart.vercel.app/pixel/), [Physics](https://ai-lab-zeta-lyart.vercel.app/physics/), and [Typing](https://ai-lab-zeta-lyart.vercel.app/typing/) ship on that same site.
+A folder per experiment. The Vercel site is a dashboard: [Aetherwell](https://ai-lab-zeta-lyart.vercel.app/aetherwell/) is the mesa that was already live, and [Squishy](https://ai-lab-zeta-lyart.vercel.app/squishy/), [Flappy](https://ai-lab-zeta-lyart.vercel.app/flappy/), [Beats](https://ai-lab-zeta-lyart.vercel.app/beats/), [Pixel](https://ai-lab-zeta-lyart.vercel.app/pixel/), [Physics](https://ai-lab-zeta-lyart.vercel.app/physics/), [Typing](https://ai-lab-zeta-lyart.vercel.app/typing/), and [Procursus](https://ai-lab-zeta-lyart.vercel.app/procursus/) ship on that same site.
 
 ```bash
 npm install
@@ -15,6 +15,7 @@ npm install
 | [`pixel/`](pixel) | A 16 by 16 drawing toy. Pen, fill, mirror, undo, and a picture you can share as a link. | `npm run dev:pixel` |
 | [`physics/`](physics) | A 2D felt table. Drop circles, boxes, and polygons, then throw them. | `npm run dev:physics` |
 | [`typing/`](typing) | Timed typing desk. Live WPM and accuracy, 15/30/60 second runs, a local best. | `npm run dev:typing` |
+| [`procursus/`](procursus) | Simulated rootless Procursus shell. Sileo installs packages through apt, in the browser only. | `npm run dev:procursus` |
 | [`shellbox/`](shellbox) | Bridge that draws a Fireworks Mania show inside Garry's Mod. Windows + those two Steam games. | See [`shellbox/README.md`](shellbox/README.md) |
 | [`ios16/`](ios16) | iOS 16.5 in QEMU. The touch window is one Python app for Windows, Linux, and macOS. `Run.bat` does not start it. After boot: `bash ios16/touch/touch.sh` or `ios16\touch\touch.bat`. | See [`ios16/README.md`](ios16/README.md) |
 | [`site/`](site) | Dashboard that Vercel serves at `/`. | `npm run build:site` then `npm run preview:site` |
@@ -28,4 +29,4 @@ npm run build:site
 
 `npm test` runs the Node tests, then `python3 ios16/test/test_touch.py`. That test uses the Python standard library. No npm package was added; the only devDependency is still `vite`.
 
-`build:site` writes `dist/` with the dashboard plus `/aetherwell/`, `/squishy/`, `/flappy/`, `/beats/`, `/pixel/`, `/physics/`, and `/typing/`. That is what Vercel publishes.
+`build:site` writes `dist/` with the dashboard plus `/aetherwell/`, `/squishy/`, `/flappy/`, `/beats/`, `/pixel/`, `/physics/`, `/typing/`, and `/procursus/`. That is what Vercel publishes.

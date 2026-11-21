@@ -711,6 +711,54 @@ code {
   color: #9fd6c8;
 }
 
+.phone {
+  background: #0c0e12;
+  color: #e6edf3;
+  border: 1px solid rgba(142, 180, 212, 0.2);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.phone .preview {
+  background: #07080b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.phone .ps1,
+.phone .typed {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  font-size: 14px;
+}
+
+.phone .ps1 {
+  top: 42%;
+  color: #8fbf9f;
+}
+
+.phone .typed {
+  top: 58%;
+  color: #d7dde6;
+}
+
+.phone .typed.dim {
+  top: 72%;
+  color: rgba(215, 221, 230, 0.45);
+}
+
+.phone .copy p:not(.status) {
+  color: rgba(230, 237, 243, 0.74);
+}
+
+.phone .go {
+  color: #8fbf9f;
+}
+
+.phone .status.notreal {
+  background: rgba(231, 179, 168, 0.16);
+  color: #e7b3a8;
+}
+
 @media (min-width: 1200px) {
   header,
   main,
