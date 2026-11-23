@@ -16,11 +16,11 @@
   Type (Fraunces, Outfit), the twilight sky, cream / gold / teal, and the
   experiment drawings stay ai-lab. Detail pages still use styles.css.
 
-  Entrance motion follows Magic UI Blur Fade (MIT): 6px offset, opacity,
-  0.4s ease-out, and a 0.04s base delay. The blur itself is only on the
-  hero, so a phone is not blurring every card at once.
+  Entrance motion follows Magic UI Blur Fade (MIT): opacity, a short
+  offset, and ease-out, played as the section comes into view.
   https://magicui.design/docs/components/blur-fade
   https://github.com/magicuidesign/magicui
+  The experiment drawings themselves do not animate.
 */
 
 :root {
@@ -889,172 +889,136 @@ footer code {
 @keyframes rise {
   from {
     opacity: 0;
-    translate: 0 6px;
-    filter: blur(6px);
+    translate: 0 18px;
   }
 
   to {
     opacity: 1;
     translate: 0 0;
-    filter: blur(0);
   }
 }
 
-@keyframes rise-plain {
+@keyframes unveil {
   from {
     opacity: 0;
-    translate: 0 6px;
+    clip-path: inset(100% 0 0 0);
+    translate: 0 20px;
   }
 
   to {
     opacity: 1;
+    clip-path: inset(0);
     translate: 0 0;
   }
+}
+
+@keyframes draw {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
 @keyframes drift {
   from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-2.5%, 1.5%, 0); }
+  to { transform: translate3d(-4%, 2%, 0); }
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+.mark {
+  animation: rise 0.55s ease-out both;
 }
 
-@keyframes glow {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
+h1 {
+  animation: unveil 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
 }
 
-@keyframes squish {
-  0%, 100% { transform: scale(1, 1); }
-  50% { transform: scale(1.07, 0.9); }
+.lede {
+  animation: rise 0.7s ease-out 0.22s both;
 }
 
-@keyframes flap {
-  0%, 100% { transform: translateY(0) rotate(-8deg); }
-  50% { transform: translateY(-8px) rotate(8deg); }
+.facts li {
+  animation: rise 0.55s ease-out both;
 }
 
-@keyframes slide {
-  from { transform: translateX(0); }
-  to { transform: translateX(16px); }
+.facts li:nth-child(1) { animation-delay: 0.32s; }
+.facts li:nth-child(2) { animation-delay: 0.42s; }
+.facts li:nth-child(3) { animation-delay: 0.52s; }
+
+.index a {
+  animation: rise 0.5s ease-out both;
 }
 
-@keyframes bob-block {
-  0%, 100% { transform: translateY(0) rotate(16deg); }
-  50% { transform: translateY(-7px) rotate(10deg); }
+.index a:nth-child(1) { animation-delay: 0.36s; }
+.index a:nth-child(2) { animation-delay: 0.42s; }
+.index a:nth-child(3) { animation-delay: 0.48s; }
+.index a:nth-child(4) { animation-delay: 0.54s; }
+.index a:nth-child(5) { animation-delay: 0.6s; }
+.index a:nth-child(6) { animation-delay: 0.66s; }
+.index a:nth-child(7) { animation-delay: 0.72s; }
+.index a:nth-child(8) { animation-delay: 0.78s; }
+.index a:nth-child(9) { animation-delay: 0.84s; }
+.index a:nth-child(10) { animation-delay: 0.9s; }
+
+.rule {
+  transform-origin: left center;
+  animation: draw 0.8s ease-out 0.4s both;
 }
 
-@keyframes blink {
-  0%, 45% { opacity: 1; }
-  50%, 100% { opacity: 0; }
+.top nav a {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0 1px;
+  transition: background-size 0.35s ease, color 0.25s ease;
 }
 
-@keyframes step {
-  to { transform: translateX(88px); }
-}
-
-@keyframes burst {
-  from { transform: rotate(0deg) scale(0.94); }
-  to { transform: rotate(18deg) scale(1.06); }
-}
-
-.hero,
-.index {
-  animation: rise 0.45s ease-out both;
-}
-
-.hero { animation-delay: 0.04s; }
-.index { animation-delay: 0.12s; }
-
-.card {
-  animation: rise-plain 0.4s ease-out both;
-}
-
-.card:nth-child(1) { animation-delay: 0.16s; }
-.card:nth-child(2) { animation-delay: 0.2s; }
-.card:nth-child(3) { animation-delay: 0.24s; }
-.card:nth-child(4) { animation-delay: 0.28s; }
-.card:nth-child(5) { animation-delay: 0.32s; }
-.card:nth-child(6) { animation-delay: 0.36s; }
-.card:nth-child(7) { animation-delay: 0.4s; }
-.card:nth-child(8) { animation-delay: 0.44s; }
-.card:nth-child(9) { animation-delay: 0.48s; }
-.card:nth-child(10) { animation-delay: 0.52s; }
-
-.moon,
-.shard,
-.sprite,
-.handset {
-  animation: float 5.5s ease-in-out infinite;
-}
-
-.shard.b { animation-duration: 6.4s; animation-delay: -1.8s; }
-.sprite { animation-duration: 7s; }
-
-.well { animation: glow 4.2s ease-in-out infinite; }
-.dough { animation: squish 3.4s ease-in-out infinite; }
-.bird { animation: flap 2.2s ease-in-out infinite; }
-.cloud { animation: slide 7s ease-in-out infinite alternate; }
-.disc { animation: float 4.8s ease-in-out infinite; }
-.gem { animation: float 5.6s ease-in-out infinite; animation-delay: -1.2s; }
-.block { animation: bob-block 4.4s ease-in-out infinite; }
-.caret,
-.typed:not(.dim)::after {
-  animation: blink 1.05s steps(1, end) infinite;
-}
-
-.typed:not(.dim)::after {
-  content: "";
+.go span {
   display: inline-block;
-  width: 7px;
-  height: 0.9em;
-  margin-left: 5px;
-  background: #d7dde6;
-  vertical-align: -1px;
+  transition: translate 0.35s ease;
 }
 
-.playhead {
-  position: absolute;
-  left: 18%;
-  top: 43%;
-  width: 16px;
-  height: 54px;
-  border-radius: 4px;
-  background: rgba(220, 227, 255, 0.16);
-  animation: step 2s steps(5, end) infinite;
+.js .card,
+.js footer {
+  opacity: 0;
 }
 
-.burst { animation: burst 7s ease-in-out infinite alternate; }
-.burst.b { animation-duration: 9s; }
-.burst.c { animation-duration: 6s; animation-direction: alternate-reverse; }
+.js .card.shown,
+.js footer.shown {
+  animation: rise 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .top nav a:hover,
+  .top nav a:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  .card:hover .go span,
+  .card:focus-visible .go span {
+    translate: 7px 0;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .sky::before,
-  .hero,
-  .index,
-  .card,
-  .moon,
-  .well,
-  .shard,
-  .sprite,
-  .dough,
-  .bird,
-  .cloud,
-  .disc,
-  .gem,
-  .block,
-  .caret,
-  .typed:not(.dim)::after,
-  .playhead,
-  .burst,
-  .handset {
+  .mark,
+  h1,
+  .lede,
+  .facts li,
+  .index a,
+  .rule,
+  .js .card.shown,
+  .js footer.shown {
     animation: none;
   }
 
-  .card {
+  .js .card,
+  .js footer {
+    opacity: 1;
+  }
+
+  .card,
+  .go span,
+  .top nav a {
     transition: none;
   }
 

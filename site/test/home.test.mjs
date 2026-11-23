@@ -49,11 +49,15 @@ test("homepage is dark and sized for a phone", () => {
   assert.match(css, /min-height:\s*44px/);
 });
 
-test("motion is css and turns off when requested", () => {
+test("page motion stays off the drawings", () => {
+  assert.match(home, /src="\/motion\.js"/);
+  assert.match(css, /@keyframes unveil/);
   assert.match(css, /@keyframes rise/);
-  assert.match(css, /@keyframes squish/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /animation:\s*none/);
+  for (const drawing of [".moon", ".well", ".dough", ".bird", ".pad", ".burst", ".handset", ".caret"]) {
+    assert.doesNotMatch(css, new RegExp(`${drawing.replace(".", "\\.")}\\s*\\{[^}]*animation`), drawing);
+  }
 });
 
 test("detail pages still come home through the shared stylesheet", () => {
