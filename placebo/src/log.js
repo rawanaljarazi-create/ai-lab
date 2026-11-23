@@ -14,10 +14,10 @@ export const LOG_LINES = [
   { kind: "good", text: "[+] Bypass held", base: 700 },
   { kind: "info", text: "[*] Building a page map", base: 1200 },
   { kind: "info", text: "[*] Map covers the staged pages", base: 800 },
-  { kind: "info", text: "[*] Extracting bootstrap", base: 1700 },
-  { kind: "info", text: "[*] Archive opened", base: 600 },
-  { kind: "info", text: "[*] Preparing a rootless prefix", base: 1200 },
-  { kind: "info", text: "[*] Prefix reserved", base: 700 },
+  { kind: "info", text: "[*] Extracting bootstrap", base: 1700, rootless: true },
+  { kind: "info", text: "[*] Archive opened", base: 600, rootless: true },
+  { kind: "info", text: "[*] Preparing a rootless prefix", base: 1200, rootless: true },
+  { kind: "info", text: "[*] Prefix reserved", base: 700, rootless: true },
   { kind: "info", text: "[*] Installing Sileo", base: 1600 },
   { kind: "info", text: "[*] Package lists refreshed", base: 800 },
   { kind: "info", text: "[*] Enabling tweaks", base: 900 },
@@ -50,12 +50,17 @@ function fitDelays(weights, target) {
   return ms;
 }
 
-export function scheduleLog(random = Math.random) {
+export function scriptLines({ rootless = true } = {}) {
+  return LOG_LINES.filter((line) => rootless || line.rootless !== true);
+}
+
+export function scheduleLog(random = Math.random, options = {}) {
   const roll = () => rollOf(random);
+  const lines = scriptLines(options);
   const target = 21000 + Math.floor(roll() * 8001);
-  const weights = LOG_LINES.map((line) => line.base * (0.7 + roll() * 0.6));
+  const weights = lines.map((line) => line.base * (0.7 + roll() * 0.6));
   const ms = fitDelays(weights, target);
-  return LOG_LINES.map((line, index) => ({
+  return lines.map((line, index) => ({
     kind: line.kind,
     text: line.text,
     ms: ms[index],
