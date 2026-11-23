@@ -1,5 +1,5 @@
 import { aptInstall, aptRemove, planInstall, readInstalled } from "./apt.js";
-import { packageByName } from "./catalog.js";
+import { packageByName } from "./repo.js";
 
 function explicit(queue, action) {
   return queue.filter((item) => item.action === action && item.explicit).map((item) => item.name);
@@ -42,7 +42,7 @@ export function clearQueue(session) {
   session.queue = [];
 }
 
-export function confirmQueue(session, options = {}) {
+export async function confirmQueue(session, options = {}) {
   const removes = session.queue.filter((item) => item.action === "remove").map((item) => item.name);
   const installs = session.queue.filter((item) => item.action === "install").map((item) => item.name);
   let stdout = "";
@@ -57,7 +57,7 @@ export function confirmQueue(session, options = {}) {
     respring = removed.respring;
   }
   if (installs.length && code === 0) {
-    const installed = aptInstall(session.fs, installs, { asRoot: true });
+    const installed = await aptInstall(session.fs, installs, { asRoot: true });
     stdout += installed.stdout;
     stderr += installed.stderr;
     code = installed.code;

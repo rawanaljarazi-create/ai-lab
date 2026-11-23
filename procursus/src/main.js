@@ -2,14 +2,16 @@ import { aptUpdate } from "./apt.js";
 import { mountSileo } from "./sileo.js";
 import { bannerText, complete, createSession, promptOf, runLine, writeEditor } from "./shell.js";
 
-const STORAGE_KEY = "procursus.sim.v1";
+import { loadPackagesZst, refreshIndex } from "./repo.js";
+
+const STORAGE_KEY = "procursus.sim.v2";
 
 function loadSession() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return createSession();
     const data = JSON.parse(raw);
-    if (!data || data.version !== 1 || !data.session?.fs) return createSession();
+    if (!data || data.version !== 2 || !data.session?.fs) return createSession();
     return data.session;
   } catch {
     return createSession();
@@ -17,7 +19,7 @@ function loadSession() {
 }
 
 function saveSession(session) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, session }));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, session }, (key, value) => (key === "bytes" ? undefined : value)));
 }
 
 const session = loadSession();
@@ -33,7 +35,7 @@ app.innerHTML = `
       <button type="button" id="show-sileo" role="tab" aria-selected="false">Sileo</button>
     </div>
   </header>
-  <p class="not-real" role="status">Not real Procursus. This shell, apt, and Sileo exist only in this browser.</p>
+  <p class="not-real" role="status">apt.procurs.us · suite 3000 · iphoneos-arm64</p>
   <section id="term" class="term">
     <div id="screen" class="screen" tabindex="0">
       <div id="log" class="log"></div>
@@ -174,7 +176,7 @@ function handleEffects(effects) {
   }
 }
 
-function submit(line) {
+async function submit(line) {
   if (!session.connected && line.trim() === "") {
     session.connected = true;
     input.placeholder = "";
@@ -183,7 +185,7 @@ function submit(line) {
     return;
   }
   write(`${prompt.textContent} ${line}\n`);
-  const result = runLine(session, line);
+  const result = await runLine(session, line);
   if (result.effects?.clear || result.effects?.reset) log.textContent = "";
   if (!(result.effects?.frames)) write(result.stdout);
   write(result.stderr, "err");
@@ -323,13 +325,29 @@ const sileoView = mountSileo(sileo, session, {
   onRespring() {
     playRespring();
   },
-  onRefresh() {
-    this.lastRefresh = aptUpdate(session.fs, { asRoot: true });
+  async onRefresh() {
+    const result = await aptUpdate(session.fs, { asRoot: true });
     saveSession(session);
+    return result;
   },
-  lastRefresh: { stdout: "", stderr: "", code: 0 },
 });
 
-showBanner();
+async function bootIndex() {
+  try {
+    const response = await fetch(`${import.meta.env.BASE_URL}apt/Packages.zst`);
+    if (response.ok) loadPackagesZst(new Uint8Array(await response.arrayBuffer()));
+  } catch {
+    // The live refresh below is the other copy of the same archive.
+  }
+  try {
+    await refreshIndex();
+  } catch {
+    // The bundled index remains.
+  }
+  showBanner();
+  sileoView.refresh();
+  input.focus();
+}
+
 setView("term");
-input.focus();
+bootIndex();

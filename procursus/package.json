@@ -10,5 +10,8 @@
   },
   "devDependencies": {
     "vite": "^5.4.10"
+  },
+  "dependencies": {
+    "fzstd": "^0.1.1"
   }
 }

@@ -1,10 +1,8 @@
-import { applyFiles, renderStatus } from "./apt.js";
-import { CATALOG } from "./catalog.js";
 import { dirNode, linkNode, lookup, mkdirp, writeFile } from "./fs.js";
 import { DEVICE, OS_RELEASE, SOURCES_TEXT, STATUS_PATH } from "./system.js";
 
 const ZSHRC = `# Procursus rootless
-export PATH="/var/jb/usr/bin:/var/jb/bin:/var/jb/usr/sbin:/var/jb/sbin:$PATH"
+export PATH="/var/jb/usr/bin:/var/jb/usr/games:/var/jb/bin:/var/jb/usr/sbin:/var/jb/sbin:$PATH"
 `;
 
 export function seedFilesystem() {
@@ -33,7 +31,7 @@ export function seedFilesystem() {
   writeFile(
     root,
     "/var/jb/etc/sudoers",
-    "# Simulated passwordless sudo for the mobile user.\nmobile ALL=(ALL) NOPASSWD: ALL\n",
+    "mobile ALL=(ALL) NOPASSWD: ALL\n",
     { mode: 0o440 },
   );
   writeFile(root, "/etc/passwd", "root:*:0:0:System Administrator:/var/root:/bin/sh\nmobile:*:501:501:Mobile User:/var/mobile:/bin/sh\n", {
@@ -44,7 +42,7 @@ export function seedFilesystem() {
   writeFile(
     root,
     "/var/mobile/Documents/Notes.txt",
-    "Rootless Procursus bootstrap.\nSileo installs packages by driving apt.\n",
+    "Procursus suite 3000 from https://apt.procurs.us/\nSileo installs those packages through apt.\n",
     { mode: 0o644, owner: "mobile", group: "mobile" },
   );
   writeFile(root, "/var/root/.zshrc", ZSHRC, { mode: 0o644 });
@@ -52,9 +50,6 @@ export function seedFilesystem() {
   mkdirp(root, "/bin");
   const bin = lookup(root, "/bin").node;
   bin.children.sh = linkNode("/var/jb/usr/bin/zsh");
-
-  const preinstalled = CATALOG.filter((pkg) => pkg.preinstalled);
-  for (const pkg of preinstalled) applyFiles(root, pkg);
-  writeFile(root, STATUS_PATH, renderStatus(preinstalled.map((pkg) => pkg.name)), { mode: 0o644 });
+  writeFile(root, STATUS_PATH, "", { mode: 0o644 });
   return root;
 }
