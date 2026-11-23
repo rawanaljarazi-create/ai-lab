@@ -36,8 +36,10 @@ button { cursor: pointer; }
 
 #app {
   height: 100dvh;
+  max-height: 100dvh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .top {
@@ -120,9 +122,16 @@ button { cursor: pointer; }
 .screen {
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
   padding: 14px 14px 8px;
-  -webkit-overflow-scrolling: touch;
+}
+
+.cmdline {
+  flex: none;
+  padding: 0 14px 8px;
 }
 
 .log, .cmdline, .frames {
