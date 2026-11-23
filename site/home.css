@@ -308,7 +308,7 @@ h1 {
 
 .preview {
   position: relative;
-  height: 140px;
+  height: 210px;
   overflow: hidden;
 }
 
@@ -374,9 +374,9 @@ h2 {
 .moon {
   position: absolute;
   right: 18%;
-  top: 16%;
-  width: 36px;
-  height: 36px;
+  top: 18%;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: #dce3ff;
   box-shadow: 0 0 24px rgba(200, 210, 255, 0.45);
@@ -385,7 +385,7 @@ h2 {
 .well {
   position: absolute;
   left: 50%;
-  bottom: 16%;
+  bottom: 18%;
   width: 72px;
   height: 28px;
   margin-left: -36px;
@@ -403,8 +403,8 @@ h2 {
   box-shadow: 0 0 12px rgba(184, 255, 138, 0.8);
 }
 
-.shard.a { left: 22%; top: 42%; }
-.shard.b { right: 28%; top: 56%; }
+.shard.a { left: 22%; top: 46%; }
+.shard.b { right: 24%; top: 58%; }
 
 .ink .preview {
   background-color: #33374d;
@@ -421,22 +421,22 @@ h2 {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 16px;
-  height: 16px;
-  margin: -32px 0 0 -32px;
+  width: 18px;
+  height: 18px;
+  margin: -36px 0 0 -36px;
   background: #ef7d57;
   box-shadow:
-    16px 0 #ffcd75,
-    32px 0 #38b764,
-    48px 0 #41a6f6,
-    0 16px #b13e53,
-    16px 16px #ffcd75,
-    32px 16px #a7f070,
-    48px 16px #3b5dc9,
-    0 32px #5d275d,
-    16px 32px #ef7d57,
-    32px 32px #73eff7,
-    48px 32px #f4f4f4;
+    18px 0 #ffcd75,
+    36px 0 #38b764,
+    54px 0 #41a6f6,
+    0 18px #b13e53,
+    18px 18px #ffcd75,
+    36px 18px #a7f070,
+    54px 18px #3b5dc9,
+    0 36px #5d275d,
+    18px 36px #ef7d57,
+    36px 36px #73eff7,
+    54px 36px #f4f4f4;
 }
 
 .cream .preview {
@@ -455,10 +455,10 @@ h2 {
 .dough {
   position: absolute;
   left: 50%;
-  bottom: 22%;
-  width: 78px;
-  height: 78px;
-  margin-left: -39px;
+  bottom: 28%;
+  width: 92px;
+  height: 92px;
+  margin-left: -46px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #c9b4f0, #6b4db3 62%, #3d2a74);
   box-shadow: 12px 18px 20px rgba(70, 40, 90, 0.18);
@@ -482,7 +482,7 @@ h2 {
 .pipe {
   position: absolute;
   left: 24%;
-  width: 32px;
+  width: 36px;
   background: #3caf4c;
   border: 3px solid #1f7a32;
 }
@@ -490,26 +490,27 @@ h2 {
 .pipe::after {
   content: "";
   position: absolute;
-  left: -7px;
-  right: -7px;
-  height: 14px;
+  left: -8px;
+  right: -8px;
+  height: 16px;
   background: #5ed36a;
   border: 3px solid #1f7a32;
 }
 
-.pipe.up { top: 0; height: 28%; }
+.pipe.up { top: 0; height: 27%; }
 .pipe.up::after { bottom: -3px; }
-.pipe.down { bottom: 18%; height: 22%; }
+.pipe.down { bottom: 22%; height: 24%; }
 .pipe.down::after { top: -3px; }
 
 .bird {
   position: absolute;
   left: 48%;
-  top: 36%;
-  width: 34px;
-  height: 26px;
+  top: 38%;
+  width: 36px;
+  height: 28px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #ffe58a, #f5c431 55%, #e39a22);
+  box-shadow: 0 8px 0 rgba(70, 90, 40, 0.08);
 }
 
 .bird::before {
@@ -517,8 +518,8 @@ h2 {
   position: absolute;
   left: 8px;
   top: 7px;
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #fffdf8;
   box-shadow: 3px 1px 0 #24180f;
@@ -527,31 +528,11 @@ h2 {
 .bird::after {
   content: "";
   position: absolute;
-  right: -9px;
-  top: 10px;
-  border-left: 11px solid #ef6a2a;
+  right: -10px;
+  top: 11px;
+  border-left: 12px solid #ef6a2a;
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
-}
-
-.pad {
-  position: absolute;
-  left: 18%;
-  top: 46%;
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  background: #9fd6c8;
-  box-shadow:
-    22px 0 rgba(232, 223, 207, 0.22),
-    44px 0 #dce3ff,
-    66px 0 rgba(232, 223, 207, 0.22),
-    88px 0 #9fd6c8,
-    0 22px rgba(232, 223, 207, 0.22),
-    22px 22px #dce3ff,
-    44px 22px rgba(232, 223, 207, 0.22),
-    66px 22px #c9b27a,
-    88px 22px rgba(232, 223, 207, 0.22);
 }
 
 .felt .preview {
@@ -562,7 +543,7 @@ h2 {
   position: absolute;
   left: 0;
   right: 0;
-  height: 14px;
+  height: 16px;
   background: linear-gradient(#e7c091, #c4844a 45%, #8a4e28);
 }
 
@@ -574,10 +555,10 @@ h2 {
 
 .disc {
   position: absolute;
-  left: 16%;
-  bottom: 24%;
-  width: 40px;
-  height: 40px;
+  left: 18%;
+  bottom: 28%;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 32%, #ffd0c6, #ff5a36 62%, #c13a22);
   box-shadow: 4px 8px 0 rgba(8, 30, 16, 0.18);
@@ -585,10 +566,10 @@ h2 {
 
 .block {
   position: absolute;
-  left: 44%;
-  top: 32%;
-  width: 34px;
-  height: 34px;
+  left: 46%;
+  top: 34%;
+  width: 38px;
+  height: 38px;
   border-radius: 4px;
   background: linear-gradient(160deg, #ffe08a, #ffb703 55%, #d59200);
   transform: rotate(16deg);
@@ -598,9 +579,9 @@ h2 {
 .gem {
   position: absolute;
   right: 16%;
-  top: 42%;
-  width: 34px;
-  height: 34px;
+  top: 46%;
+  width: 40px;
+  height: 40px;
   background: linear-gradient(160deg, #e2c6ff, #b388eb 60%, #8b62c9);
   clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
 }
@@ -615,9 +596,9 @@ h2 {
   position: absolute;
   left: 50%;
   top: 54%;
-  width: 148px;
-  height: 84px;
-  margin: -42px 0 0 -74px;
+  width: 168px;
+  height: 96px;
+  margin: -48px 0 0 -84px;
   border-radius: 8px;
   background: #f4efe4;
   box-shadow: 0 16px 30px rgba(0, 0, 0, 0.28);
@@ -625,26 +606,26 @@ h2 {
 
 .inkline {
   position: absolute;
-  left: 14px;
-  height: 7px;
+  left: 16px;
+  height: 8px;
   border-radius: 4px;
   background: rgba(34, 28, 22, 0.18);
 }
 
-.inkline.a { top: 18px; right: 14px; }
+.inkline.a { top: 22px; right: 16px; }
 .inkline.b {
-  top: 36px;
-  width: 58%;
+  top: 40px;
+  width: 62%;
   background: rgba(34, 28, 22, 0.78);
 }
-.inkline.c { top: 54px; width: 36%; }
+.inkline.c { top: 58px; width: 40%; }
 
 .caret {
   position: absolute;
-  left: calc(14px + 58%);
-  top: 32px;
+  left: calc(16px + 62%);
+  top: 36px;
   width: 2px;
-  height: 14px;
+  height: 16px;
   background: #e07a2f;
 }
 
@@ -656,15 +637,13 @@ h2 {
 .ps1,
 .typed {
   position: absolute;
-  left: 20px;
-  right: 16px;
-  overflow: hidden;
-  font-size: 13px;
-  white-space: nowrap;
+  left: 24px;
+  right: 24px;
+  font-size: 14px;
 }
 
-.ps1 { top: 34%; color: #8fbf9f; }
-.typed { top: 54%; color: #d7dde6; }
+.ps1 { top: 42%; color: #8fbf9f; }
+.typed { top: 58%; color: #d7dde6; }
 .typed.dim { top: 72%; color: rgba(215, 221, 230, 0.45); }
 
 .flare .preview {
@@ -686,21 +665,21 @@ h2 {
   mask: radial-gradient(circle, transparent 0 16%, #000 18% 48%, transparent 50%);
 }
 
-.burst.a { left: 12%; top: 14%; width: 78px; height: 78px; }
+.burst.a { left: 16%; top: 18%; width: 96px; height: 96px; }
 .burst.b {
-  right: 12%;
-  top: 12%;
-  width: 56px;
-  height: 56px;
+  right: 14%;
+  top: 16%;
+  width: 68px;
+  height: 68px;
   background:
     radial-gradient(circle, #fff 0 2px, transparent 3px),
     repeating-conic-gradient(from 18deg, #ff8a6a 0 8deg, transparent 8deg 24deg);
 }
 .burst.c {
-  left: 46%;
-  bottom: 8%;
-  width: 42px;
-  height: 42px;
+  left: 44%;
+  bottom: 14%;
+  width: 52px;
+  height: 52px;
   background:
     radial-gradient(circle, #fff6df 0 2px, transparent 3px),
     repeating-conic-gradient(from 4deg, #f2c14e 0 6deg, transparent 6deg 20deg);
@@ -714,23 +693,23 @@ h2 {
   position: absolute;
   left: 50%;
   top: 54%;
-  width: 62px;
-  height: 112px;
-  margin: -56px 0 0 -31px;
-  border: 3px solid #e8dfcf;
-  border-radius: 16px;
+  width: 86px;
+  height: 164px;
+  margin: -82px 0 0 -43px;
+  border-radius: 18px;
   background: #07060b;
+  border: 3px solid #e8dfcf;
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
 }
 
 .handset::before {
   content: "";
   position: absolute;
-  top: 7px;
+  top: 8px;
   left: 50%;
-  width: 22px;
-  height: 4px;
-  margin-left: -11px;
+  width: 28px;
+  height: 5px;
+  margin-left: -14px;
   border-radius: 4px;
   background: #2c2822;
 }
@@ -739,10 +718,10 @@ h2 {
   position: absolute;
   left: 0;
   right: 0;
-  top: 42px;
+  top: 62px;
   color: #f4efe6;
   font-family: Fraunces, Georgia, "Iowan Old Style", serif;
-  font-size: 22px;
+  font-size: 28px;
   text-align: center;
 }
 
@@ -811,27 +790,12 @@ footer code {
     min-height: 220px;
   }
 
-  .band .handset {
-    width: 84px;
-    height: 156px;
-    margin: -78px 0 0 -42px;
-  }
-
-  .band .os {
-    top: 58px;
-    font-size: 28px;
-  }
-
   .band .copy {
     justify-content: center;
   }
 
   .band .go {
     margin-top: 18px;
-  }
-
-  .preview {
-    height: 156px;
   }
 
   footer ul {
@@ -970,11 +934,6 @@ h1 {
   transition: background-size 0.35s ease, color 0.25s ease;
 }
 
-.go span {
-  display: inline-block;
-  transition: translate 0.35s ease;
-}
-
 .js .card,
 .js footer {
   opacity: 0;
@@ -990,11 +949,6 @@ h1 {
   .top nav a:hover,
   .top nav a:focus-visible {
     background-size: 100% 1px;
-  }
-
-  .card:hover .go span,
-  .card:focus-visible .go span {
-    translate: 7px 0;
   }
 }
 
@@ -1017,7 +971,6 @@ h1 {
   }
 
   .card,
-  .go span,
   .top nav a {
     transition: none;
   }
