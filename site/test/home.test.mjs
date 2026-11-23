@@ -49,6 +49,13 @@ test("homepage is dark and sized for a phone", () => {
   assert.match(css, /min-height:\s*44px/);
 });
 
+test("motion is css and turns off when requested", () => {
+  assert.match(css, /@keyframes rise/);
+  assert.match(css, /@keyframes squish/);
+  assert.match(css, /prefers-reduced-motion:\s*reduce/);
+  assert.match(css, /animation:\s*none/);
+});
+
 test("detail pages still come home through the shared stylesheet", () => {
   for (const page of ["ios16/index.html", "shellbox/index.html"]) {
     const html = readFileSync(new URL(`../${page}`, import.meta.url), "utf8");

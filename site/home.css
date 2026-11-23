@@ -15,6 +15,12 @@
 
   Type (Fraunces, Outfit), the twilight sky, cream / gold / teal, and the
   experiment drawings stay ai-lab. Detail pages still use styles.css.
+
+  Entrance motion follows Magic UI Blur Fade (MIT): 6px offset, opacity,
+  0.4s ease-out, and a 0.04s base delay. The blur itself is only on the
+  hero, so a phone is not blurring every card at once.
+  https://magicui.design/docs/components/blur-fade
+  https://github.com/magicuidesign/magicui
 */
 
 :root {
@@ -59,12 +65,20 @@ body {
 .sky {
   position: fixed;
   inset: 0;
-  background:
-    radial-gradient(900px 420px at 12% -10%, rgba(90, 120, 170, 0.22), transparent 70%),
-    radial-gradient(700px 380px at 90% 0%, rgba(46, 90, 86, 0.2), transparent 65%),
-    linear-gradient(180deg, #141322, #09080f 55%);
+  background: linear-gradient(180deg, #141322, #09080f 55%);
   pointer-events: none;
   z-index: 0;
+  overflow: hidden;
+}
+
+.sky::before {
+  content: "";
+  position: absolute;
+  inset: -8%;
+  background:
+    radial-gradient(900px 420px at 18% 0%, rgba(90, 120, 170, 0.28), transparent 70%),
+    radial-gradient(700px 380px at 88% 8%, rgba(46, 90, 86, 0.26), transparent 65%);
+  animation: drift 26s ease-in-out infinite alternate;
 }
 
 .skip {
@@ -872,7 +886,174 @@ footer code {
   }
 }
 
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+    filter: blur(0);
+  }
+}
+
+@keyframes rise-plain {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-2.5%, 1.5%, 0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes glow {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes squish {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.07, 0.9); }
+}
+
+@keyframes flap {
+  0%, 100% { transform: translateY(0) rotate(-8deg); }
+  50% { transform: translateY(-8px) rotate(8deg); }
+}
+
+@keyframes slide {
+  from { transform: translateX(0); }
+  to { transform: translateX(16px); }
+}
+
+@keyframes bob-block {
+  0%, 100% { transform: translateY(0) rotate(16deg); }
+  50% { transform: translateY(-7px) rotate(10deg); }
+}
+
+@keyframes blink {
+  0%, 45% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes step {
+  to { transform: translateX(88px); }
+}
+
+@keyframes burst {
+  from { transform: rotate(0deg) scale(0.94); }
+  to { transform: rotate(18deg) scale(1.06); }
+}
+
+.hero,
+.index {
+  animation: rise 0.45s ease-out both;
+}
+
+.hero { animation-delay: 0.04s; }
+.index { animation-delay: 0.12s; }
+
+.card {
+  animation: rise-plain 0.4s ease-out both;
+}
+
+.card:nth-child(1) { animation-delay: 0.16s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.24s; }
+.card:nth-child(4) { animation-delay: 0.28s; }
+.card:nth-child(5) { animation-delay: 0.32s; }
+.card:nth-child(6) { animation-delay: 0.36s; }
+.card:nth-child(7) { animation-delay: 0.4s; }
+.card:nth-child(8) { animation-delay: 0.44s; }
+.card:nth-child(9) { animation-delay: 0.48s; }
+.card:nth-child(10) { animation-delay: 0.52s; }
+
+.moon,
+.shard,
+.sprite,
+.handset {
+  animation: float 5.5s ease-in-out infinite;
+}
+
+.shard.b { animation-duration: 6.4s; animation-delay: -1.8s; }
+.sprite { animation-duration: 7s; }
+
+.well { animation: glow 4.2s ease-in-out infinite; }
+.dough { animation: squish 3.4s ease-in-out infinite; }
+.bird { animation: flap 2.2s ease-in-out infinite; }
+.cloud { animation: slide 7s ease-in-out infinite alternate; }
+.disc { animation: float 4.8s ease-in-out infinite; }
+.gem { animation: float 5.6s ease-in-out infinite; animation-delay: -1.2s; }
+.block { animation: bob-block 4.4s ease-in-out infinite; }
+.caret,
+.typed:not(.dim)::after {
+  animation: blink 1.05s steps(1, end) infinite;
+}
+
+.typed:not(.dim)::after {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 0.9em;
+  margin-left: 5px;
+  background: #d7dde6;
+  vertical-align: -1px;
+}
+
+.playhead {
+  position: absolute;
+  left: 18%;
+  top: 43%;
+  width: 16px;
+  height: 54px;
+  border-radius: 4px;
+  background: rgba(220, 227, 255, 0.16);
+  animation: step 2s steps(5, end) infinite;
+}
+
+.burst { animation: burst 7s ease-in-out infinite alternate; }
+.burst.b { animation-duration: 9s; }
+.burst.c { animation-duration: 6s; animation-direction: alternate-reverse; }
+
 @media (prefers-reduced-motion: reduce) {
+  .sky::before,
+  .hero,
+  .index,
+  .card,
+  .moon,
+  .well,
+  .shard,
+  .sprite,
+  .dough,
+  .bird,
+  .cloud,
+  .disc,
+  .gem,
+  .block,
+  .caret,
+  .typed:not(.dim)::after,
+  .playhead,
+  .burst,
+  .handset {
+    animation: none;
+  }
+
   .card {
     transition: none;
   }
