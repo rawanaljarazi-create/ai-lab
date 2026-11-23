@@ -49,6 +49,12 @@ test("browser demos are not labeled as new", () => {
   }
 });
 
+test("the header name is not a link back to this page", () => {
+  const header = home.slice(home.indexOf("<header"), home.indexOf("</header>"));
+  assert.match(header, /<p class="word">/);
+  assert.doesNotMatch(header, /<a[^>]*class="word"/);
+});
+
 test("homepage is dark and sized for a phone", () => {
   assert.match(home, /viewport-fit=cover/);
   assert.match(home, /href="\/home\.css"/);
