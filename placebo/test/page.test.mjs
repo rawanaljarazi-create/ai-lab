@@ -30,6 +30,8 @@ test("the page is a standalone phone screen", () => {
   assert.match(html, /<title>Newra1n<\/title>/);
   assert.match(html, /<h1>Newra1n<\/h1>/);
   assert.doesNotMatch(html, /Placebo/);
+  assert.match(html, />supported</);
+  assert.doesNotMatch(main, /iOS \$\{/);
   assert.match(html, /27\.0\.1/);
   assert.match(html, /calif\.io/);
   assert.match(html, /0 exploits were used/);

@@ -22,6 +22,6 @@ export function deviceLabel(userAgent) {
   const device = parseDevice(userAgent);
   return {
     ...device,
-    line: device.version ? `${device.model} · iOS ${device.version}` : device.model,
+    line: `${device.model} · supported`,
   };
 }

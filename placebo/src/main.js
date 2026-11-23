@@ -7,11 +7,6 @@ const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").match
 const device = deviceLabel(navigator.userAgent);
 document.querySelector("#model").textContent = device.model;
 document.querySelector("#log-device").textContent = device.line;
-const version = document.querySelector("#version");
-if (device.version) {
-  version.textContent = `iOS ${device.version}`;
-  version.hidden = false;
-}
 
 const sections = {
   landing: document.querySelector("#landing"),
