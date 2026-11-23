@@ -12,12 +12,13 @@
   animate.
   https://magicui.design/docs/components/blur-fade
 
-  Grain is an inline feTurbulence filter adapted from Magic UI Noise Texture (MIT):
+  Grain is a tiled feTurbulence tile adapted from Magic UI Noise Texture (MIT).
+  It is painted once, with no blend mode:
   https://magicui.design/docs/components/noise-texture
 
-  The corner stripe is the aurora technique from Aceternity aurora-background
-  and VengeanceUI aurora-hero (both MIT), recolored to twilight teal, gold,
-  and dusk blue. Stock indigo and the fluted-glass title treatment are not used.
+  The corner wash uses the Aceternity aurora-background and VengeanceUI
+  aurora-hero palette (both MIT), recolored to twilight teal, gold, and dusk
+  blue. It moves with translate only. The blurred stripe animation is not used.
   https://ui.aceternity.com/components/aurora-background
   https://github.com/Ashutoshx7/VengeanceUI
 
@@ -25,8 +26,8 @@
   in cream and gold rather than indigo. No motion library.
   https://ui.aceternity.com/components/hero-highlight
 
-  Card spotlight and the hairline rim follow React Bits SpotlightCard (MIT),
-  reduced to one pointermove that sets --sx/--sy. No animation frame loop.
+  Card spotlight follows React Bits SpotlightCard (MIT): a soft disc moved
+  with translate, not a repainted mask. One pointermove, batched to a frame.
   https://reactbits.dev/components/spotlight-card
 
   Looked at, not copied: Aceternity hero-parallax and Magic UI
@@ -63,12 +64,6 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-padding-top: calc(68px + env(safe-area-inset-top));
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
 }
 
 html,
@@ -119,7 +114,6 @@ body {
     radial-gradient(ellipse 38% 40% at 82% 12%, rgba(201, 178, 122, 0.16), transparent 62%),
     radial-gradient(ellipse 42% 48% at 58% 72%, rgba(98, 118, 186, 0.24), transparent 66%);
   background-size: 22px 22px, auto, auto, auto;
-  mask-image: linear-gradient(#000 0%, transparent 78%);
 }
 
 .mesh::before {
@@ -143,46 +137,34 @@ body {
 
 .aurora {
   position: absolute;
-  top: -28%;
-  right: -8%;
-  width: min(860px, 92vw);
-  height: 540px;
-  background-image:
-    repeating-linear-gradient(
-      100deg,
-      rgba(9, 8, 15, 0.2) 0%,
-      rgba(9, 8, 15, 0.2) 7%,
-      transparent 10%,
-      transparent 12%,
-      rgba(9, 8, 15, 0.2) 16%
-    ),
-    repeating-linear-gradient(100deg, #2a6d66 10%, #c9b27a 18%, #6e82c4 27%, #9fd6c8 36%);
-  background-size: 240% 200%, 180% 200%;
-  filter: blur(16px);
-  opacity: 0.58;
-  mix-blend-mode: screen;
-  mask-image: radial-gradient(ellipse at 68% 42%, #000 8%, transparent 68%);
-  animation: aurora 46s linear infinite;
+  top: -18%;
+  right: -12%;
+  width: min(920px, 100vw);
+  height: 620px;
+  background:
+    radial-gradient(closest-side at 72% 38%, rgba(159, 214, 200, 0.34), transparent 72%),
+    radial-gradient(closest-side at 28% 62%, rgba(201, 178, 122, 0.28), transparent 70%),
+    radial-gradient(closest-side at 50% 18%, rgba(120, 138, 196, 0.32), transparent 68%);
+  animation: drift 28s ease-in-out infinite alternate;
 }
 
 .rays {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(112deg, transparent 0 36%, rgba(232, 223, 207, 0.05) 41%, transparent 46%),
-    linear-gradient(126deg, transparent 0 54%, rgba(159, 214, 200, 0.055) 59%, transparent 64%);
+    linear-gradient(112deg, transparent 0 36%, rgba(232, 223, 207, 0.045) 41%, transparent 46%),
+    linear-gradient(126deg, transparent 0 54%, rgba(159, 214, 200, 0.05) 59%, transparent 64%);
   mask-image: linear-gradient(#000, transparent 70%);
-  animation: ray 16s ease-in-out infinite alternate;
 }
 
-.grain {
+.sky::after {
+  content: "";
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.16;
-  mix-blend-mode: overlay;
+  opacity: 0.14;
   pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.65'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
 }
 
 .skip {
@@ -230,9 +212,7 @@ input:focus-visible {
   gap: 12px;
   min-height: 56px;
   padding: calc(4px + env(safe-area-inset-top)) 20px 4px;
-  background: rgba(9, 8, 15, 0.58);
-  -webkit-backdrop-filter: blur(18px) saturate(1.35);
-  backdrop-filter: blur(18px) saturate(1.35);
+  background: rgba(9, 8, 15, 0.9);
   border-bottom: 1px solid var(--line);
   box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.04);
 }
@@ -346,13 +326,11 @@ h1 {
   padding: 0 14px 0 16px;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: rgba(14, 12, 22, 0.55);
+  background: rgba(14, 12, 22, 0.78);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   color: var(--mute);
   font-size: 15px;
   text-decoration: none;
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
 }
 
 .jump-open kbd,
@@ -463,8 +441,8 @@ h1 {
 
 .card {
   --accent: #9fd6c8;
-  --sx: 50%;
-  --sy: 18%;
+  --sx: 40%;
+  --sy: 30%;
   position: relative;
   isolation: isolate;
   display: flex;
@@ -481,43 +459,20 @@ h1 {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
-.card::before,
-.card::after {
+.card::before {
   content: "";
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
+  left: 0;
+  top: 0;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 46%, transparent) 0%, transparent 68%);
   opacity: 0;
-  transition: opacity 0.35s ease;
-}
-
-.card::before {
-  z-index: 1;
-  background: radial-gradient(
-    320px circle at var(--sx) var(--sy),
-    color-mix(in srgb, var(--accent) 42%, transparent),
-    transparent 58%
-  );
-  mix-blend-mode: soft-light;
-}
-
-.card::after {
   z-index: 2;
-  padding: 1px;
-  background: radial-gradient(
-    240px circle at var(--sx) var(--sy),
-    color-mix(in srgb, var(--accent) 90%, white),
-    transparent 55%
-  );
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  mask-composite: exclude;
+  pointer-events: none;
+  transform: translate3d(var(--sx), var(--sy), 0) translate(-50%, -50%);
+  transition: opacity 0.35s ease;
 }
 
 .night { --accent: #9fd6c8; }
@@ -1057,9 +1012,7 @@ dialog.jump {
 }
 
 .jump::backdrop {
-  background: rgba(6, 5, 10, 0.62);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  background: rgba(6, 5, 10, 0.72);
 }
 
 .jump .mark {
@@ -1122,9 +1075,7 @@ dialog.jump {
   }
 
   .card:hover::before,
-  .card:hover::after,
-  .card:focus-visible::before,
-  .card:focus-visible::after {
+  .card:focus-visible::before {
     opacity: 1;
   }
 
@@ -1303,13 +1254,11 @@ dialog.jump {
 @keyframes unveil {
   from {
     opacity: 0;
-    clip-path: inset(100% 0 0 0);
     translate: 0 20px;
   }
 
   to {
     opacity: 1;
-    clip-path: inset(0);
     translate: 0 0;
   }
 }
@@ -1324,19 +1273,9 @@ dialog.jump {
   to { background-size: 100% 100%; }
 }
 
-@keyframes aurora {
-  from { background-position: 50% 50%, 50% 50%; }
-  to { background-position: 260% 50%, 260% 50%; }
-}
-
-@keyframes ray {
-  from { opacity: 0.45; }
-  to { opacity: 1; }
-}
-
 @keyframes drift {
   from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(0, 6%, 0) scale(1.04); }
+  to { transform: translate3d(-3%, 4%, 0); }
 }
 
 .mark {
@@ -1398,14 +1337,6 @@ h1 {
   animation-delay: var(--d, 0ms);
 }
 
-@supports (animation-timeline: scroll()) {
-  .mesh {
-    animation: drift linear both;
-    animation-timeline: scroll(root);
-    animation-range: 0 100vh;
-  }
-}
-
 @media (hover: hover) and (pointer: fine) {
   .top nav a:hover,
   .top nav a:focus-visible {
@@ -1438,7 +1369,6 @@ h1 {
 
   .card,
   .card::before,
-  .card::after,
   .go::after,
   .top nav a {
     transition: none;
@@ -1448,10 +1378,6 @@ h1 {
   .card:active,
   .card:hover .go::after {
     transform: none;
-  }
-
-  html {
-    scroll-behavior: auto;
   }
 }
 

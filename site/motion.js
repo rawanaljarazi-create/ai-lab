@@ -1,37 +1,58 @@
 const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const pieces = document.querySelectorAll(".card, footer");
 
-if (!reduce) {
+if (!reduce && "IntersectionObserver" in window) {
   document.documentElement.classList.add("js");
-  const show = (el) => el.classList.add("shown");
-  const scan = () => {
-    const limit = window.innerHeight + 48;
-    pieces.forEach((el) => {
-      if (el.classList.contains("shown")) return;
-      if (el.getBoundingClientRect().top < limit) show(el);
-    });
-  };
-
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("shown");
+        observer.unobserve(entry.target);
+      });
+    },
+    { rootMargin: "48px" },
+  );
   pieces.forEach((el, index) => {
     el.style.setProperty("--d", `${(index % 3) * 90}ms`);
+    observer.observe(el);
   });
-  scan();
-  document.addEventListener("scroll", scan, { passive: true });
-  window.addEventListener("resize", scan);
 }
 
 const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-if (fine) {
-  document.querySelectorAll(".card").forEach((card) => {
-    card.addEventListener(
-      "pointermove",
-      (event) => {
+const bento = document.querySelector(".bento");
+if (fine && bento) {
+  let card = null;
+  let left = 0;
+  let top = 0;
+  let frame = 0;
+  let x = 0;
+  let y = 0;
+  const paint = () => {
+    frame = 0;
+    if (!card) return;
+    card.style.setProperty("--sx", `${x - left}px`);
+    card.style.setProperty("--sy", `${y - top}px`);
+  };
+  bento.addEventListener(
+    "pointermove",
+    (event) => {
+      const next = event.target.closest(".card");
+      if (!next) return;
+      if (next !== card) {
+        card = next;
         const rect = card.getBoundingClientRect();
-        card.style.setProperty("--sx", `${event.clientX - rect.left}px`);
-        card.style.setProperty("--sy", `${event.clientY - rect.top}px`);
-      },
-      { passive: true },
-    );
+        left = rect.left;
+        top = rect.top;
+      }
+      x = event.clientX;
+      y = event.clientY;
+      if (!frame) frame = requestAnimationFrame(paint);
+    },
+    { passive: true },
+  );
+  bento.addEventListener("pointerleave", () => {
+    card = null;
   });
 }
 
