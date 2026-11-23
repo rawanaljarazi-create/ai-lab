@@ -92,6 +92,26 @@ test("jump index lists every experiment", () => {
   assert.match(motion, /prefers-reduced-motion/);
 });
 
+test("local commands sit in a copyable panel", () => {
+  assert.match(home, /class="term"/);
+  assert.match(home, /On your machine/);
+  for (const script of [
+    "dev:aetherwell",
+    "dev:squishy",
+    "dev:flappy",
+    "dev:beats",
+    "dev:pixel",
+    "dev:physics",
+    "dev:typing",
+    "dev:procursus",
+  ]) {
+    assert.ok(home.includes(`data-copy="npm run ${script}"`), script);
+  }
+  assert.match(css, /\.term button[\s\S]*min-height:\s*44px/);
+  assert.doesNotMatch(css, /backdrop-filter/);
+  assert.match(motion, /data-copy/);
+});
+
 test("detail pages still come home through the shared stylesheet", () => {
   for (const page of ["ios16/index.html", "shellbox/index.html"]) {
     const html = readFileSync(new URL(`../${page}`, import.meta.url), "utf8");

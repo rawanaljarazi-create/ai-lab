@@ -104,6 +104,35 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+document.querySelectorAll("[data-copy]").forEach((button) => {
+  const label = button.textContent;
+  const text = button.getAttribute("data-copy");
+  button.setAttribute("aria-label", `Copy ${text}`);
+  button.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.position = "fixed";
+      area.style.left = "-999px";
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+    }
+    button.textContent = "Copied";
+    button.classList.add("copied");
+    button.setAttribute("aria-label", `Copied ${text}`);
+    window.setTimeout(() => {
+      button.textContent = label;
+      button.classList.remove("copied");
+      button.setAttribute("aria-label", `Copy ${text}`);
+    }, 1400);
+  });
+});
+
 if (jump && query) {
   query.addEventListener("input", filterJump);
   jump.addEventListener("click", (event) => {
