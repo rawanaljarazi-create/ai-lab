@@ -24,6 +24,17 @@ function saveSession(session) {
 
 const session = loadSession();
 const app = document.querySelector("#app");
+
+function fitFrame() {
+  const view = window.visualViewport;
+  if (!view) return;
+  app.style.height = `${view.height}px`;
+}
+if (window.visualViewport) {
+  visualViewport.addEventListener("resize", fitFrame);
+  visualViewport.addEventListener("scroll", fitFrame);
+  fitFrame();
+}
 app.innerHTML = `
   <header class="top">
     <div class="brand">
@@ -39,10 +50,10 @@ app.innerHTML = `
   <section id="term" class="term">
     <div id="screen" class="screen" tabindex="0">
       <div id="log" class="log"></div>
-      <div class="cmdline">
-        <span id="prompt" class="prompt"></span>
-        <input id="input" aria-label="Terminal input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="send" />
-      </div>
+    </div>
+    <div class="cmdline">
+      <span id="prompt" class="prompt"></span>
+      <input id="input" aria-label="Terminal input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="send" />
     </div>
     <div class="keys" aria-label="Extra keys">
       <button type="button" data-key="Tab">Tab</button>
