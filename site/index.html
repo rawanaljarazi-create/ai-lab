@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#09080f" />
+    <meta
+      name="description"
+      content="Experiments from the ai-lab repo. Eight run in the browser. Shellbox and iOS 16 run on your machine."
+    />
     <title>ai-lab</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -11,184 +16,245 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,640&family=Outfit:wght@380;500;620&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/home.css" />
   </head>
-  <body>
+  <body class="home">
     <div class="sky" aria-hidden="true"></div>
-    <header>
-      <p class="mark">Repository experiments</p>
-      <h1>ai-lab</h1>
-      <p class="lede">
-        Experiments from this repo. Aetherwell, Squishy, Flappy, Beats, Pixel,
-        Physics, Typing, and Procursus run in the browser. Shellbox draws a
-        Fireworks Mania show inside Garry's Mod and runs on your machine. iOS
-        16 is a virtual machine you start on Windows or Linux.
-      </p>
+    <a class="skip" href="#experiments">Skip to experiments</a>
+    <header class="top">
+      <a class="word" href="/">
+        <img src="/favicon.svg" width="28" height="28" alt="" />
+        ai-lab
+      </a>
+      <nav aria-label="Page">
+        <a href="#experiments">Experiments</a>
+        <a href="#run">Run locally</a>
+      </nav>
     </header>
-    <main>
-      <a class="card night" href="/aetherwell/">
-        <div class="preview" aria-hidden="true">
-          <span class="moon"></span>
-          <span class="well"></span>
-          <span class="shard a"></span>
-          <span class="shard b"></span>
-        </div>
-        <div class="copy">
-          <p class="status live">Live</p>
-          <h2>Aetherwell</h2>
-          <p>
-            First-person twilight mesa. Jump the terraces, gather five
-            wellshards, walk back to the well, and wake it.
+
+    <div class="wrap">
+      <section class="hero">
+        <div class="hero-grid">
+          <div>
+            <p class="mark">Repository experiments</p>
+            <h1>ai-lab</h1>
+          </div>
+          <p class="lede">
+            Experiments from this repo. Aetherwell, Squishy, Flappy, Beats, Pixel,
+            Physics, Typing, and Procursus run in the browser. Shellbox draws a
+            Fireworks Mania show inside Garry's Mod and runs on your machine. iOS
+            16 is a virtual machine you start on Windows or Linux.
           </p>
-          <span class="go">Play Aetherwell</span>
         </div>
-      </a>
-      <a class="card ink" href="/pixel/">
-        <div class="preview" aria-hidden="true">
-          <span class="sprite"></span>
-        </div>
-        <div class="copy">
-          <p class="status new">New on this site</p>
-          <h2>Pixel</h2>
-          <p>
-            A tiny 16 by 16 drawing toy with a retro palette, fill, mirror mode
-            and PNG export. The picture lives in the link, so you can share it.
-          </p>
-          <span class="go">Draw with Pixel</span>
-        </div>
-      </a>
-      <a class="card cream" href="/squishy/">
-        <div class="preview" aria-hidden="true">
-          <span class="table"></span>
-          <span class="dough"></span>
-        </div>
-        <div class="copy">
-          <p class="status new">New on this site</p>
-          <h2>Squishy</h2>
-          <p>
-            Slow dough in the browser. Knead it, flatten it, and listen to a
-            squelch that only speaks while the body is moving.
-          </p>
-          <span class="go">Play Squishy</span>
-        </div>
-      </a>
-      <a class="card day" href="/flappy/">
-        <div class="preview" aria-hidden="true">
-          <span class="cloud"></span>
-          <span class="pipe up"></span>
-          <span class="pipe down"></span>
-          <span class="bird"></span>
-        </div>
-        <div class="copy">
-          <p class="status play">In the browser</p>
-          <h2>Flappy</h2>
-          <p>
-            A round bird in a wide meadow. Flap through the pipes. The ground
-            is closer than it looks.
-          </p>
-          <span class="go">Play Flappy</span>
-        </div>
-      </a>
-      <a class="card night" href="/beats/">
-        <div class="preview" aria-hidden="true">
-          <span class="moon"></span>
-        </div>
-        <div class="copy">
-          <p class="status new">New on this site</p>
-          <h2>Beats</h2>
-          <p>
-            A sixteen-step drum machine. Tap squares, press play, and share
-            the link to send your loop.
-          </p>
-          <span class="go">Play Beats</span>
-        </div>
-      </a>
-      <a class="card felt" href="/physics/">
-        <div class="preview" aria-hidden="true">
-          <span class="wood top"></span>
-          <span class="wood bottom"></span>
-          <span class="block"></span>
-          <span class="disc"></span>
-          <span class="gem"></span>
-        </div>
-        <div class="copy">
-          <p class="status sand">In the browser</p>
-          <h2>Physics</h2>
-          <p>
-            A felt table for circles, boxes, and polygons. Throw them. Gravity,
-            bounce, and friction do the rest.
-          </p>
-          <span class="go">Play Physics</span>
-        </div>
-      </a>
-      <a class="card folio" href="/typing/">
-        <div class="preview" aria-hidden="true">
-          <span class="paper">
-            <span class="inkline a"></span>
-            <span class="inkline b"></span>
-            <span class="inkline c"></span>
-            <span class="caret"></span>
-          </span>
-        </div>
-        <div class="copy">
-          <p class="status keys">In the browser</p>
-          <h2>Typing</h2>
-          <p>
-            A timed desk. Type the words, watch the misses, and keep a local
-            best for 15, 30, or 60 seconds.
-          </p>
-          <span class="go">Play Typing</span>
-        </div>
-      </a>
-      <a class="card phone" href="/procursus/">
-        <div class="preview" aria-hidden="true">
-          <span class="ps1">mobile@iPhone ~ %</span>
-          <span class="typed">apt install cowsay</span>
-          <span class="typed dim">sileo</span>
-        </div>
-        <div class="copy">
-          <p class="status live">apt.procurs.us</p>
-          <h2>Procursus</h2>
-          <p>
-            The real Procursus archive, suite 3000. Sileo downloads those
-            packages and unpacks the real files.
-          </p>
-          <span class="go">Open Procursus</span>
-        </div>
-      </a>
-      <a class="card flare" href="/shellbox/">
-        <div class="preview" aria-hidden="true">
-          <span class="burst a"></span>
-          <span class="burst b"></span>
-          <span class="burst c"></span>
-        </div>
-        <div class="copy">
-          <p class="status desk">Local only</p>
-          <h2>Shellbox</h2>
-          <p>
-            Draws a Fireworks Mania show inside Garry's Mod. Run it locally from
-            <code>shellbox/</code>.
-          </p>
-          <span class="go">Open Shellbox</span>
-        </div>
-      </a>
-      <a class="card slate wide" href="/ios16/">
-        <div class="preview" aria-hidden="true">
-          <span class="handset"><span class="os">16</span></span>
-        </div>
-        <div class="copy">
-          <p class="status desk">Windows and Linux</p>
-          <h2>iOS 16</h2>
-          <p>
-            iOS 16.5 in QEMU. The lock screen and the home screen, on a
-            Windows PC or a Linux desktop.
-          </p>
-          <span class="go">Open iOS 16</span>
-        </div>
-      </a>
-    </main>
-    <footer>
-      <p>Install from the repo root with <code>npm install</code>, then <code>npm run dev:aetherwell</code>, <code>npm run dev:squishy</code>, <code>npm run dev:flappy</code>, <code>npm run dev:beats</code>, <code>npm run dev:pixel</code>, <code>npm run dev:physics</code>, <code>npm run dev:typing</code>, or <code>npm run dev:procursus</code>.</p>
-    </footer>
+        <ul class="facts">
+          <li><span>8</span> in the browser</li>
+          <li><span>2</span> on your machine</li>
+          <li><span>10</span> in this repo</li>
+        </ul>
+      </section>
+
+      <nav class="index" aria-label="Experiments">
+        <a href="/aetherwell/">Aetherwell</a>
+        <a href="/squishy/">Squishy</a>
+        <a href="/flappy/">Flappy</a>
+        <a href="/beats/">Beats</a>
+        <a href="/pixel/">Pixel</a>
+        <a href="/physics/">Physics</a>
+        <a href="/typing/">Typing</a>
+        <a href="/procursus/">Procursus</a>
+        <a href="/shellbox/">Shellbox</a>
+        <a href="/ios16/">iOS 16</a>
+      </nav>
+
+      <hr class="rule" />
+
+      <main id="experiments" class="bento">
+        <a class="card feature night" href="/aetherwell/">
+          <div class="preview" aria-hidden="true">
+            <span class="moon"></span>
+            <span class="well"></span>
+            <span class="shard a"></span>
+            <span class="shard b"></span>
+          </div>
+          <div class="copy">
+            <p class="status">Live</p>
+            <h2>Aetherwell</h2>
+            <p>
+              First-person twilight mesa. Jump the terraces, gather five
+              wellshards, walk back to the well, and wake it.
+            </p>
+            <span class="go">Play Aetherwell <span aria-hidden="true">→</span></span>
+          </div>
+        </a>
+
+        <a class="card ink" href="/pixel/">
+          <div class="preview" aria-hidden="true">
+            <span class="sprite"></span>
+          </div>
+          <div class="copy">
+            <p class="status">New on this site</p>
+            <h2>Pixel</h2>
+            <p>
+              A tiny 16 by 16 drawing toy with a retro palette, fill, mirror mode
+              and PNG export. The picture lives in the link, so you can share it.
+            </p>
+            <span class="go">Draw with Pixel <span aria-hidden="true">→</span></span>
+          </div>
+        </a>
+
+        <a class="card cream" href="/squishy/">
+          <div class="preview" aria-hidden="true">
+            <span class="table"></span>
+            <span class="dough"></span>
+          </div>
+          <div class="copy">
+            <p class="status">New on this site</p>
+            <h2>Squishy</h2>
+            <p>
+              Slow dough in the browser. Knead it, flatten it, and listen to a
+              squelch that only speaks while the body is moving.
+            </p>
+            <span class="go">Play Squishy <span aria-hidden="true">→</span></span>
+          </div>
+        </a>
+
+        <a class="card day" href="/flappy/">
+          <div class="preview" aria-hidden="true">
+            <span class="cloud"></span>
+            <span class="pipe up"></span>
+            <span class="pipe down"></span>
+            <span class="bird"></span>
+          </div>
+          <div class="copy">
+            <p class="status">In the browser</p>
+            <h2>Flappy</h2>
+            <p>
+              A round bird in a wide meadow. Flap through the pipes. The ground
+              is closer than it looks.
+            </p>
+            <span class="go">Play Flappy <span aria-hidden="true">→</span></span>
+          </div>
+        </a>
+
+        <a class="card night beats" href="/beats/">
+          <div class="preview" aria-hidden="true">
+            <span class="moon"></span>
+            <span class="pad"></span>
+          </div>
+          <div class="copy">
+            <p class="status">New on this site</p>
+            <h2>Beats</h2>
+            <p>
+              A sixteen-step drum machine. Tap squares, press play, and share
+              the link to send your loop.
+            </p>
+            <span class="go">Play Beats <span aria-hidden="true">→</span></span>
+          </div>
+        </a>
+
+        <a class="card felt" href="/physics/">
+          <div class="preview" aria-hidden="true">
+            <span class="wood top"></span>
+            <span class="wood bottom"></span>
+            <span class="block"></span>
+            <span class="disc"></span>
+            <span class="gem"></span>
+          </div>
+          <div class="copy">
+            <p class="status">In the browser</p>
+            <h2>Physics</h2>
+            <p>
+              A felt table for circles, boxes, and polygons. Throw them. Gravity,
+              bounce, and friction do the rest.
+            </p>
+            <span class="go">Play Physics <span aria-hidden="true">→</span></span>
+          </div>
+        </a>
+
+        <a class="card folio" href="/typing/">
+          <div class="preview" aria-hidden="true">
+            <span class="paper">
+              <span class="inkline a"></span>
+              <span class="inkline b"></span>
+              <span class="inkline c"></span>
+              <span class="caret"></span>
+            </span>
+          </div>
+          <div class="copy">
+            <p class="status">In the browser</p>
+            <h2>Typing</h2>
+            <p>
+              A timed desk. Type the words, watch the misses, and keep a local
+              best for 15, 30, or 60 seconds.
+            </p>
+            <span class="go">Play Typing <span aria-hidden="true">→</span></span>
+          </div>
+        </a>
+
+        <a class="card phone" href="/procursus/">
+          <div class="preview" aria-hidden="true">
+            <span class="ps1">mobile@iPhone ~ %</span>
+            <span class="typed">apt install cowsay</span>
+            <span class="typed dim">sileo</span>
+          </div>
+          <div class="copy">
+            <p class="status">apt.procurs.us</p>
+            <h2>Procursus</h2>
+            <p>
+              The real Procursus archive, suite 3000. Sileo downloads those
+              packages and unpacks the real files.
+            </p>
+            <span class="go">Open Procursus <span aria-hidden="true">→</span></span>
+          </div>
+        </a>
+
+        <a class="card flare" href="/shellbox/">
+          <div class="preview" aria-hidden="true">
+            <span class="burst a"></span>
+            <span class="burst b"></span>
+            <span class="burst c"></span>
+          </div>
+          <div class="copy">
+            <p class="status">Local only</p>
+            <h2>Shellbox</h2>
+            <p>
+              Draws a Fireworks Mania show inside Garry's Mod. Run it locally from
+              <code>shellbox/</code>.
+            </p>
+            <span class="go">Open Shellbox <span aria-hidden="true">→</span></span>
+          </div>
+        </a>
+
+        <a class="card band slate" href="/ios16/">
+          <div class="preview" aria-hidden="true">
+            <span class="handset"><span class="os">16</span></span>
+          </div>
+          <div class="copy">
+            <p class="status">Windows and Linux</p>
+            <h2>iOS 16</h2>
+            <p>
+              iOS 16.5 in QEMU. The lock screen and the home screen, on a
+              Windows PC or a Linux desktop.
+            </p>
+            <span class="go">Open iOS 16 <span aria-hidden="true">→</span></span>
+          </div>
+        </a>
+      </main>
+
+      <footer id="run">
+        <p class="mark">On your machine</p>
+        <p>Install from the repo root with <code>npm install</code>, then one of these:</p>
+        <ul>
+          <li><code>npm run dev:aetherwell</code></li>
+          <li><code>npm run dev:squishy</code></li>
+          <li><code>npm run dev:flappy</code></li>
+          <li><code>npm run dev:beats</code></li>
+          <li><code>npm run dev:pixel</code></li>
+          <li><code>npm run dev:physics</code></li>
+          <li><code>npm run dev:typing</code></li>
+          <li><code>npm run dev:procursus</code></li>
+        </ul>
+      </footer>
+    </div>
   </body>
 </html>
