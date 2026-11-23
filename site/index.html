@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#09080f" />
+    <meta name="color-scheme" content="dark" />
     <meta
       name="description"
       content="Experiments from the ai-lab repo. Eight run in the browser. Shellbox and iOS 16 run on your machine."
@@ -13,13 +14,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,640&family=Outfit:wght@380;500;620&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,500..720,20..80,0..1;1,9..144,480..640,30..60,1&family=Outfit:wght@340..640&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/home.css" />
   </head>
   <body class="home">
-    <div class="sky" aria-hidden="true"></div>
+    <div class="sky" aria-hidden="true">
+      <div class="mesh">
+        <div class="aurora"></div>
+      </div>
+      <div class="rays"></div>
+      <svg class="grain" xmlns="http://www.w3.org/2000/svg">
+        <filter id="grain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#grain)" />
+      </svg>
+    </div>
     <a class="skip" href="#experiments">Skip to experiments</a>
     <header class="top">
       <p class="word">
@@ -35,16 +48,23 @@
     <div class="wrap">
       <section class="hero">
         <div class="hero-grid">
-          <div>
+          <div class="hero-title">
             <p class="mark">Repository experiments</p>
             <h1>ai-lab</h1>
           </div>
-          <p class="lede">
-            Experiments from this repo. Aetherwell, Squishy, Flappy, Beats, Pixel,
-            Physics, Typing, and Procursus run in the browser. Shellbox draws a
-            Fireworks Mania show inside Garry's Mod and runs on your machine. iOS
-            16 is a virtual machine you start on Windows or Linux.
-          </p>
+          <div class="hero-aside">
+            <p class="lede">
+              Experiments from this repo. Aetherwell, Squishy, Flappy, Beats, Pixel,
+              Physics, Typing, and Procursus
+              <span class="hl">run in the browser</span>. Shellbox draws a
+              Fireworks Mania show inside Garry's Mod and runs on your machine. iOS
+              16 is a virtual machine you start on Windows or Linux.
+            </p>
+            <a class="jump-open" href="#catalog" data-jump aria-haspopup="dialog" aria-controls="jump">
+              <span>Jump to an experiment</span>
+              <kbd>/</kbd>
+            </a>
+          </div>
         </div>
         <ul class="facts">
           <li><span>8</span> in the browser</li>
@@ -53,17 +73,17 @@
         </ul>
       </section>
 
-      <nav class="index" aria-label="Experiments">
-        <a href="/aetherwell/">Aetherwell</a>
-        <a href="/squishy/">Squishy</a>
-        <a href="/flappy/">Flappy</a>
-        <a href="/beats/">Beats</a>
-        <a href="/pixel/">Pixel</a>
-        <a href="/physics/">Physics</a>
-        <a href="/typing/">Typing</a>
-        <a href="/procursus/">Procursus</a>
-        <a href="/shellbox/">Shellbox</a>
-        <a href="/ios16/">iOS 16</a>
+      <nav class="index" id="catalog" aria-label="Experiments">
+        <a href="/aetherwell/"><span class="n">01</span>Aetherwell</a>
+        <a href="/pixel/"><span class="n">02</span>Pixel</a>
+        <a href="/squishy/"><span class="n">03</span>Squishy</a>
+        <a href="/flappy/"><span class="n">04</span>Flappy</a>
+        <a href="/beats/"><span class="n">05</span>Beats</a>
+        <a href="/physics/"><span class="n">06</span>Physics</a>
+        <a href="/typing/"><span class="n">07</span>Typing</a>
+        <a href="/procursus/"><span class="n">08</span>Procursus</a>
+        <a href="/shellbox/"><span class="n">09</span>Shellbox</a>
+        <a href="/ios16/"><span class="n">10</span>iOS 16</a>
       </nav>
 
       <hr class="rule" />
@@ -84,10 +104,11 @@
               wellshards, walk back to the well, and wake it.
             </p>
             <span class="go">Play Aetherwell</span>
+            <span class="num" aria-hidden="true">01</span>
           </div>
         </a>
 
-        <a class="card ink" href="/pixel/">
+        <a class="card ink portrait" href="/pixel/">
           <div class="preview" aria-hidden="true">
             <span class="sprite"></span>
           </div>
@@ -99,6 +120,7 @@
               and PNG export. The picture lives in the link, so you can share it.
             </p>
             <span class="go">Draw with Pixel</span>
+            <span class="num" aria-hidden="true">02</span>
           </div>
         </a>
 
@@ -115,6 +137,7 @@
               squelch that only speaks while the body is moving.
             </p>
             <span class="go">Play Squishy</span>
+            <span class="num" aria-hidden="true">03</span>
           </div>
         </a>
 
@@ -133,12 +156,31 @@
               is closer than it looks.
             </p>
             <span class="go">Play Flappy</span>
+            <span class="num" aria-hidden="true">04</span>
           </div>
         </a>
 
         <a class="card night beats" href="/beats/">
           <div class="preview" aria-hidden="true">
             <span class="moon"></span>
+            <span class="pads">
+              <span class="pad on"></span>
+              <span class="pad"></span>
+              <span class="pad on"></span>
+              <span class="pad"></span>
+              <span class="pad on"></span>
+              <span class="pad"></span>
+              <span class="pad"></span>
+              <span class="pad on"></span>
+              <span class="pad"></span>
+              <span class="pad on"></span>
+              <span class="pad"></span>
+              <span class="pad"></span>
+              <span class="pad on"></span>
+              <span class="pad"></span>
+              <span class="pad"></span>
+              <span class="pad on"></span>
+            </span>
           </div>
           <div class="copy">
             <p class="status">In the browser</p>
@@ -148,10 +190,11 @@
               the link to send your loop.
             </p>
             <span class="go">Play Beats</span>
+            <span class="num" aria-hidden="true">05</span>
           </div>
         </a>
 
-        <a class="card felt" href="/physics/">
+        <a class="card felt wide" href="/physics/">
           <div class="preview" aria-hidden="true">
             <span class="wood top"></span>
             <span class="wood bottom"></span>
@@ -167,10 +210,11 @@
               bounce, and friction do the rest.
             </p>
             <span class="go">Play Physics</span>
+            <span class="num" aria-hidden="true">06</span>
           </div>
         </a>
 
-        <a class="card folio" href="/typing/">
+        <a class="card folio wide" href="/typing/">
           <div class="preview" aria-hidden="true">
             <span class="paper">
               <span class="inkline a"></span>
@@ -187,6 +231,7 @@
               best for 15, 30, or 60 seconds.
             </p>
             <span class="go">Play Typing</span>
+            <span class="num" aria-hidden="true">07</span>
           </div>
         </a>
 
@@ -204,6 +249,7 @@
               packages and unpacks the real files.
             </p>
             <span class="go">Open Procursus</span>
+            <span class="num" aria-hidden="true">08</span>
           </div>
         </a>
 
@@ -221,6 +267,7 @@
               <code>shellbox/</code>.
             </p>
             <span class="go">Open Shellbox</span>
+            <span class="num" aria-hidden="true">09</span>
           </div>
         </a>
 
@@ -236,6 +283,7 @@
               Windows PC or a Linux desktop.
             </p>
             <span class="go">Open iOS 16</span>
+            <span class="num" aria-hidden="true">10</span>
           </div>
         </a>
       </main>
@@ -255,6 +303,24 @@
         </ul>
       </footer>
     </div>
+
+    <dialog id="jump" class="jump" aria-labelledby="jump-title">
+      <p id="jump-title" class="mark">Jump</p>
+      <input id="jump-q" type="search" placeholder="Filter experiments" autocomplete="off" enterkeyhint="go" aria-label="Filter experiments" />
+      <ul id="jump-list">
+        <li><a href="/aetherwell/"><span>Aetherwell</span><small>Live</small></a></li>
+        <li><a href="/pixel/"><span>Pixel</span><small>In the browser</small></a></li>
+        <li><a href="/squishy/"><span>Squishy</span><small>In the browser</small></a></li>
+        <li><a href="/flappy/"><span>Flappy</span><small>In the browser</small></a></li>
+        <li><a href="/beats/"><span>Beats</span><small>In the browser</small></a></li>
+        <li><a href="/physics/"><span>Physics</span><small>In the browser</small></a></li>
+        <li><a href="/typing/"><span>Typing</span><small>In the browser</small></a></li>
+        <li><a href="/procursus/"><span>Procursus</span><small>apt.procurs.us</small></a></li>
+        <li><a href="/shellbox/"><span>Shellbox</span><small>Local only</small></a></li>
+        <li><a href="/ios16/"><span>iOS 16</span><small>Windows and Linux</small></a></li>
+      </ul>
+      <p class="jump-empty" hidden>Nothing matches.</p>
+    </dialog>
     <script src="/motion.js"></script>
   </body>
 </html>

@@ -4,6 +4,7 @@ import test from "node:test";
 
 const home = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const css = readFileSync(new URL("../home.css", import.meta.url), "utf8");
+const motion = readFileSync(new URL("../motion.js", import.meta.url), "utf8");
 
 const routes = [
   "/aetherwell/",
@@ -77,6 +78,18 @@ test("page motion stays off the drawings", () => {
 test("placebo stays off the dashboard", () => {
   assert.doesNotMatch(home, /placebo/i);
   assert.doesNotMatch(css, /placebo/i);
+  assert.doesNotMatch(motion, /placebo/i);
+});
+
+test("jump index lists every experiment", () => {
+  const dialog = home.slice(home.indexOf("<dialog"), home.indexOf("</dialog>"));
+  for (const href of routes) {
+    assert.ok(dialog.includes(`href="${href}"`), href);
+  }
+  assert.match(home, /data-jump/);
+  assert.match(css, /\.jump a[\s\S]*min-height:\s*44px/);
+  assert.match(motion, /showModal/);
+  assert.match(motion, /prefers-reduced-motion/);
 });
 
 test("detail pages still come home through the shared stylesheet", () => {
