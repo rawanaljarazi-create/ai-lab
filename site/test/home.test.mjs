@@ -41,6 +41,14 @@ test("homepage keeps the Procursus archive note and the local commands", () => {
   }
 });
 
+test("browser demos are not labeled as new", () => {
+  assert.doesNotMatch(home, /New on this site/);
+  for (const name of ["Pixel", "Squishy", "Flappy", "Beats", "Physics", "Typing"]) {
+    const card = home.slice(home.indexOf(`<h2>${name}</h2>`) - 80, home.indexOf(`<h2>${name}</h2>`));
+    assert.match(card, /In the browser/, name);
+  }
+});
+
 test("homepage is dark and sized for a phone", () => {
   assert.match(home, /viewport-fit=cover/);
   assert.match(home, /href="\/home\.css"/);
