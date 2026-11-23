@@ -108,7 +108,7 @@ function start() {
   log.replaceChildren();
   setLogProgress(0);
   setBootProgress(0);
-  const schedule = scheduleLog();
+  const schedule = scheduleLog(Math.random, { rootless: rootlessOn() });
   const total = totalMs(schedule);
   current = createRun({
     schedule,
@@ -138,6 +138,11 @@ for (const button of document.querySelectorAll(".switch")) {
     const on = button.getAttribute("aria-checked") === "true";
     button.setAttribute("aria-checked", on ? "false" : "true");
   });
+}
+
+function rootlessOn() {
+  const button = document.querySelector('[aria-labelledby="opt-rootless"]');
+  return button?.getAttribute("aria-checked") === "true";
 }
 
 go.addEventListener("click", start);

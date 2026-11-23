@@ -30,7 +30,7 @@ test("the page is a standalone phone screen", () => {
   assert.match(html, /<title>Newra1n<\/title>/);
   assert.match(html, /<h1>Newra1n<\/h1>/);
   assert.doesNotMatch(html, /Placebo/);
-  assert.match(html, />supported</);
+  assert.match(html, />Supported</);
   assert.doesNotMatch(main, /iOS \$\{/);
   assert.match(html, /27\.0\.1/);
   assert.match(html, /calif\.io/);
@@ -48,10 +48,10 @@ test("the shortcut query waits for the Jailbreak button", () => {
   assert.doesNotMatch(main, /wantsAuto|location\.search|setTimeout\(start/);
 });
 
-test("the options never change the script", () => {
-  assert.match(main, /scheduleLog\(\)/);
-  assert.match(main, /aria-checked/);
-  assert.doesNotMatch(main, /scheduleLog\([^)]+/);
+test("only the rootless switch changes the script", () => {
+  assert.match(main, /scheduleLog\(Math\.random, \{ rootless: rootlessOn\(\) \}\)/);
+  assert.match(main, /aria-labelledby="opt-rootless"/);
+  assert.doesNotMatch(main, /opt-tweaks|opt-sileo/);
 });
 
 test("the page does not touch the network, storage, or files", () => {
