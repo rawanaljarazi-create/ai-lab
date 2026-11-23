@@ -15,7 +15,7 @@ npm install
 | [`pixel/`](pixel) | A 16 by 16 drawing toy. Pen, fill, mirror, undo, and a picture you can share as a link. | `npm run dev:pixel` |
 | [`physics/`](physics) | A 2D felt table. Drop circles, boxes, and polygons, then throw them. | `npm run dev:physics` |
 | [`typing/`](typing) | Timed typing desk. Live WPM and accuracy, 15/30/60 second runs, a local best. | `npm run dev:typing` |
-| [`procursus/`](procursus) | Simulated rootless Procursus shell. Sileo installs packages through apt, in the browser only. | `npm run dev:procursus` |
+| [`procursus/`](procursus) | Rootless shell using the real Procursus suite 3000 archive. Sileo downloads those packages through apt. | `npm run dev:procursus` |
 | [`shellbox/`](shellbox) | Bridge that draws a Fireworks Mania show inside Garry's Mod. Windows + those two Steam games. | See [`shellbox/README.md`](shellbox/README.md) |
 | [`ios16/`](ios16) | iOS 16.5 in QEMU. The touch window is one Python app for Windows, Linux, and macOS. `Run.bat` does not start it. After boot: `bash ios16/touch/touch.sh` or `ios16\touch\touch.bat`. | See [`ios16/README.md`](ios16/README.md) |
 | [`site/`](site) | Dashboard that Vercel serves at `/`. | `npm run build:site` then `npm run preview:site` |

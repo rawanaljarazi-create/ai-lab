@@ -1,6 +1,24 @@
-import { CATALOG, debFileName, packageByName } from "./catalog.js";
+import { unpackDeb } from "./deb.js";
 import { countNodes, linkNode, logicalResolve, lookup, mkdirp, readFile, removePath, writeFile } from "./fs.js";
+import { debUrl, listPackages, packageByName, refreshIndex } from "./repo.js";
 import { DEVICE, LISTS_PATH, STATUS_PATH } from "./system.js";
+
+const LIST_DIR = "/var/jb/var/lib/dpkg/info";
+
+function archiveName(pkg) {
+  const file = pkg.filename?.split("/").pop();
+  return file || `${pkg.name}_${pkg.version}_iphoneos-arm64.deb`;
+}
+
+let debFetcher = async (pkg) => {
+  const response = await fetch(debUrl(pkg.filename));
+  if (!response.ok) throw new Error(`HTTP ${response.status} for ${pkg.filename}`);
+  return new Uint8Array(await response.arrayBuffer());
+};
+
+export function setDebFetcher(fetcher) {
+  debFetcher = fetcher;
+}
 
 export function renderStatus(names) {
   const blocks = [];
@@ -56,8 +74,19 @@ export function applyFiles(root, pkg) {
   }
 }
 
+function listPath(name) {
+  return `${LIST_DIR}/${name}.list`;
+}
+
+function rememberFiles(root, name, paths) {
+  writeFile(root, listPath(name), `${paths.join("\n")}\n`, { mode: 0o644, mtime: Date.now() });
+}
+
 export function removeFiles(root, pkg) {
-  for (const file of pkg.files) removePath(root, file.path, { force: true });
+  const listed = readFile(root, listPath(pkg.name));
+  const paths = listed.error ? pkg.files.map((file) => file.path) : listed.content.split("\n").filter(Boolean);
+  for (const path of paths) removePath(root, path, { force: true });
+  removePath(root, listPath(pkg.name), { force: true });
 }
 
 function human(bytes) {
@@ -75,18 +104,18 @@ export function planInstall(root, names) {
   const packages = [];
   const missing = [];
   const seen = new Set();
-  const visit = (name) => {
+  const visit = (name, required) => {
     if (seen.has(name)) return;
     seen.add(name);
     const pkg = packageByName(name);
     if (!pkg) {
-      missing.push(name);
+      if (required) missing.push(name);
       return;
     }
-    for (const dep of pkg.depends) visit(dep);
+    for (const dep of [...pkg.preDepends, ...pkg.depends]) visit(dep, false);
     if (!installed.has(name)) packages.push(pkg);
   };
-  for (const name of names) visit(name);
+  for (const name of names) visit(name, true);
   return { packages, missing, installed };
 }
 
@@ -100,9 +129,15 @@ function denied() {
   };
 }
 
-export function aptUpdate(root, options = {}) {
+export async function aptUpdate(root, options = {}) {
   if (!options.asRoot) return denied();
-  const body = CATALOG.map((pkg) =>
+  let warning = "";
+  try {
+    await refreshIndex();
+  } catch (error) {
+    warning = `W: Failed to fetch ${DEVICE.source}dists/${DEVICE.suite}/InRelease: ${error.message}\n`;
+  }
+  const body = listPackages().map((pkg) =>
     [
       `Package: ${pkg.name}`,
       `Version: ${pkg.version}`,
@@ -111,7 +146,7 @@ export function aptUpdate(root, options = {}) {
       `Installed-Size: ${pkg.installedSize}`,
       `Maintainer: ${pkg.maintainer}`,
       pkg.depends.length ? `Depends: ${pkg.depends.join(", ")}` : null,
-      `Filename: pool/main/${pkg.name[0]}/${pkg.name}/${debFileName(pkg)}`,
+      `Filename: ${pkg.filename || `pool/main/${pkg.name[0]}/${pkg.name}/${archiveName(pkg)}`}`,
       `Size: ${pkg.size}`,
       `Description: ${pkg.description}`,
       "",
@@ -121,20 +156,21 @@ export function aptUpdate(root, options = {}) {
   ).join("\n");
   writeFile(root, LISTS_PATH, body, { mode: 0o644, mtime: Date.now() });
   const stdout = [
+    warning.trimEnd(),
     `Get:1 ${DEVICE.source} ${DEVICE.suite} InRelease [4,096 B]`,
     `Get:2 ${DEVICE.source} ${DEVICE.suite}/main iphoneos-arm64 Packages [${human(body.length)}]`,
     `Fetched ${human(body.length + 4096)} in 0s (1,204 kB/s)`,
     "Reading package lists... Done",
     "Building dependency tree... Done",
-    "All packages are up to date.",
+    `${listPackages().length} packages from apt.procurs.us suite ${DEVICE.suite}.`,
     "",
-  ].join("\n");
+  ].filter((line) => line !== "").join("\n");
   return { code: 0, stdout, stderr: "", respring: false };
 }
 
 export function aptSearch(_root, query) {
   const needle = query.trim().toLowerCase();
-  const hits = CATALOG.filter((pkg) => {
+  const hits = listPackages().filter((pkg) => {
     if (!needle) return true;
     return (
       pkg.name.includes(needle) ||
@@ -150,7 +186,7 @@ export function aptSearch(_root, query) {
 
 export function aptList(root, options = {}) {
   const installed = readInstalled(root);
-  const rows = CATALOG.filter((pkg) => !options.installed || installed.has(pkg.name))
+  const rows = listPackages().filter((pkg) => !options.installed || installed.has(pkg.name))
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((pkg) => {
       const mark = installed.has(pkg.name) ? " [installed]" : "";
@@ -179,7 +215,7 @@ export function aptShow(root, name) {
   return { code: 0, stdout, stderr: "", respring: false };
 }
 
-export function aptInstall(root, names, options = {}) {
+export async function aptInstall(root, names, options = {}) {
   if (!options.asRoot) return denied();
   const requested = names.filter(Boolean);
   if (!requested.length) return { code: 1, stdout: "", stderr: "E: No packages specified\n", respring: false };
@@ -221,30 +257,37 @@ export function aptInstall(root, names, options = {}) {
   );
   plan.packages.forEach((pkg, index) => {
     lines.push(
-      `Get:${index + 1} ${DEVICE.source} ${DEVICE.suite}/main iphoneos-arm64 ${pkg.name} iphoneos-arm64 ${pkg.version} [${human(pkg.size)}]`,
+      `Get:${index + 1} ${DEVICE.source} ${DEVICE.suite}/main iphoneos-arm64 ${pkg.name} ${pkg.arch} ${pkg.version} [${human(pkg.size)}]`,
     );
   });
   lines.push(`Fetched ${human(bytes)} in 0s (612 kB/s)`);
   lines.push(databaseLine(root));
+  const installed = readInstalled(root);
+  let respring = false;
   for (const pkg of plan.packages) {
+    const archive = archiveName(pkg);
     lines.push(
       `Selecting previously unselected package ${pkg.name}.`,
-      `Preparing to unpack .../${debFileName(pkg)} ...`,
+      `Preparing to unpack .../${archive} ...`,
       `Unpacking ${pkg.name} (${pkg.version}) ...`,
     );
+    try {
+      const bytes = await debFetcher(pkg);
+      const paths = unpackDeb(root, bytes);
+      rememberFiles(root, pkg.name, paths);
+      if (paths.some((path) => path.includes("/MobileSubstrate/DynamicLibraries/") && path.endsWith(".dylib"))) respring = true;
+    } catch (error) {
+      return { code: 1, stdout: `${lines.join("\n")}\n`, stderr: `E: Failed to fetch ${pkg.filename || archive}: ${error.message}\n`, respring: false };
+    }
   }
   for (const pkg of plan.packages) lines.push(`Setting up ${pkg.name} (${pkg.version}) ...`);
-  const installed = readInstalled(root);
-  for (const pkg of plan.packages) {
-    applyFiles(root, pkg);
-    installed.set(pkg.name, { name: pkg.name, version: pkg.version });
-  }
+  for (const pkg of plan.packages) installed.set(pkg.name, { name: pkg.name, version: pkg.version });
   writeStatus(root, [...installed.keys()]);
   return {
     code: 0,
     stdout: `${lines.join("\n")}\n`,
     stderr: "",
-    respring: plan.packages.some((pkg) => pkg.respring),
+    respring,
   };
 }
 
@@ -293,13 +336,33 @@ export function aptRemove(root, names, options = {}) {
   };
 }
 
-export function aptDownload(root, cwd, name, options = {}) {
+export async function aptDownload(root, cwd, name, options = {}) {
   const pkg = packageByName(name);
   if (!pkg) return { code: 100, stdout: "", stderr: `E: Unable to locate package ${name}\n`, respring: false };
-  const path = logicalResolve(cwd, debFileName(pkg), options.home ?? "");
-  const body = `Package: ${pkg.name}\nVersion: ${pkg.version}\nArchitecture: ${pkg.arch}\n`;
-  const wrote = writeFile(root, path, body, { mode: 0o644, owner: options.owner ?? "mobile", group: "mobile", mtime: Date.now() });
-  if (wrote.error) return { code: 1, stdout: "", stderr: `E: Failed to write ${path}\n`, respring: false };
+  const path = logicalResolve(cwd, archiveName(pkg), options.home ?? "");
+  let bytes;
+  try {
+    bytes = await debFetcher(pkg);
+  } catch (error) {
+    return { code: 1, stdout: "", stderr: `E: Failed to fetch ${pkg.filename}: ${error.message}\n`, respring: false };
+  }
+  const parts = path.split("/").filter(Boolean);
+  const base = parts.pop();
+  mkdirp(root, `/${parts.join("/")}`);
+  const parent = lookup(root, `/${parts.join("/")}`, { followLast: true });
+  if (parent.error || parent.node.type !== "dir") return { code: 1, stdout: "", stderr: `E: Failed to write ${path}\n`, respring: false };
+  parent.node.children[base] = {
+    type: "file",
+    mode: 0o644,
+    owner: options.owner ?? "mobile",
+    group: "mobile",
+    mtime: Date.now(),
+    content: "",
+    size: bytes.length,
+    encoding: "binary",
+    bytes,
+    macho: false,
+  };
   return {
     code: 0,
     stdout: `Get:1 ${DEVICE.source} ${DEVICE.suite}/main iphoneos-arm64 ${pkg.name} iphoneos-arm64 ${pkg.version} [${human(pkg.size)}]\nFetched ${human(pkg.size)} in 0s (400 kB/s)\n`,
@@ -329,13 +392,15 @@ export function dpkgList(root) {
 export function dpkgInstall(root, cwd, filePath, options = {}) {
   if (!options.asRoot) return denied();
   const path = logicalResolve(cwd, filePath, options.home ?? "");
-  const file = readFile(root, path);
-  if (file.error) return { code: 1, stdout: "", stderr: `dpkg: error: cannot access archive '${filePath}': No such file or directory\n`, respring: false };
-  const name = /^Package: (.+)$/m.exec(file.content)?.[1];
-  const pkg = packageByName(name);
+  const found = lookup(root, path, { followLast: true });
+  if (found.error || found.node.type !== "file") return { code: 1, stdout: "", stderr: `dpkg: error: cannot access archive '${filePath}': No such file or directory\n`, respring: false };
+  const bytes = found.node.bytes;
+  if (!bytes) return { code: 1, stdout: "", stderr: `dpkg: error processing archive ${filePath}: archive is not a real deb\n`, respring: false };
+  const controlName = filePath.split("/").pop();
+  const pkg = listPackages().find((item) => archiveName(item) === controlName) ?? packageByName(controlName.split("_")[0]);
   if (!pkg) return { code: 1, stdout: "", stderr: `dpkg: error processing archive ${filePath}: package not in the Procursus index\n`, respring: false };
   const installed = readInstalled(root);
-  const missingDeps = pkg.depends.filter((dep) => !installed.has(dep));
+  const missingDeps = [...pkg.preDepends, ...pkg.depends].filter((dep) => packageByName(dep) && !installed.has(dep));
   if (missingDeps.length) {
     const lines = [`dpkg: dependency problems prevent configuration of ${pkg.name}:`];
     for (const dep of missingDeps) {
@@ -344,7 +409,13 @@ export function dpkgInstall(root, cwd, filePath, options = {}) {
     lines.push(`dpkg: error processing archive ${filePath}:\n dependency problems - leaving unconfigured`);
     return { code: 1, stdout: "", stderr: `${lines.join("\n")}\n`, respring: false };
   }
-  applyFiles(root, pkg);
+  let paths = [];
+  try {
+    paths = unpackDeb(root, bytes);
+  } catch (error) {
+    return { code: 1, stdout: "", stderr: `dpkg: error processing archive ${filePath}: ${error.message}\n`, respring: false };
+  }
+  rememberFiles(root, pkg.name, paths);
   installed.set(pkg.name, { name: pkg.name, version: pkg.version });
   writeStatus(root, [...installed.keys()]);
   const stdout = [
@@ -361,7 +432,7 @@ export function dpkgInstall(root, cwd, filePath, options = {}) {
 export function dpkgFiles(root, name) {
   const installed = readInstalled(root);
   if (!installed.has(name)) return { code: 1, stdout: "", stderr: `dpkg-query: package '${name}' is not installed\n`, respring: false };
-  const pkg = packageByName(name);
-  const paths = pkg?.files.map((file) => file.path) ?? [];
+  const listed = readFile(root, listPath(name));
+  const paths = listed.error ? [] : listed.content.split("\n").filter(Boolean);
   return { code: 0, stdout: paths.length ? `${paths.join("\n")}\n` : "", stderr: "", respring: false };
 }

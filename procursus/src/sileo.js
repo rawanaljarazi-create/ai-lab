@@ -1,5 +1,7 @@
 import { readInstalled } from "./apt.js";
-import { CATALOG, packageByName } from "./catalog.js";
+import { listPackages, packageByName } from "./repo.js";
+
+const FEATURED = ["cowsay", "sl", "htop", "neofetch", "git", "python3", "curl", "ldid", "zsh", "nano"];
 import { clearQueue, confirmQueue, queueInstall, queueRemove } from "./queue.js";
 import { DEVICE } from "./system.js";
 
@@ -87,8 +89,8 @@ export function mountSileo(root, session, hooks) {
   function body() {
     const top = view.stack[view.stack.length - 1];
     if (top?.kind === "detail") return detail(packageByName(top.name));
-    if (top?.kind === "installed") return list(CATALOG.filter((pkg) => readInstalled(session.fs).has(pkg.name)));
-    if (top?.kind === "all") return list(CATALOG);
+    if (top?.kind === "installed") return list(listPackages().filter((pkg) => readInstalled(session.fs).has(pkg.name)));
+    if (top?.kind === "all") return list(listPackages());
     if (view.tab === "featured") return featured();
     if (view.tab === "fresh") return fresh();
     if (view.tab === "sources") return sources();
@@ -97,7 +99,7 @@ export function mountSileo(root, session, hooks) {
   }
 
   function featured() {
-    const featuredPackages = CATALOG.filter((pkg) => pkg.featured);
+    const featuredPackages = FEATURED.map((name) => packageByName(name)).filter(Boolean);
     return `<section class="block">
       <p class="kicker">Procursus</p>
       <div class="banners">${featuredPackages.map(banner).join("")}</div>
@@ -107,13 +109,13 @@ export function mountSileo(root, session, hooks) {
   }
 
   function fresh() {
-    const rows = CATALOG.filter((pkg) => pkg.fresh);
+    const rows = listPackages().filter((pkg) => pkg.section === "Games").slice(0, 40);
     if (!rows.length) return `<p class="empty">There are no new packages indexed yet.</p>`;
     return `<div class="group">${rows.map((pkg) => packageRow(session, pkg)).join("")}</div>`;
   }
 
   function sources() {
-    const count = CATALOG.length;
+    const count = listPackages().length;
     return `<div class="group sources">
       <article class="source">
         ${icon("procursus")}
@@ -131,14 +133,14 @@ export function mountSileo(root, session, hooks) {
     return `<div class="group menu">
       <button data-act="updates"><span>Updates</span><em>0</em></button>
       <button data-act="installed"><span>Installed</span><em>${installed.size}</em></button>
-      <button data-act="all"><span>All Packages</span><em>${CATALOG.length}</em></button>
+      <button data-act="all"><span>All Packages</span><em>${listPackages().length}</em></button>
     </div>`;
   }
 
   function search() {
     const needle = view.query.trim().toLowerCase();
     const hits = needle
-      ? CATALOG.filter((pkg) =>
+      ? listPackages().filter((pkg) =>
         pkg.name.includes(needle) ||
         pkg.description.toLowerCase().includes(needle) ||
         pkg.author.toLowerCase().includes(needle))
@@ -222,7 +224,7 @@ export function mountSileo(root, session, hooks) {
       <button class="back" data-act="back" ${back}>Back</button>
       <h2>${esc(title())}</h2>
     </header>
-    <p class="sileo-warn">Not real Sileo. Confirm does not install anything on a device.</p>
+    <p class="sileo-warn">Packages are the Procursus suite 3000 archive from apt.procurs.us.</p>
     <div class="sileo-body">${body()}</div>
     <div class="queue-bar" ${count ? "" : "hidden"}>
       <div><strong>Queued</strong><span>${count} Package${count === 1 ? "" : "s"}</span></div>
@@ -283,7 +285,7 @@ export function mountSileo(root, session, hooks) {
     hooks.onChange();
   }
 
-  function act(button) {
+  async function act(button) {
     const action = button.dataset.act;
     const name = button.dataset.pkg;
     if (action === "back") {
@@ -334,7 +336,7 @@ export function mountSileo(root, session, hooks) {
     }
     if (action === "run") {
       const essential = session.queue.some((item) => item.action === "remove" && packageByName(item.name)?.essential);
-      const result = confirmQueue(session, { forceEssential: essential });
+      const result = await confirmQueue(session, { forceEssential: essential });
       view.log = `${result.stdout}${result.stderr}`.trim();
       view.error = result.code !== 0;
       view.respring = result.code === 0 && result.respring;
@@ -356,10 +358,10 @@ export function mountSileo(root, session, hooks) {
       return;
     }
     if (action === "refresh") {
-      hooks.onRefresh();
+      const result = await hooks.onRefresh();
       view.sheet = "log";
-      view.error = hooks.lastRefresh.code !== 0;
-      view.log = `${hooks.lastRefresh.stdout}${hooks.lastRefresh.stderr}`.trim();
+      view.error = result.code !== 0;
+      view.log = `${result.stdout}${result.stderr}`.trim();
       view.respring = false;
       refresh();
       return;

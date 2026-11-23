@@ -11,7 +11,7 @@ import {
   dpkgList,
   readInstalled,
 } from "./apt.js";
-import { CATALOG, debFileName, packageByName } from "./catalog.js";
+import { packageByName, packageCount } from "./repo.js";
 import {
   baseName,
   canWrite,
@@ -30,17 +30,11 @@ import { DEVICE, unameLine } from "./system.js";
 
 const BUILTINS = [
   "ls", "cd", "pwd", "cat", "echo", "touch", "mkdir", "rm", "mv", "cp",
-  "edit", "nano", "clear", "whoami", "id", "uname", "sw_vers", "neofetch",
-  "fastfetch", "ps", "top", "history", "which", "env", "export", "grep",
+  "edit", "nano", "clear", "whoami", "id", "uname", "sw_vers", "ps", "top",
+  "history", "which", "env", "export", "grep", "apt", "apt-get", "dpkg",
   "head", "tail", "wc", "man", "help", "exit", "reset-env", "sudo",
+  "uicache", "sbreload", "respring", "launchctl", "killall", "jbctl", "dopamine", "sileo", "open",
 ];
-
-const PATH_HANDLERS = new Set([
-  "apt", "apt-get", "dpkg", "cowsay", "sl", "htop", "vim", "git", "curl", "wget",
-  "python3", "ssh", "ldid", "uicache", "sbreload", "respring", "launchctl",
-  "killall", "jbctl", "dopamine", "sileo", "open", "less", "perl", "sed", "gzip",
-  "tar", "xz", "file", "openssl", "bash", "zsh", "sh",
-]);
 
 export function baseEnv(user) {
   const home = user === "root" ? "/var/root" : "/var/mobile";
@@ -49,7 +43,7 @@ export function baseEnv(user) {
     LOGNAME: user,
     HOME: home,
     SHELL: "/var/jb/usr/bin/zsh",
-    PATH: "/var/jb/usr/bin:/var/jb/bin:/var/jb/usr/sbin:/var/jb/sbin:/usr/bin:/bin:/usr/sbin:/sbin",
+    PATH: "/var/jb/usr/bin:/var/jb/usr/games:/var/jb/bin:/var/jb/usr/sbin:/var/jb/sbin:/usr/bin:/bin:/usr/sbin:/sbin",
     LANG: "en_US.UTF-8",
     TERM: "xterm-256color",
     TMPDIR: "/private/var/tmp",
@@ -91,9 +85,8 @@ export function bannerText(now = new Date()) {
     timeZone: "UTC",
   });
   return [
-    "NOT real Procursus.",
-    "This is a browser simulation. There is no phone, no bootstrap, and apt.procurs.us is never contacted.",
-    "",
+    `Procursus ${DEVICE.procursus} from ${DEVICE.source}`,
+    `${packageCount()} packages in the iphoneos-arm64 index.`,
     `Last login: ${stamp} UTC from 127.0.0.1`,
     `Procursus ${DEVICE.procursus} — rootless — Dopamine ${DEVICE.dopamine}`,
     `${DEVICE.product} · iOS ${DEVICE.productVersion} (${DEVICE.build}) · Darwin ${DEVICE.arch}`,
@@ -620,7 +613,7 @@ function cmdHelp() {
       "files:    ls cd pwd cat echo touch mkdir rm mv cp edit nano",
       "text:     grep head tail wc",
       "session:  clear whoami id uname sw_vers ps top history which env export",
-      "info:     neofetch fastfetch man help",
+      "info:     uname sw_vers man help",
       "packages: apt dpkg    (Sileo calls apt for you)",
       "device:   sudo uicache sbreload respring ldid launchctl killall jbctl dopamine",
       "other:    exit reset-env sileo",
@@ -653,7 +646,7 @@ function cmdExit(session) {
   return done("Connection to iPhone closed.\n", "", 0, { logout: true });
 }
 
-function cmdSudo(session, argv, stdin) {
+async function cmdSudo(session, argv, stdin) {
   let args = argv.slice(1);
   while (args.length) {
     if (args[0] === "-i" || args[0] === "-s") {
@@ -683,7 +676,7 @@ function cmdSudo(session, argv, stdin) {
   session.user = "root";
   session.env = { ...session.env, USER: "root", LOGNAME: "root", HOME: "/var/root" };
   try {
-    return runArgv(session, args, stdin);
+    return await runArgv(session, args, stdin);
   } finally {
     session.user = previous.user;
     session.env = previous.env;
@@ -696,15 +689,15 @@ function fromApt(aptResult, effects) {
   return done(aptResult.stdout, aptResult.stderr, aptResult.code, effects ?? null);
 }
 
-function cmdApt(session, argv) {
+async function cmdApt(session, argv) {
   const asRoot = session.user === "root";
   const flags = new Set(argv.filter((arg) => arg.startsWith("-")));
   const pos = argv.slice(1).filter((arg) => !arg.startsWith("-"));
   const sub = pos[0];
   if (!sub) return done(MAN.apt);
-  if (sub === "update") return fromApt(aptUpdate(session.fs, { asRoot }));
+  if (sub === "update") return fromApt(await aptUpdate(session.fs, { asRoot }));
   if (sub === "search") return fromApt(aptSearch(session.fs, pos.slice(1).join(" ")));
-  if (sub === "install") return fromApt(aptInstall(session.fs, pos.slice(1), { asRoot }));
+  if (sub === "install") return fromApt(await aptInstall(session.fs, pos.slice(1), { asRoot }));
   if (sub === "remove" || sub === "purge") {
     return fromApt(aptRemove(session.fs, pos.slice(1), { asRoot, forceEssential: flags.has("--force-remove-essential") }));
   }
@@ -712,9 +705,11 @@ function cmdApt(session, argv) {
   if (sub === "show") return fromApt(aptShow(session.fs, pos[1]));
   if (sub === "download") {
     if (!pos[1]) return done("", "E: No packages specified\n", 1);
-    const path = resolveUserPath(session, debFileName(packageByName(pos[1]) ?? { name: pos[1], version: "0" }));
+    const pkg = packageByName(pos[1]);
+    const archive = pkg?.filename?.split("/").pop() ?? `${pos[1]}.deb`;
+    const path = resolveUserPath(session, archive);
     if (!canWrite(session.fs, session.user, path)) return deny(`apt: ${session.cwd}`);
-    return fromApt(aptDownload(session.fs, session.cwd, pos[1], { home: session.env.HOME, owner: session.user }));
+    return fromApt(await aptDownload(session.fs, session.cwd, pos[1], { home: session.env.HOME, owner: session.user }));
   }
   return done("", `E: Invalid operation ${sub}\n`, 1);
 }
@@ -765,8 +760,20 @@ function wrapCow(message) {
   ].join("\n");
 }
 
-function cmdCowsay(argv, stdin) {
+function cmdCowsay(session, argv, stdin) {
   const message = argv.slice(1).join(" ") || stdin || "moo";
+  const cow = readFile(session.fs, "/var/jb/usr/share/cows/default.cow");
+  if (!cow.error && cow.content.includes("$the_cow")) {
+    const heredoc = /\$the_cow = <<"EOC";\n([\s\S]*?)\nEOC/.exec(cow.content);
+    const art = (heredoc?.[1] ?? "")
+      .replaceAll("$thoughts", "\\")
+      .replaceAll("$eyes", "oo")
+      .replaceAll("$tongue", "  ");
+    const lines = message.trim().split(/\s+/);
+    const text = lines.join(" ") || "moo";
+    const width = Math.max(text.length, 1);
+    return done(` ${"_".repeat(width + 2)}\n< ${text} >\n ${"-".repeat(width + 2)}\n${art}\n`);
+  }
   return done(wrapCow(message));
 }
 
@@ -939,7 +946,7 @@ function cmdKillall(argv) {
 
 function cmdJb(argv) {
   const lines = [
-    "NOT real. This status is not a jailbreak.",
+    `source: ${DEVICE.source} ${DEVICE.suite}`,
     `Dopamine ${DEVICE.dopamine}`,
     "jailbreak: active",
     "type: rootless",
@@ -960,48 +967,33 @@ function cmdOpen(argv) {
   return done("", `open: ${argv[1]}: unsupported simulated url\n`, 1);
 }
 
-function cmdGeneric(argv) {
+function execFile(session, argv, stdin) {
   const name = baseName(argv[0]);
-  const pkg = CATALOG.find((item) => item.files.some((file) => file.path.endsWith(`/${name}`)));
-  if (argv.includes("--version") || argv.includes("-V")) return done(`${name} (Procursus) ${pkg?.version ?? ""}\n`);
-  if (name === "less" && argv[1]) return null;
-  return done(`${name}: simulated ${name}. Try ${name} --version.\n`);
-}
-
-function runExternal(session, argv, stdin) {
-  const name = baseName(argv[0]);
-  if (name === "apt" || name === "apt-get") return cmdApt(session, ["apt", ...argv.slice(1)]);
-  if (name === "dpkg") return cmdDpkg(session, argv);
-  if (name === "cowsay") return cmdCowsay(argv, stdin);
-  if (name === "sl") return cmdSl();
-  if (name === "htop") return cmdHtop();
-  if (name === "vim") return cmdEdit(session, ["vim", ...argv.slice(1)]);
-  if (name === "git") return cmdGit(session, argv);
-  if (name === "curl") return cmdCurl(session, argv);
-  if (name === "wget") return cmdWget(argv);
-  if (name === "python3") return cmdPython(session, argv);
-  if (name === "ssh") return cmdSsh(argv);
-  if (name === "ldid") return cmdLdid(argv);
-  if (name === "uicache") return cmdUicache(session);
-  if (name === "sbreload") return done("sbreload: restarting SpringBoard\n", "", 0, { respring: true });
-  if (name === "respring") return done("respring: restarting SpringBoard\n", "", 0, { respring: true });
-  if (name === "launchctl") return cmdLaunchctl(session);
-  if (name === "killall") return cmdKillall(argv);
-  if (name === "jbctl" || name === "dopamine") return cmdJb(argv);
-  if (name === "sileo" || name === "open") return cmdOpen(argv);
+  const path = findInPath(session, argv[0]);
+  const found = lookup(session.fs, path, { followLast: true });
+  const node = found.node;
+  if (node?.macho || node?.encoding === "binary") {
+    return done("", `${name}: cannot execute binary file: Exec format error\n`, 126);
+  }
+  const text = node?.content ?? "";
+  if (name === "cowsay" || name === "cowthink") return cmdCowsay(session, argv, stdin);
   if (name === "less") {
     const file = argv.slice(1).find((arg) => !arg.startsWith("-"));
     if (file) return cmdCat(session, ["cat", file], stdin);
   }
-  if (name === "bash" || name === "zsh" || name === "sh") {
+  if ((name === "bash" || name === "zsh" || name === "sh") && text.startsWith("#!")) {
     const flag = argv.indexOf("-c");
     if (flag !== -1) return runLine(session, argv.slice(flag + 1).join(" "), { record: false });
     return done(`${name}: this session is already an interactive shell\n`);
   }
-  return cmdGeneric(argv);
+  if (text.startsWith("#!")) {
+    const interpreter = text.slice(2).split("\n")[0].trim().split(/\s+/)[0] || "interpreter";
+    return done("", `${name}: ${interpreter}: this browser cannot execute iphoneos binaries\n`, 126);
+  }
+  return done("", `${name}: cannot execute binary file: Exec format error\n`, 126);
 }
 
-function runArgv(session, argv, stdin) {
+async function runArgv(session, argv, stdin) {
   if (!argv.length) return done();
   const [name] = argv;
   if (name.includes("=") && argv.length === 1 && /^[A-Za-z_][A-Za-z0-9_]*=/.test(name)) {
@@ -1026,8 +1018,6 @@ function runArgv(session, argv, stdin) {
     if (name === "id") return cmdId(session);
     if (name === "uname") return cmdUname(argv);
     if (name === "sw_vers") return cmdSwVers(argv);
-    if (name === "neofetch") return cmdNeofetch(session);
-    if (name === "fastfetch") return cmdFastfetch(session);
     if (name === "ps") return cmdPs();
     if (name === "top") return cmdTop();
     if (name === "history") return cmdHistory(session);
@@ -1046,11 +1036,19 @@ function runArgv(session, argv, stdin) {
       return done("environment reset\n", "", 0, { reset: true, clear: true });
     }
     if (name === "sudo") return cmdSudo(session, argv, stdin);
+    if (name === "apt" || name === "apt-get") return cmdApt(session, ["apt", ...argv.slice(1)]);
+    if (name === "dpkg") return cmdDpkg(session, argv);
+    if (name === "uicache") return cmdUicache(session);
+    if (name === "sbreload") return done("sbreload: restarting SpringBoard\n", "", 0, { respring: true });
+    if (name === "respring") return done("respring: restarting SpringBoard\n", "", 0, { respring: true });
+    if (name === "launchctl") return cmdLaunchctl(session);
+    if (name === "killall") return cmdKillall(argv);
+    if (name === "jbctl" || name === "dopamine") return cmdJb(argv);
+    if (name === "sileo" || name === "open") return cmdOpen(argv);
   }
   const binary = findInPath(session, name);
   if (!binary) return done("", `zsh: command not found: ${name}\n`, 127);
-  if (PATH_HANDLERS.has(baseName(name)) || PATH_HANDLERS.has(baseName(binary))) return runExternal(session, argv, stdin);
-  return done(`${baseName(name)}: simulated binary\n`);
+  return execFile(session, argv, stdin);
 }
 
 function lex(line) {
@@ -1211,7 +1209,7 @@ function applyRedirect(session, command, stdout) {
   return { stdout: "", error: null };
 }
 
-export function runLine(session, line, options = {}) {
+export async function runLine(session, line, options = {}) {
   const trimmed = line.trim();
   if (!trimmed) return done();
   if (options.record !== false) {
@@ -1238,7 +1236,7 @@ export function runLine(session, line, options = {}) {
     let pipelineEffects = null;
     for (const command of item.pipe) {
       if (!command.argv.length) continue;
-      const result = runArgv(session, command.argv, stdin);
+      const result = await runArgv(session, command.argv, stdin);
       const redirected = applyRedirect(session, command, result.stdout);
       if (redirected.error) {
         pipelineCode = redirected.error.code;

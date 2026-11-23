@@ -14,13 +14,18 @@ export function dirNode(meta = {}) {
 }
 
 export function fileNode(content, meta = {}) {
+  const text = content == null ? "" : String(content);
   return {
     type: "file",
     mode: meta.mode ?? 0o644,
     owner: meta.owner ?? "root",
     group: meta.group ?? "wheel",
     mtime: meta.mtime ?? SEED_TIME,
-    content: String(content),
+    content: text,
+    size: meta.size ?? text.length,
+    encoding: meta.encoding ?? "utf8",
+    bytes: meta.bytes ?? null,
+    macho: meta.macho ?? false,
   };
 }
 
@@ -143,6 +148,10 @@ export function writeFile(root, logicalPath, content, meta = {}) {
     owner: meta.owner ?? existing?.owner ?? "root",
     group: meta.group ?? existing?.group ?? "wheel",
     mtime: meta.mtime ?? Date.now(),
+    size: meta.size,
+    encoding: meta.encoding,
+    bytes: meta.bytes,
+    macho: meta.macho,
   });
   return {};
 }
@@ -152,7 +161,7 @@ export function readFile(root, logicalPath) {
   if (found.error) return found;
   if (found.node.type === "dir") return { error: "EISDIR" };
   if (found.node.type !== "file") return { error: "EINVAL" };
-  return { content: found.node.content, node: found.node, realPath: found.realPath };
+  return { content: found.node.content ?? "", node: found.node, realPath: found.realPath };
 }
 
 export function removePath(root, logicalPath, options = {}) {
@@ -257,7 +266,7 @@ export function formatLsDate(ms, now = Date.now()) {
 
 export function formatLong(name, node) {
   const kind = node.type === "dir" ? "d" : node.type === "link" ? "l" : "-";
-  const size = node.type === "file" ? node.content.length : node.type === "link" ? node.target.length : 512;
+  const size = node.type === "file" ? (node.size ?? node.content?.length ?? 0) : node.type === "link" ? node.target.length : 512;
   const date = formatLsDate(node.mtime);
   const extra = node.type === "link" ? ` -> ${node.target}` : "";
   const owner = node.owner.padEnd(8, " ");
