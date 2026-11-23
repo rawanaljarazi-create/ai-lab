@@ -27,10 +27,13 @@ body {
 
 .sky {
   position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(130% 90% at 50% -10%, transparent 36%, #09080f 76%),
-    linear-gradient(180deg, #171526 0%, #09080f 58%);
+  top: -40vh;
+  right: 0;
+  bottom: -40vh;
+  left: 0;
+  background-color: #09080f;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' fill='none'%3E%3Ccircle fill='%23e8dfcf' fill-opacity='0.28' cx='2' cy='2' r='1'/%3E%3C/svg%3E");
+  background-size: 22px 22px;
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
@@ -39,8 +42,10 @@ body {
 .sky::before {
   content: "";
   position: absolute;
-  inset: -12% -8% auto;
-  height: 70%;
+  top: 40vh;
+  right: -8%;
+  left: -8%;
+  height: 70dvh;
   background:
     radial-gradient(ellipse 46% 42% at 16% 36%, rgba(106, 215, 196, 0.2), transparent 64%),
     radial-gradient(ellipse 38% 40% at 82% 12%, rgba(201, 178, 122, 0.16), transparent 62%),
