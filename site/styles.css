@@ -12,6 +12,7 @@ html,
 body {
   margin: 0;
   min-height: 100%;
+  background: #09080f;
 }
 
 body {
@@ -26,11 +27,12 @@ body {
 }
 
 .sky {
+  --sky-bleed: calc(40vh + env(safe-area-inset-top, 0px) + 16px);
   position: fixed;
-  top: -40vh;
-  right: 0;
-  bottom: -40vh;
-  left: 0;
+  top: calc(-1 * var(--sky-bleed));
+  right: calc(-1 * env(safe-area-inset-right, 0px) - 16px);
+  bottom: calc(-40vh - env(safe-area-inset-bottom, 0px) - 16px);
+  left: calc(-1 * env(safe-area-inset-left, 0px) - 16px);
   background-color: #09080f;
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' fill='none'%3E%3Ccircle fill='%23e8dfcf' fill-opacity='0.28' cx='2' cy='2' r='1'/%3E%3C/svg%3E");
   background-size: 22px 22px;
@@ -42,7 +44,7 @@ body {
 .sky::before {
   content: "";
   position: absolute;
-  top: 40vh;
+  top: var(--sky-bleed);
   right: -8%;
   left: -8%;
   height: 70dvh;
