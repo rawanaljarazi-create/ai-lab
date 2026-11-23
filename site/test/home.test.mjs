@@ -74,6 +74,11 @@ test("page motion stays off the drawings", () => {
   }
 });
 
+test("placebo stays off the dashboard", () => {
+  assert.doesNotMatch(home, /placebo/i);
+  assert.doesNotMatch(css, /placebo/i);
+});
+
 test("detail pages still come home through the shared stylesheet", () => {
   for (const page of ["ios16/index.html", "shellbox/index.html"]) {
     const html = readFileSync(new URL(`../${page}`, import.meta.url), "utf8");
