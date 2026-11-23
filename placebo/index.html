@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Placebo" />
+    <meta name="theme-color" content="#05060a" />
+    <meta name="description" content="Placebo" />
+    <title>Placebo</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23555ef0'/%3E%3Ccircle cx='16' cy='16' r='6' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body data-stage="landing">
+    <main id="app">
+      <section id="landing" class="stage">
+        <div class="hero">
+          <svg class="mark" viewBox="0 0 80 80" aria-hidden="true">
+            <defs>
+              <linearGradient id="mark-fill" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#b7c0ff" />
+                <stop offset="0.45" stop-color="#6d63ff" />
+                <stop offset="1" stop-color="#2a2f72" />
+              </linearGradient>
+            </defs>
+            <rect width="80" height="80" rx="22" fill="url(#mark-fill)" />
+            <circle cx="40" cy="40" r="14" fill="none" stroke="#fff" stroke-width="4" />
+            <circle cx="40" cy="40" r="4" fill="#fff" />
+          </svg>
+          <h1>Placebo</h1>
+          <p class="edition">27.0.1 · calif.io</p>
+          <p id="model" class="model">iPhone</p>
+          <p id="version" class="version" hidden></p>
+        </div>
+        <div class="panel">
+          <button id="go" class="jailbreak" type="button">Jailbreak</button>
+          <ul class="options" aria-label="Options">
+            <li>
+              <span id="opt-tweaks">Tweaks</span>
+              <button type="button" class="switch" role="switch" aria-checked="false" aria-labelledby="opt-tweaks">
+                <span class="knob"></span>
+              </button>
+            </li>
+            <li>
+              <span id="opt-sileo">Install Sileo</span>
+              <button type="button" class="switch" role="switch" aria-checked="false" aria-labelledby="opt-sileo">
+                <span class="knob"></span>
+              </button>
+            </li>
+            <li>
+              <span id="opt-rootless">Rootless</span>
+              <button type="button" class="switch" role="switch" aria-checked="true" aria-labelledby="opt-rootless">
+                <span class="knob"></span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="logstage" class="stage" hidden>
+        <header class="log-head">
+          <span class="mini" aria-hidden="true"></span>
+          <div>
+            <h2>Placebo</h2>
+            <p id="log-device">iPhone</p>
+          </div>
+        </header>
+        <div class="meter">
+          <div
+            id="bar"
+            class="bar"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            aria-label="Progress"
+          >
+            <span id="bar-fill"></span>
+          </div>
+          <p id="pct">0%</p>
+        </div>
+        <div id="log" class="log" aria-hidden="true"></div>
+      </section>
+
+      <section id="black" class="stage blackout" hidden></section>
+
+      <section id="boot" class="stage boot" hidden>
+        <svg class="boot-logo" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="20" fill="none" stroke="#fff" stroke-width="5" />
+          <circle cx="32" cy="32" r="5" fill="#fff" />
+        </svg>
+        <div
+          id="boot-bar"
+          class="boot-bar"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+          aria-label="Starting"
+        >
+          <span id="boot-fill"></span>
+        </div>
+      </section>
+
+      <section id="reveal" class="stage reveal" hidden>
+        <h1>Placebo jailbreak complete ✅</h1>
+        <p class="punch">0 Newra1ns were used. Your iPhone is exactly as it was. You've been pranked 🫵😂</p>
+        <button id="again" type="button">Run again</button>
+      </section>
+    </main>
+    <p id="live" class="sr" aria-live="polite"></p>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

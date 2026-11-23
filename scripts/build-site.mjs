@@ -23,6 +23,7 @@ run("npm", ["run", "build", "-w", "pixel", "--", "--base", "/pixel/"]);
 run("npm", ["run", "build", "-w", "physics", "--", "--base", "/physics/"]);
 run("npm", ["run", "build", "-w", "typing", "--", "--base", "/typing/"]);
 run("npm", ["run", "build", "-w", "procursus", "--", "--base", "/procursus/"]);
+run("npm", ["run", "build", "-w", "placebo", "--", "--base", "/placebo/"]);
 
 cpSync(join(root, "aetherwell/dist"), join(dist, "aetherwell"), { recursive: true });
 cpSync(join(root, "squishy/dist"), join(dist, "squishy"), { recursive: true });
@@ -32,3 +33,4 @@ cpSync(join(root, "pixel/dist"), join(dist, "pixel"), { recursive: true });
 cpSync(join(root, "physics/dist"), join(dist, "physics"), { recursive: true });
 cpSync(join(root, "typing/dist"), join(dist, "typing"), { recursive: true });
 cpSync(join(root, "procursus/dist"), join(dist, "procursus"), { recursive: true });
+cpSync(join(root, "placebo/dist"), join(dist, "placebo"), { recursive: true });
