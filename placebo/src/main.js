@@ -1,6 +1,6 @@
 import { deviceLabel } from "./device.js";
 import { scheduleLog, totalMs } from "./log.js";
-import { AUTO_MS, BOOT_MS, createRun, wantsAuto } from "./run.js";
+import { BOOT_MS, createRun } from "./run.js";
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -42,7 +42,6 @@ const liveText = {
 let clock = 0;
 let running = false;
 let current = null;
-let autoTimer = 0;
 
 function paint(node, fill, value, label) {
   const percent = Math.round(Math.max(0, Math.min(1, value)) * 100);
@@ -109,7 +108,6 @@ function handleStage(stage) {
 function start() {
   if (running) return;
   running = true;
-  clearTimeout(autoTimer);
   stopMotion();
   go.disabled = true;
   log.replaceChildren();
@@ -133,7 +131,6 @@ function reset() {
   current?.cancel();
   running = false;
   stopMotion();
-  clearTimeout(autoTimer);
   go.disabled = false;
   log.replaceChildren();
   setLogProgress(0);
@@ -150,7 +147,3 @@ for (const button of document.querySelectorAll(".switch")) {
 
 go.addEventListener("click", start);
 again.addEventListener("click", reset);
-
-if (wantsAuto(window.location.search)) {
-  autoTimer = window.setTimeout(start, AUTO_MS);
-}
