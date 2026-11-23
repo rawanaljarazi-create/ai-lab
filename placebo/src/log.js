@@ -1,5 +1,5 @@
 export const LOG_LINES = [
-  { kind: "info", text: "[*] Placebo 27.0.1 · calif.io", base: 450 },
+  { kind: "info", text: "[*] Newra1n 27.0.1 · calif.io", base: 450 },
   { kind: "info", text: "[*] Checking this device", base: 800 },
   { kind: "good", text: "[+] Supported environment", base: 600 },
   { kind: "info", text: "[*] Preparing a workspace", base: 700 },

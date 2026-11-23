@@ -36,7 +36,7 @@ const liveText = {
   log: "Running",
   black: "Rebooting",
   boot: "Rebooting",
-  reveal: "Placebo jailbreak complete",
+  reveal: "Newra1n jailbreak complete",
 };
 
 let clock = 0;

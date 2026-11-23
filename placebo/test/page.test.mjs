@@ -26,11 +26,13 @@ test("the page is a standalone phone screen", () => {
   assert.match(css, /position:\s*fixed/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(main, /prefers-reduced-motion/);
-  assert.match(html, /Placebo jailbreak complete/);
+  assert.match(html, /Newra1n jailbreak complete/);
+  assert.match(html, /<title>Newra1n<\/title>/);
+  assert.match(html, /<h1>Newra1n<\/h1>/);
+  assert.doesNotMatch(html, /Placebo/);
   assert.match(html, /27\.0\.1/);
   assert.match(html, /calif\.io/);
-  assert.match(html, /0 Newra1ns were used/);
-  assert.doesNotMatch(html, /exploit/i);
+  assert.match(html, /0 exploits were used/);
   assert.match(html, /You've been pranked/);
   assert.match(html, /Run again/);
   assert.match(html, />Jailbreak</);
