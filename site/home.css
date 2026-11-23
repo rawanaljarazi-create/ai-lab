@@ -306,12 +306,11 @@ h1 {
   font-style: italic;
   font-weight: 520;
   font-variation-settings: "opsz" 36, "SOFT" 50, "WONK" 1, "wght" 520;
-  background-image: linear-gradient(transparent 64%, rgba(201, 178, 122, 0.55) 0);
-  background-repeat: no-repeat;
-  background-position: left bottom;
-  background-size: 100% 100%;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.14em;
+  text-decoration-color: rgba(201, 178, 122, 0.9);
+  text-decoration-skip-ink: none;
   animation: wash 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
 }
 
@@ -1269,8 +1268,8 @@ dialog.jump {
 }
 
 @keyframes wash {
-  from { background-size: 0% 100%; }
-  to { background-size: 100% 100%; }
+  from { text-decoration-color: transparent; }
+  to { text-decoration-color: rgba(201, 178, 122, 0.9); }
 }
 
 @keyframes drift {
