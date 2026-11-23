@@ -32,7 +32,6 @@ function fitFrame() {
 }
 if (window.visualViewport) {
   visualViewport.addEventListener("resize", fitFrame);
-  visualViewport.addEventListener("scroll", fitFrame);
   fitFrame();
 }
 app.innerHTML = `
