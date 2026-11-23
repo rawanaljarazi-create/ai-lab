@@ -15,7 +15,8 @@ const linux =
 
 test("an iPhone user agent keeps the model and the dotted iOS version", () => {
   assert.deepEqual(parseDevice(iphone), { model: "iPhone", version: "18.1.1" });
-  assert.equal(deviceLabel(iphone).line, "iPhone · iOS 18.1.1");
+  assert.equal(deviceLabel(iphone).line, "iPhone · supported");
+  assert.doesNotMatch(deviceLabel(iphone).line, /18\.1\.1/);
 });
 
 test("an iPad user agent is not labeled as an iPhone", () => {
@@ -35,5 +36,5 @@ test("desktop user agents fall back to iPhone with no invented version", () => {
   assert.deepEqual(parseDevice(mac), { model: "iPhone", version: "" });
   assert.deepEqual(parseDevice(linux), { model: "iPhone", version: "" });
   assert.deepEqual(parseDevice(""), { model: "iPhone", version: "" });
-  assert.equal(deviceLabel(mac).line, "iPhone");
+  assert.equal(deviceLabel(mac).line, "iPhone · supported");
 });
