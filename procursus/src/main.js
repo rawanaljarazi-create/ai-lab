@@ -111,16 +111,21 @@ function paintPrompt() {
   prompt.innerHTML = `<span class="user">${esc(parts.user)}</span>@<span class="host">${esc(parts.host)}</span> <span class="cwd">${esc(parts.cwd)}</span> <span class="sigil">${esc(parts.sigil)}</span>`;
 }
 
+function scrollDown() {
+  const snap = () => {
+    screen.scrollTop = screen.scrollHeight;
+  };
+  snap();
+  requestAnimationFrame(() => requestAnimationFrame(snap));
+}
+
 function write(text, kind) {
   if (!text) return;
   const node = document.createElement("span");
   if (kind) node.className = kind;
   node.textContent = text;
   log.append(node);
-}
-
-function scrollDown() {
-  screen.scrollTop = screen.scrollHeight;
+  scrollDown();
 }
 
 function showBanner() {
