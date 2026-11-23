@@ -124,7 +124,7 @@ export function mountSileo(root, session, hooks) {
         <p class="ver">${count} packages · suite ${esc(DEVICE.suite)} · main</p>
       </article>
     </div>
-    <p class="fine">Not a real apt.procurs.us index. Refresh only rewrites the local package list.</p>
+    <p class="fine">Refresh downloads the live package index from apt.procurs.us.</p>
     <button class="wide" data-act="refresh">Refresh Sources</button>`;
   }
 
