@@ -41,6 +41,11 @@ test("the page is a standalone phone screen", () => {
   assert.match(html, />Rootless</);
 });
 
+test("the shortcut query waits for the Jailbreak button", () => {
+  assert.match(main, /go\.addEventListener\("click", start\)/);
+  assert.doesNotMatch(main, /wantsAuto|location\.search|setTimeout\(start/);
+});
+
 test("the options never change the script", () => {
   assert.match(main, /scheduleLog\(\)/);
   assert.match(main, /aria-checked/);

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createRun, wantsAuto } from "../src/run.js";
+import { createRun } from "../src/run.js";
 
 function clock() {
   let now = 0;
@@ -48,18 +48,6 @@ function runOf(schedule, timers, blackMs = 800, bootMs = 4200) {
   });
   return { run, stages, lines };
 }
-
-test("only the auto=1 query starts by itself", () => {
-  assert.equal(wantsAuto("?auto=1"), true);
-  assert.equal(wantsAuto("auto=1"), true);
-  assert.equal(wantsAuto("?auto=1&from=shortcut"), true);
-  assert.equal(wantsAuto("?from=shortcut&auto=1"), true);
-  assert.equal(wantsAuto("?auto=0"), false);
-  assert.equal(wantsAuto("?auto=true"), false);
-  assert.equal(wantsAuto("?AUTO=1"), false);
-  assert.equal(wantsAuto(""), false);
-  assert.equal(wantsAuto("?"), false);
-});
 
 test("a run shows the log, goes black, boots, then reveals", () => {
   const timers = clock();

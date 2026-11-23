@@ -1,11 +1,5 @@
-export const AUTO_MS = 1000;
 export const BLACK_MS = 800;
 export const BOOT_MS = 4200;
-
-export function wantsAuto(search) {
-  const query = String(search || "").replace(/^\?/, "");
-  return new URLSearchParams(query).get("auto") === "1";
-}
 
 export function createRun({
   schedule,
