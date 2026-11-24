@@ -1,5 +1,7 @@
 # ai-lab
 
+Weird search bug, will fix soon.
+
 A folder per experiment. The Vercel site is a dashboard: [Aetherwell](https://ai-lab-zeta-lyart.vercel.app/aetherwell/) is the mesa that was already live, and [Squishy](https://ai-lab-zeta-lyart.vercel.app/squishy/), [Flappy](https://ai-lab-zeta-lyart.vercel.app/flappy/), [Beats](https://ai-lab-zeta-lyart.vercel.app/beats/), [Pixel](https://ai-lab-zeta-lyart.vercel.app/pixel/), [Physics](https://ai-lab-zeta-lyart.vercel.app/physics/), [Typing](https://ai-lab-zeta-lyart.vercel.app/typing/), and [Procursus](https://ai-lab-zeta-lyart.vercel.app/procursus/) ship on that same site.
 
 ```bash
